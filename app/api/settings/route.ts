@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { validateRequest } from "@/lib/auth";
 import prisma from "@/lib/db";
-import { querySchema } from "@/lib/schema/settings";
+import { queryParamsSchema } from "@/lib/schema/settings";
 
 export async function GET(request: NextRequest) {
   try {
@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     const monthParam = request.nextUrl.searchParams.get("month") ?? "";
     const yearParam = request.nextUrl.searchParams.get("year") ?? "";
 
-    const result = querySchema.safeParse({
+    const result = queryParamsSchema.safeParse({
       month: Number(monthParam),
       year: Number(yearParam),
     });

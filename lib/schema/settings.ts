@@ -23,7 +23,7 @@ export const categorySchema = z.object({
   color: z.string().optional(),
 });
 
-export const querySchema = z.object({
+export const queryParamsSchema = z.object({
   month: z.number().int().min(1).max(12),
   year: z.number().int().min(2023),
 });
@@ -32,4 +32,4 @@ export type BudgetSchema = z.infer<typeof budgetSchema>;
 export type IncomeSchema = z.infer<typeof incomeSchema>;
 export type SettingsSchema = z.infer<typeof settingsSchema>;
 export type CategorySchema = z.infer<typeof categorySchema>;
-export type QuerySchema = z.infer<typeof querySchema>;
+export type QueryParamsSchema = z.infer<typeof queryParamsSchema>;

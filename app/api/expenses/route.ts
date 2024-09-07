@@ -1,6 +1,6 @@
 import { validateRequest } from "@/lib/auth";
 import prisma from "@/lib/db";
-import { expenseSchema, querySchema } from "@/lib/schema/expenses";
+import { expenseSchema, queryParamsSchema } from "@/lib/schema/expenses";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
@@ -70,7 +70,7 @@ export async function GET(request: NextRequest) {
     const monthParam = request.nextUrl.searchParams.get("month") ?? "";
     const yearParam = request.nextUrl.searchParams.get("year") ?? "";
 
-    const result = querySchema.safeParse({
+    const result = queryParamsSchema.safeParse({
       month: Number(monthParam),
       year: Number(yearParam),
     });

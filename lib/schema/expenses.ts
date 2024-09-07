@@ -24,11 +24,11 @@ export const updateExpenseSchema = z.object({
   isPaid: z.boolean().optional(),
 });
 
-export const querySchema = z.object({
+export const queryParamsSchema = z.object({
   month: z.number().int().min(1).max(12),
   year: z.number().int().min(2023),
 });
 
 export type ExpenseSchema = z.infer<typeof expenseSchema>;
 export type UpdateExpenseSchema = z.infer<typeof updateExpenseSchema>;
-export type QuerySchema = z.infer<typeof querySchema>;
+export type QueryParamsSchema = z.infer<typeof queryParamsSchema>;
