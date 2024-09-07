@@ -23,25 +23,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { amount, month } = result.data;
-
-    const date = new Date(month);
-    const monthInt = date.getUTCMonth() + 1;
-    const yearInt = date.getUTCFullYear();
+    const { amount, month, year } = result.data;
 
     const upsertedBudget = await prisma.monthlyBudget.upsert({
       where: {
         userId_month_year: {
           userId: user.id,
-          month: monthInt,
-          year: yearInt,
+          month: month,
+          year: year,
         },
       },
       create: {
         userId: user.id,
         amount,
-        month: monthInt,
-        year: yearInt,
+        month: month,
+        year: year,
       },
       update: {
         amount,
@@ -53,7 +49,7 @@ export async function POST(request: NextRequest) {
       { status: 200 },
     );
   } catch (error) {
-    console.error("Error during upsert:", error);
+    console.error(error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 },

@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(category, { status: 200 });
   } catch (error) {
-    console.error("Error during category upsert:", error);
+    console.error(error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 },

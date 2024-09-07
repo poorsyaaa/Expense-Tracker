@@ -21,6 +21,7 @@ model User {
   monthlyBudget    MonthlyBudget[]
   income           MonthlyIncome[]
   settingsDefaults SettingsDefaults?
+  expense          Expense[]
 
   createdAt DateTime @default(now())
 
@@ -52,12 +53,13 @@ model SettingsDefaults {
 }
 
 model Category {
-  id     String  @id @default(uuid())
-  name   String
-  icon   String?
-  color  String?
-  userId String
-  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id      String    @id @default(uuid())
+  name    String
+  icon    String?
+  color   String?
+  userId  String
+  user    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expense Expense[]
 
   createdAt DateTime @default(now())
 
@@ -94,4 +96,25 @@ model MonthlyIncome {
   @@unique([userId, month, year])
   @@index([userId, month, year])
   @@map("monthly_incomes")
+}
+
+model Expense {
+  id          String    @id @default(uuid())
+  description String?
+  amount      Float
+  categoryId  String
+  category    Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recurring   Boolean
+  frequency   String? //Daily, Weekly, Monthly, Yearly
+  startDate   DateTime
+  endDate     DateTime?
+  dueDate     DateTime?
+  isPaid      Boolean
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, categoryId])
+  @@map("expenses")
 }
