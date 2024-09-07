@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "format": "prettier --write . --ignore-path .gitignore && eslint . --fix --ignore-path .gitignore"
+    "format": "prettier --write . --ignore-path .gitignore && eslint . --fix --ignore-path .gitignore",
+    "setup": "bash ./setup.sh"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
@@ -19,6 +20,8 @@
     "@radix-ui/react-icons": "^1.3.0",
     "@radix-ui/react-label": "^2.1.0",
     "@radix-ui/react-slot": "^1.1.0",
+    "@tanstack/react-query": "^5.55.0",
+    "@tanstack/react-query-devtools": "^5.55.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "expense-tracker": "file:",
