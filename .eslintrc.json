@@ -1,0 +1,20 @@
+{
+  "extends": [
+    "next/core-web-vitals",
+    "next/typescript",
+    "prettier" // Disable ESLint rules that conflict with Prettier
+  ],
+  "plugins": [
+    "prettier", // Add Prettier as an ESLint plugin
+    "simple-import-sort"
+  ],
+  "rules": {},
+  "overrides": [
+    {
+      "files": ["*.ts", "*.tsx"],
+      "rules": {
+        // Add TypeScript-specific linting rules if necessary
+      }
+    }
+  ]
+}

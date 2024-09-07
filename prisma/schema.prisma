@@ -1,0 +1,97 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String            @id @default(uuid())
+  username         String            @unique
+  displayName      String
+  email            String?           @unique
+  passwordHash     String
+  googleId         String?           @unique
+  avatarUrl        String?
+  bio              String?
+  session          Session[]
+  category         Category[]
+  monthlyBudget    MonthlyBudget[]
+  income           MonthlyIncome[]
+  settingsDefaults SettingsDefaults?
+
+  createdAt DateTime @default(now())
+
+  @@map("users")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt    DateTime
+  sessionToken String?  @unique
+  createdAt    DateTime @default(now())
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+model SettingsDefaults {
+  id            String @id @default(uuid())
+  defaultBudget Float
+  defaultIncome Float
+  userId        String @unique
+  user          User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@map("settings_defaults")
+}
+
+model Category {
+  id     String  @id @default(uuid())
+  name   String
+  icon   String?
+  color  String?
+  userId String
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, name])
+  @@index([userId])
+  @@map("categories")
+}
+
+model MonthlyBudget {
+  id     String @id @default(uuid())
+  amount Float
+  month  Int
+  year   Int
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, month, year])
+  @@index([userId, month, year])
+  @@map("monthly_budgets")
+}
+
+model MonthlyIncome {
+  id     String @id @default(uuid())
+  amount Float
+  month  Int
+  year   Int
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, month, year])
+  @@index([userId, month, year])
+  @@map("monthly_incomes")
+}
