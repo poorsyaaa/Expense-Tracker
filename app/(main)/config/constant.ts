@@ -1,22 +1,18 @@
 export const navLinks = [
   {
     name: "Dashboard",
-    href: "/dashboard",
+    href: "/",
   },
   {
     name: "Expenses",
     href: "/expenses",
   },
   {
-    name: "Income",
-    href: "/income",
-  },
-  {
-    name: "Budgets",
-    href: "/budgets",
-  },
-  {
     name: "Reports",
     href: "/reports",
+  },
+  {
+    name: "Settings",
+    href: "/settings",
   },
 ];

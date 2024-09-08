@@ -1,10 +1,10 @@
 "use client";
 
 import { Menu, PiggyBank } from "lucide-react";
-import Link from "next/link";
+import { useRouter } from "next/navigation"; // Import useRouter
+import Link from "next/link"; // Import Link for prefetching
 
 import { navLinks } from "../config/constant";
-
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 interface MobileMenuProps {
@@ -16,6 +16,12 @@ export const UserMobileMenu: React.FC<MobileMenuProps> = ({
   companyName = "Expense Tracker App",
   companyIcon,
 }) => {
+  const router = useRouter();
+
+  const handleNavigation = (path: string) => {
+    router.push(path);
+  };
+
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -26,10 +32,7 @@ export const UserMobileMenu: React.FC<MobileMenuProps> = ({
       </SheetTrigger>
       <SheetContent side="left">
         <nav className="grid gap-6 text-lg font-medium">
-          <Link
-            href="#"
-            className="flex items-center gap-2 text-lg font-semibold"
-          >
+          <Link href="/" onClick={() => handleNavigation("/")} passHref>
             {companyIcon || <PiggyBank className="h-6 w-6" />}
             <span className="sr-only">{companyName}</span>
           </Link>
@@ -37,7 +40,8 @@ export const UserMobileMenu: React.FC<MobileMenuProps> = ({
             <Link
               key={link.name}
               href={link.href}
-              className="text-muted-foreground hover:text-foreground"
+              onClick={() => handleNavigation(link.href)}
+              passHref
             >
               {link.name}
             </Link>
