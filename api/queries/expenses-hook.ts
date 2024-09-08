@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getExpenseById, getExpenses } from "../services/expensesServices";
+import { getExpenseById, getExpenses } from "../services/expenses-services";
 import { QueryParamsSchema } from "@/lib/schema/expenses";
 
 export const useGetExpensesByDate = (queryParams: QueryParamsSchema) => {

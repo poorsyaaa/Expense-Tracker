@@ -6,6 +6,7 @@ import "../globals.css";
 
 import SessionProvider from "@/context/sessionContext";
 import { validateRequest } from "@/lib/auth";
+import SettingsProvider from "@/context/settingsContext";
 
 export default async function Layout({
   children,
@@ -18,8 +19,10 @@ export default async function Layout({
 
   return (
     <SessionProvider value={session}>
-      <Header />
-      <main className="flex min-h-screen w-full flex-col">{children}</main>
+      <SettingsProvider>
+        <Header />
+        <main className="flex min-h-screen w-full flex-col">{children}</main>
+      </SettingsProvider>
     </SessionProvider>
   );
 }

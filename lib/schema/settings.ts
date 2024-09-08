@@ -24,8 +24,8 @@ export const categorySchema = z.object({
 });
 
 export const queryParamsSchema = z.object({
-  month: z.number().int().min(1).max(12),
-  year: z.number().int().min(2023),
+  month: z.number().int().min(1).max(12).optional(),
+  year: z.number().int().min(2023).optional(),
 });
 
 export type BudgetSchema = z.infer<typeof budgetSchema>;

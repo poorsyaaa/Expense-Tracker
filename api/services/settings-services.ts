@@ -7,13 +7,14 @@ import {
   SettingsSchema,
 } from "@/lib/schema/settings";
 import { DefaultOptions } from "../types";
+import { SettingsResponse } from "../types/settings";
 
 export const getSettings = async (
   options: DefaultOptions<QueryParamsSchema, never, never>,
 ) => {
   const { endpoint, queryParams, signal } = options;
 
-  const response = await axiosInstance.get(endpoint, {
+  const response = await axiosInstance.get<SettingsResponse>(endpoint, {
     params: queryParams,
     signal,
   });

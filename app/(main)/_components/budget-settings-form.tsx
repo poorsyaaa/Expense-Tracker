@@ -22,7 +22,7 @@ import { Loader2 } from "lucide-react";
 import {
   useCreateOrUpdateMonthlyBudget,
   useCreateOrUpdateMonthlyIncome,
-} from "@/api/mutations/settingsHook";
+} from "@/api/mutations/settings-hook";
 import {
   Card,
   CardContent,
@@ -31,8 +31,24 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  SelectContent,
+  SelectTrigger,
+  SelectItem,
+  SelectValue,
+  Select,
+} from "@/components/ui/select";
+import { months, years } from "../config/constant";
 
-const BudgetSettingsForm = () => {
+interface BudgetSettingsFormProps {
+  defaultBudget?: number;
+  defaultIncome?: number;
+}
+
+const BudgetSettingsForm: React.FC<BudgetSettingsFormProps> = ({
+  defaultBudget = 0,
+  defaultIncome = 0,
+}) => {
   const { mutate: mutateBudget, isPending: isPendingBudget } =
     useCreateOrUpdateMonthlyBudget();
   const { mutate: mutateIncome, isPending: isPendingIncome } =
@@ -40,12 +56,12 @@ const BudgetSettingsForm = () => {
 
   const budgetForm = useForm<BudgetSchema>({
     resolver: zodResolver(budgetSchema),
-    defaultValues: { amount: 0, month: 1, year: 2023 },
+    defaultValues: { amount: defaultBudget, month: 1, year: 2024 },
   });
 
   const incomeForm = useForm<IncomeSchema>({
     resolver: zodResolver(incomeSchema),
-    defaultValues: { amount: 0, month: 1, year: 2023 },
+    defaultValues: { amount: defaultIncome, month: 1, year: 2024 },
   });
 
   const onSubmitBudget = (data: BudgetSchema) => {
@@ -102,20 +118,26 @@ const BudgetSettingsForm = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Month</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        {...field}
-                        value={field.value ?? 0}
-                        inputMode="numeric"
-                        placeholder="Enter month"
-                        onChange={(e) => {
-                          if (e.target.value === "")
-                            return field.onChange(undefined);
-                          field.onChange(Number(e.target.value));
-                        }}
-                      />
-                    </FormControl>
+                    <Select
+                      onValueChange={(value) => {
+                        if (value === "") return field.onChange(undefined);
+                        field.onChange(Number(value));
+                      }}
+                      value={field.value.toString()}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select month" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {months.map(({ label, value }) => (
+                          <SelectItem key={value} value={value.toString()}>
+                            {label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -126,20 +148,26 @@ const BudgetSettingsForm = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Year</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        {...field}
-                        value={field.value ?? 0}
-                        inputMode="numeric"
-                        placeholder="Enter year"
-                        onChange={(e) => {
-                          if (e.target.value === "")
-                            return field.onChange(undefined);
-                          field.onChange(Number(e.target.value));
-                        }}
-                      />
-                    </FormControl>
+                    <Select
+                      onValueChange={(value) => {
+                        if (value === "") return field.onChange(undefined);
+                        field.onChange(Number(value));
+                      }}
+                      value={field.value.toString()}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select year" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {years.map((value) => (
+                          <SelectItem key={value} value={value.toString()}>
+                            {value}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -198,20 +226,26 @@ const BudgetSettingsForm = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Month</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        {...field}
-                        value={field.value ?? 0}
-                        inputMode="numeric"
-                        placeholder="Enter month"
-                        onChange={(e) => {
-                          if (e.target.value === "")
-                            return field.onChange(undefined);
-                          field.onChange(Number(e.target.value));
-                        }}
-                      />
-                    </FormControl>
+                    <Select
+                      onValueChange={(value) => {
+                        if (value === "") return field.onChange(undefined);
+                        field.onChange(Number(value));
+                      }}
+                      value={field.value.toString()}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select month" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {months.map(({ label, value }) => (
+                          <SelectItem key={value} value={value.toString()}>
+                            {label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -222,20 +256,26 @@ const BudgetSettingsForm = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Year</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        {...field}
-                        value={field.value ?? 0}
-                        inputMode="numeric"
-                        placeholder="Enter year"
-                        onChange={(e) => {
-                          if (e.target.value === "")
-                            return field.onChange(undefined);
-                          field.onChange(Number(e.target.value));
-                        }}
-                      />
-                    </FormControl>
+                    <Select
+                      onValueChange={(value) => {
+                        if (value === "") return field.onChange(undefined);
+                        field.onChange(Number(value));
+                      }}
+                      value={field.value.toString()}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select year" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {years.map((value) => (
+                          <SelectItem key={value} value={value.toString()}>
+                            {value}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}

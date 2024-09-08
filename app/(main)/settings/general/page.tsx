@@ -1,7 +1,10 @@
 "use client";
 
+import { useSettings } from "@/context/settingsContext";
 import GeneralSettingsForm from "../../_components/general-settings-form";
 
 export default function Page() {
-  return <GeneralSettingsForm />;
+  const { default_settings } = useSettings();
+
+  return <GeneralSettingsForm {...default_settings} />;
 }

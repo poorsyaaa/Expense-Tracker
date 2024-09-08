@@ -4,7 +4,7 @@ import {
   createOrUpdateMonthlyBudget,
   createOrUpdateMonthlyIncome,
   createOrUpdateSettings,
-} from "../services/settingsServices";
+} from "../services/settings-services";
 
 export const useCreateOrUpdateSettings = () => {
   return useMutation({

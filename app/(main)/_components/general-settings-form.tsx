@@ -13,7 +13,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Loader2 } from "lucide-react";
-import { useCreateOrUpdateSettings } from "@/api/mutations/settingsHook";
+import { useCreateOrUpdateSettings } from "@/api/mutations/settings-hook";
 import {
   Card,
   CardContent,
@@ -23,11 +23,22 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-const GeneralSettingsForm = () => {
+interface GeneralSettingsFormProps {
+  defaultBudget?: number;
+  defaultIncome?: number;
+}
+
+const GeneralSettingsForm: React.FC<GeneralSettingsFormProps> = ({
+  defaultBudget = 0,
+  defaultIncome = 0,
+}) => {
   const { mutate, isPending } = useCreateOrUpdateSettings();
   const form = useForm<SettingsSchema>({
     resolver: zodResolver(settingsSchema),
-    defaultValues: { defaultBudget: 0, defaultIncome: 0 },
+    defaultValues: {
+      defaultBudget,
+      defaultIncome,
+    },
   });
 
   const onSubmit = (data: SettingsSchema) => {

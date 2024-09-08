@@ -3,7 +3,7 @@ import {
   createExpense,
   deleteExpense,
   updateExpense,
-} from "../services/expensesServices";
+} from "../services/expenses-services";
 
 export const useCreateExpense = () => {
   return useMutation({

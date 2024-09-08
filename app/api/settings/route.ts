@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-
 import { validateRequest } from "@/lib/auth";
 import prisma from "@/lib/db";
 import { queryParamsSchema } from "@/lib/schema/settings";
@@ -7,17 +6,15 @@ import { queryParamsSchema } from "@/lib/schema/settings";
 export async function GET(request: NextRequest) {
   try {
     const { user } = await validateRequest();
-
-    if (!user) {
+    if (!user)
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
 
-    const monthParam = request.nextUrl.searchParams.get("month") ?? "";
-    const yearParam = request.nextUrl.searchParams.get("year") ?? "";
+    const month = request.nextUrl.searchParams.get("month");
+    const year = request.nextUrl.searchParams.get("year");
 
     const result = queryParamsSchema.safeParse({
-      month: Number(monthParam),
-      year: Number(yearParam),
+      month: month ? Number(month) : undefined, // If month is missing, set it as undefined
+      year: year ? Number(year) : undefined, // If year is missing, set it as undefined
     });
 
     if (!result.success) {
@@ -27,39 +24,47 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const { month, year } = result.data;
+    const { month: parsedMonth, year: parsedYear } = result.data;
 
-    const settingsDefaults = await prisma.settingsDefaults.findUnique({
-      where: { userId: user.id },
-    });
+    const [
+      settingsDefaultsResult,
+      categoriesResult,
+      monthlyBudgetResult,
+      incomeResult,
+    ] = await Promise.allSettled([
+      prisma.settingsDefaults.findUnique({ where: { userId: user.id } }),
+      prisma.category.findMany({ where: { userId: user.id } }),
+      parsedMonth && parsedYear
+        ? prisma.monthlyBudget.findFirst({
+            where: { userId: user.id, month: parsedMonth, year: parsedYear },
+          })
+        : prisma.monthlyBudget.findMany({ where: { userId: user.id } }),
+      parsedMonth && parsedYear
+        ? prisma.monthlyIncome.findFirst({
+            where: { userId: user.id, month: parsedMonth, year: parsedYear },
+          })
+        : prisma.monthlyIncome.findMany({ where: { userId: user.id } }),
+    ]);
 
-    const categories = await prisma.category.findMany({
-      where: { userId: user.id },
-    });
-
-    const monthlyBudget = await prisma.monthlyBudget.findFirst({
-      where: {
-        userId: user.id,
-        month: month,
-        year: year,
-      },
-    });
-
-    // Fetch the income for the given month and year
-    const income = await prisma.monthlyIncome.findFirst({
-      where: {
-        userId: user.id,
-        month: month,
-        year: year,
-      },
-    });
+    const settingsDefaults =
+      settingsDefaultsResult.status === "fulfilled"
+        ? settingsDefaultsResult.value
+        : null;
+    const categories =
+      categoriesResult.status === "fulfilled" ? categoriesResult.value : [];
+    const monthlyBudget =
+      monthlyBudgetResult.status === "fulfilled"
+        ? monthlyBudgetResult.value
+        : [];
+    const monthlyIncome =
+      incomeResult.status === "fulfilled" ? incomeResult.value : [];
 
     return NextResponse.json(
       {
-        settingsDefaults,
+        default_settings: settingsDefaults,
         categories,
-        monthlyBudget,
-        income,
+        monthly_budgets: monthlyBudget,
+        monthly_incomes: monthlyIncome,
       },
       { status: 200 },
     );
