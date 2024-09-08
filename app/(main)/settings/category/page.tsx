@@ -49,8 +49,8 @@ export default function Page() {
     setOpenDialog(true);
   };
 
-  const handleDialogClose = () => {
-    queryClient.invalidateQueries({ queryKey: ["settings"] });
+  const handleDialogClose = (invalidate: boolean = false) => {
+    if (invalidate) queryClient.invalidateQueries({ queryKey: ["settings"] });
     setOpenDialog(false);
   };
 
@@ -91,7 +91,7 @@ export default function Page() {
               handleDeleteCategory,
               deletingCategoryId,
             )}
-            data={categories || []}
+            data={categories ?? []}
             isLoading={isLoading}
             emptyDisplay={
               <div className="flex flex-col items-center py-10">

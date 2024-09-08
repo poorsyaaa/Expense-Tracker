@@ -32,7 +32,7 @@ export const createOrUpdateSettings = async (
   return response.data;
 };
 
-export const createOrUpdateMonthlyBudget = async (
+export const createMonthlyBudget = async (
   options: DefaultOptions<never, BudgetSchema, never>,
 ) => {
   const { endpoint, data, signal } = options;
@@ -46,8 +46,36 @@ export const createOrUpdateMonthlyBudget = async (
   );
   return response.data;
 };
+export const updateMonthlyBudget = async (
+  options: DefaultOptions<never, BudgetSchema, { budgetId: string }>,
+) => {
+  const { endpoint, data, pathParams, signal } = options;
 
-export const createOrUpdateMonthlyIncome = async (
+  const response = await axiosInstance.put(
+    endpoint ?? `/settings/budget/${pathParams?.budgetId}`,
+    data,
+    {
+      signal,
+    },
+  );
+  return response.data;
+};
+
+export const getMonthlyBudget = async (
+  options: DefaultOptions<never, never, { budgetId: string }>,
+) => {
+  const { endpoint, pathParams, signal } = options;
+
+  const response = await axiosInstance.get(
+    endpoint ?? `/settings/budget/${pathParams?.budgetId}`,
+    {
+      signal,
+    },
+  );
+  return response.data;
+};
+
+export const createMonthlyIncome = async (
   options: DefaultOptions<never, IncomeSchema, never>,
 ) => {
   const { endpoint, data, signal } = options;
@@ -55,6 +83,35 @@ export const createOrUpdateMonthlyIncome = async (
   const response = await axiosInstance.post(
     endpoint ?? "/settings/income",
     data,
+    {
+      signal,
+    },
+  );
+  return response.data;
+};
+
+export const updateMonthlyIncome = async (
+  options: DefaultOptions<never, IncomeSchema, { incomeId: string }>,
+) => {
+  const { endpoint, data, pathParams, signal } = options;
+
+  const response = await axiosInstance.put(
+    endpoint ?? `/settings/income/${pathParams?.incomeId}`,
+    data,
+    {
+      signal,
+    },
+  );
+  return response.data;
+};
+
+export const getMonthlyIncome = async (
+  options: DefaultOptions<never, never, { incomeId: string }>,
+) => {
+  const { endpoint, pathParams, signal } = options;
+
+  const response = await axiosInstance.get(
+    endpoint ?? `/settings/income/${pathParams?.incomeId}`,
     {
       signal,
     },

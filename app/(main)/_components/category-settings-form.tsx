@@ -24,7 +24,7 @@ import { Category } from "@/api/types/settings";
 
 interface CategorySettingsFormProps {
   selectedCategory?: Category | null;
-  onFormReset: () => void;
+  onFormReset: (invalidate: boolean) => void;
 }
 
 const CategorySettingsForm: React.FC<CategorySettingsFormProps> = ({
@@ -40,19 +40,14 @@ const CategorySettingsForm: React.FC<CategorySettingsFormProps> = ({
 
   const form = useForm<CategorySchema>({
     resolver: zodResolver(categorySchema),
-    defaultValues: { name: "", icon: "DollarSign", color: "#09203f" },
   });
 
   useEffect(() => {
-    if (selectedCategory) {
-      form.reset({
-        name: selectedCategory.name,
-        icon: selectedCategory.icon,
-        color: selectedCategory.color,
-      });
-    } else {
-      form.reset({ name: "", icon: "DollarSign", color: "#09203f" });
-    }
+    form.reset({
+      name: selectedCategory?.name ?? "",
+      icon: selectedCategory?.icon ?? "DollarSign",
+      color: selectedCategory?.color ?? "#09203f",
+    });
   }, [selectedCategory, form]);
 
   const onSubmit = (data: CategorySchema) => {
@@ -62,7 +57,7 @@ const CategorySettingsForm: React.FC<CategorySettingsFormProps> = ({
         { data, endpoint: `/settings/category/${selectedCategory.id}` },
         {
           onSuccess: () => {
-            onFormReset();
+            onFormReset(true);
           },
           onError: (error) => {
             console.error("Update error:", error);
@@ -75,7 +70,7 @@ const CategorySettingsForm: React.FC<CategorySettingsFormProps> = ({
         { data, endpoint: "/settings/category" },
         {
           onSuccess: () => {
-            onFormReset();
+            onFormReset(true);
           },
           onError: (error) => {
             console.error("Create error:", error);

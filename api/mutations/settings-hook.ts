@@ -1,11 +1,13 @@
 import { useMutation } from "@tanstack/react-query";
 import {
   createCategory,
-  createOrUpdateMonthlyBudget,
-  createOrUpdateMonthlyIncome,
+  createMonthlyBudget,
+  createMonthlyIncome,
   createOrUpdateSettings,
   deleteCategory,
   updateCategory,
+  updateMonthlyBudget,
+  updateMonthlyIncome,
 } from "../services/settings-services";
 
 export const useCreateOrUpdateSettings = () => {
@@ -14,15 +16,26 @@ export const useCreateOrUpdateSettings = () => {
   });
 };
 
-export const useCreateOrUpdateMonthlyBudget = () => {
+export const useCreateMonthlyBudget = () => {
   return useMutation({
-    mutationFn: createOrUpdateMonthlyBudget,
+    mutationFn: createMonthlyBudget,
+  });
+};
+export const useUpdateMonthlyBudget = () => {
+  return useMutation({
+    mutationFn: updateMonthlyBudget,
   });
 };
 
-export const useCreateOrUpdateMonthlyIncome = () => {
+export const useCreateMonthlyIncome = () => {
   return useMutation({
-    mutationFn: createOrUpdateMonthlyIncome,
+    mutationFn: createMonthlyIncome,
+  });
+};
+
+export const useUpdateMonthlyIncome = () => {
+  return useMutation({
+    mutationFn: updateMonthlyIncome,
   });
 };
 

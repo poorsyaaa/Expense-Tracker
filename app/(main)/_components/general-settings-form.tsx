@@ -22,6 +22,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface GeneralSettingsFormProps {
   defaultBudget?: number;
@@ -32,6 +33,7 @@ const GeneralSettingsForm: React.FC<GeneralSettingsFormProps> = ({
   defaultBudget = 0,
   defaultIncome = 0,
 }) => {
+  const queryClient = useQueryClient();
   const { mutate, isPending } = useCreateOrUpdateSettings();
   const form = useForm<SettingsSchema>({
     resolver: zodResolver(settingsSchema),
@@ -42,10 +44,20 @@ const GeneralSettingsForm: React.FC<GeneralSettingsFormProps> = ({
   });
 
   const onSubmit = (data: SettingsSchema) => {
-    mutate({
-      data,
-      endpoint: "/settings/default",
-    });
+    mutate(
+      {
+        data,
+        endpoint: "/settings/default",
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: ["settings"] });
+        },
+        onError: (error) => {
+          console.error("Create or Update error:", error);
+        },
+      },
+    );
   };
 
   return (

@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
+import { settingsNavLinks } from "../config/constant";
+import { cn } from "@/lib/utils";
 
 export default function SettingsLayout({
   children,
@@ -9,6 +11,7 @@ export default function SettingsLayout({
   children: React.ReactNode;
 }>) {
   const router = useRouter();
+  const pathname = usePathname();
 
   const handleNavigation = (path: string) => {
     router.push(path);
@@ -22,28 +25,20 @@ export default function SettingsLayout({
       <div className="mx-auto grid w-full max-w-6xl items-start gap-6 md:grid-cols-[180px_1fr] lg:grid-cols-[250px_1fr]">
         <nav className="grid gap-1 text-sm text-muted-foreground">
           <nav className="grid gap-4 text-sm text-muted-foreground">
-            <Link
-              href="/settings/general"
-              className="font-semibold text-primary"
-              onClick={() => handleNavigation("/settings/general")}
-              passHref
-            >
-              General
-            </Link>
-            <Link
-              href="/settings/category"
-              onClick={() => handleNavigation("/settings/category")}
-              passHref
-            >
-              Category
-            </Link>
-            <Link
-              href="/settings/budget"
-              onClick={() => handleNavigation("/settings/budget")}
-              passHref
-            >
-              Budget
-            </Link>
+            {settingsNavLinks.map(({ name, href }) => (
+              <Link
+                className={cn(
+                  "font-semibold",
+                  pathname === href && "text-primary",
+                )}
+                key={name}
+                href={href}
+                onClick={() => handleNavigation(href)}
+                passHref
+              >
+                {name}
+              </Link>
+            ))}
           </nav>
         </nav>
         <div className="grid gap-6">{children}</div>

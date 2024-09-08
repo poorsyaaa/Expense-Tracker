@@ -1,6 +1,7 @@
+// IncomeSettingsForm.tsx
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { budgetSchema, BudgetSchema } from "@/lib/schema/settings";
+import { incomeSchema, IncomeSchema } from "@/lib/schema/settings";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,8 +15,8 @@ import {
 } from "@/components/ui/form";
 import { Loader2 } from "lucide-react";
 import {
-  useCreateMonthlyBudget,
-  useUpdateMonthlyBudget,
+  useCreateMonthlyIncome,
+  useUpdateMonthlyIncome,
 } from "@/api/mutations/settings-hook";
 import {
   SelectContent,
@@ -25,42 +26,42 @@ import {
   Select,
 } from "@/components/ui/select";
 import { months, years } from "../config/constant";
-import { MonthlyBudget } from "@/api/types/settings";
+import { MonthlyIncome } from "@/api/types/settings";
 import { Separator } from "@/components/ui/separator";
 
-interface BudgetSettingsFormProps {
-  selectedBudget?: MonthlyBudget | null;
-  defaultBudget?: number;
+interface IncomeSettingsFormProps {
+  selectedIncome?: MonthlyIncome | null;
+  defaultIncome?: number;
   onFormReset: (invalidate: boolean) => void;
 }
 
-const BudgetSettingsForm: React.FC<BudgetSettingsFormProps> = ({
-  selectedBudget,
+const IncomeSettingsForm: React.FC<IncomeSettingsFormProps> = ({
+  selectedIncome,
   onFormReset,
-  defaultBudget = 0,
+  defaultIncome = 0,
 }) => {
-  const submitButtonText = selectedBudget ? "Update Budget" : "Save Budget";
+  const submitButtonText = selectedIncome ? "Update Income" : "Save Income";
 
-  const { mutate: createBudget, isPending: isCreating } =
-    useCreateMonthlyBudget();
-  const { mutate: updateBudget, isPending: isUpdating } =
-    useUpdateMonthlyBudget();
+  const { mutate: createIncome, isPending: isCreating } =
+    useCreateMonthlyIncome();
+  const { mutate: updateIncome, isPending: isUpdating } =
+    useUpdateMonthlyIncome();
 
-  const form = useForm<BudgetSchema>({
-    resolver: zodResolver(budgetSchema),
+  const form = useForm<IncomeSchema>({
+    resolver: zodResolver(incomeSchema),
     defaultValues: {
-      amount: selectedBudget?.amount ?? defaultBudget,
-      month: selectedBudget?.month ?? 1,
-      year: selectedBudget?.year ?? 2024,
+      amount: selectedIncome?.amount ?? defaultIncome,
+      month: selectedIncome?.month ?? 1,
+      year: selectedIncome?.year ?? 2024,
     },
   });
 
-  const onSubmit = (data: BudgetSchema) => {
-    if (selectedBudget) {
-      updateBudget(
+  const onSubmit = (data: IncomeSchema) => {
+    if (selectedIncome) {
+      updateIncome(
         {
           data,
-          endpoint: `/settings/budget/${selectedBudget.id}`,
+          endpoint: `/settings/income/${selectedIncome.id}`,
         },
         {
           onSuccess: () => {
@@ -72,10 +73,10 @@ const BudgetSettingsForm: React.FC<BudgetSettingsFormProps> = ({
         },
       );
     } else {
-      createBudget(
+      createIncome(
         {
           data,
-          endpoint: "/settings/budget",
+          endpoint: "/settings/income",
         },
         {
           onSuccess: () => {
@@ -97,14 +98,14 @@ const BudgetSettingsForm: React.FC<BudgetSettingsFormProps> = ({
           name="amount"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Monthly Budget</FormLabel>
+              <FormLabel>Monthly Income</FormLabel>
               <FormControl>
                 <Input
                   type="number"
                   {...field}
                   value={field.value ?? 0}
                   inputMode="numeric"
-                  placeholder="Enter monthly budget"
+                  placeholder="Enter monthly income"
                   onChange={(e) => {
                     if (e.target.value === "") return field.onChange(undefined);
                     field.onChange(Number(e.target.value));
@@ -126,7 +127,7 @@ const BudgetSettingsForm: React.FC<BudgetSettingsFormProps> = ({
                   if (value === "") return field.onChange(undefined);
                   field.onChange(Number(value));
                 }}
-                value={field.value ? field.value.toString() : ""}
+                value={field.value.toString()}
               >
                 <FormControl>
                   <SelectTrigger>
@@ -193,4 +194,4 @@ const BudgetSettingsForm: React.FC<BudgetSettingsFormProps> = ({
   );
 };
 
-export default BudgetSettingsForm;
+export default IncomeSettingsForm;

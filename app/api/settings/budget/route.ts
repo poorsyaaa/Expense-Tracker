@@ -7,7 +7,7 @@ import {
   customMiddleware,
 } from "@/lib/server/middleware";
 
-const createOrUpdateBudgetHandler: CustomHandlerWithResponse = async (
+const createBudgetHandler: CustomHandlerWithResponse = async (
   req: CustomNextRequest,
 ) => {
   const { user } = req;
@@ -15,26 +15,16 @@ const createOrUpdateBudgetHandler: CustomHandlerWithResponse = async (
   const body = await req.json();
   const { amount, month, year } = budgetSchema.parse(body);
 
-  const upsertedBudget = await prisma.monthlyBudget.upsert({
-    where: {
-      userId_month_year: {
-        userId: user!.id,
-        month,
-        year,
-      },
-    },
-    create: {
+  const budget = await prisma.monthlyBudget.create({
+    data: {
       userId: user!.id,
       amount,
       month,
       year,
     },
-    update: {
-      amount,
-    },
   });
 
-  return NextResponse.json({ monthlyBudget: upsertedBudget }, { status: 200 });
+  return NextResponse.json({ monthly_budget: budget }, { status: 200 });
 };
 
-export const POST = customMiddleware(createOrUpdateBudgetHandler);
+export const POST = customMiddleware(createBudgetHandler);
