@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "format": "prettier --write . --ignore-path .gitignore && eslint . --fix --ignore-path .gitignore",
+    "format": "prettier --write \"{app,lib,context,components,api}/**/*.{js,jsx,ts,tsx}\" && eslint \"{app,lib,context,components,api}/**/*.{js,jsx,ts,tsx}\" --fix",
     "setup": "bash ./setup.sh"
   },
   "dependencies": {

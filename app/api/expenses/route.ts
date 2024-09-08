@@ -1,104 +1,71 @@
-import { validateRequest } from "@/lib/auth";
-import prisma from "@/lib/db";
+import { NextResponse } from "next/server";
+import prisma from "@/lib/server/db";
 import { expenseSchema, queryParamsSchema } from "@/lib/schema/expenses";
-import { NextRequest, NextResponse } from "next/server";
+import {
+  CustomNextRequest,
+  CustomHandlerWithResponse,
+  customMiddleware,
+} from "@/lib/server/middleware";
 
-export async function POST(request: NextRequest) {
-  try {
-    const { user } = await validateRequest();
+const createExpenseHandler: CustomHandlerWithResponse = async (
+  req: CustomNextRequest,
+) => {
+  const { user } = req;
+  const body = await req.json();
+  const {
+    description,
+    amount,
+    categoryId,
+    recurring,
+    frequency,
+    startDate,
+    endDate,
+    dueDate,
+    isPaid = false,
+  } = expenseSchema.parse(body);
 
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const body = request.json();
-
-    const result = expenseSchema.safeParse(body);
-
-    if (!result.success) {
-      return NextResponse.json(
-        { error: result.error.format() },
-        { status: 400 },
-      );
-    }
-
-    const {
+  const newExpense = await prisma.expense.create({
+    data: {
       description,
       amount,
       categoryId,
       recurring,
       frequency,
-      startDate,
-      endDate,
-      dueDate,
-      isPaid = false,
-    } = result.data;
+      startDate: new Date(startDate),
+      endDate: endDate ? new Date(endDate) : null,
+      dueDate: dueDate ? new Date(dueDate) : null,
+      isPaid,
+      userId: user!.id,
+    },
+  });
 
-    const newExpense = await prisma.expense.create({
-      data: {
-        description,
-        amount,
-        categoryId,
-        recurring,
-        frequency,
-        startDate: new Date(startDate),
-        endDate: endDate ? new Date(endDate) : null,
-        dueDate: dueDate ? new Date(dueDate) : null,
-        isPaid,
-        userId: user.id,
-      },
-    });
+  return NextResponse.json(newExpense, { status: 201 });
+};
 
-    return NextResponse.json(newExpense, { status: 201 });
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 },
-    );
-  }
-}
+const getExpensesHandler: CustomHandlerWithResponse = async (
+  req: CustomNextRequest,
+) => {
+  const { user } = req;
 
-export async function GET(request: NextRequest) {
-  try {
-    const { user } = await validateRequest();
+  const monthParam = req.nextUrl.searchParams.get("month") ?? "";
+  const yearParam = req.nextUrl.searchParams.get("year") ?? "";
 
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+  const { month, year } = queryParamsSchema.parse({
+    month: Number(monthParam),
+    year: Number(yearParam),
+  });
 
-    const monthParam = request.nextUrl.searchParams.get("month") ?? "";
-    const yearParam = request.nextUrl.searchParams.get("year") ?? "";
+  const whereClause = {
+    userId: user!.id,
+    ...(month && year && { month, year }),
+  };
 
-    const result = queryParamsSchema.safeParse({
-      month: Number(monthParam),
-      year: Number(yearParam),
-    });
+  const expenses = await prisma.expense.findMany({
+    where: whereClause,
+  });
 
-    if (!result.success) {
-      return NextResponse.json(
-        { error: result.error.format() },
-        { status: 400 },
-      );
-    }
+  return NextResponse.json(expenses, { status: 200 });
+};
 
-    const { month, year } = result.data;
-
-    const whereClause = {
-      userId: user.id,
-      ...(month && year && { month, year }),
-    };
-
-    const expenses = await prisma.expense.findMany({
-      where: whereClause,
-    });
-
-    return NextResponse.json(expenses, { status: 200 });
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 },
-    );
-  }
-}
+export const POST = customMiddleware(createExpenseHandler);
+export const GET = customMiddleware(getExpensesHandler);

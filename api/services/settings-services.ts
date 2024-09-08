@@ -62,7 +62,7 @@ export const createOrUpdateMonthlyIncome = async (
   return response.data;
 };
 
-export const createOrUpdateCategory = async (
+export const createCategory = async (
   options: DefaultOptions<never, CategorySchema, never>,
 ) => {
   const { endpoint, data, signal } = options;
@@ -72,6 +72,50 @@ export const createOrUpdateCategory = async (
     data,
     {
       signal,
+    },
+  );
+  return response.data;
+};
+
+export const updateCategory = async (
+  options: DefaultOptions<never, CategorySchema, { categoryId: string }>,
+) => {
+  const { endpoint, data, pathParams, signal } = options;
+
+  const response = await axiosInstance.put(
+    endpoint ?? `/settings/category/${pathParams?.categoryId}`,
+    data,
+    {
+      signal,
+    },
+  );
+  return response.data;
+};
+
+export const getCategory = async (
+  options: DefaultOptions<never, never, { categoryId: string }>,
+) => {
+  const { endpoint, pathParams, signal } = options;
+
+  const response = await axiosInstance.get(
+    endpoint ?? `/settings/category"}/${pathParams?.categoryId}`,
+    {
+      signal,
+    },
+  );
+  return response.data;
+};
+
+export const deleteCategory = async (
+  options: DefaultOptions<never, never, { categoryId: string }>,
+) => {
+  const { endpoint, pathParams, signal, headers } = options;
+
+  const response = await axiosInstance.delete(
+    endpoint ?? `/settings/category"/${pathParams?.categoryId}`,
+    {
+      signal,
+      headers,
     },
   );
   return response.data;

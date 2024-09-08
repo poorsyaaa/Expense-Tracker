@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getSettings } from "../services/settings-services";
+import { getCategory, getSettings } from "../services/settings-services";
 import { QueryParamsSchema } from "@/lib/schema/settings";
 
 export const useGetSettings = (queryParams: QueryParamsSchema) => {
@@ -23,5 +23,18 @@ export const useGetAllSettings = () => {
         endpoint: "/settings",
         signal,
       }),
+  });
+};
+
+export const useGetCategory = (categoryId: string) => {
+  return useQuery({
+    queryKey: ["category", categoryId],
+    queryFn: ({ signal }) =>
+      getCategory({
+        endpoint: "/settings/category",
+        pathParams: { categoryId },
+        signal,
+      }),
+    enabled: !!categoryId, // Only fetch if categoryId is valid
   });
 };

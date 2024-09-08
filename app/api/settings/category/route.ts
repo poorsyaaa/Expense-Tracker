@@ -1,49 +1,30 @@
-import { NextRequest, NextResponse } from "next/server";
-
-import { validateRequest } from "@/lib/auth";
-import prisma from "@/lib/db";
+import { NextResponse } from "next/server";
+import prisma from "@/lib/server/db";
 import { categorySchema } from "@/lib/schema/settings";
+import {
+  CustomNextRequest,
+  CustomHandlerWithResponse,
+  customMiddleware,
+} from "@/lib/server/middleware";
 
-export async function POST(request: NextRequest) {
-  try {
-    const { user } = await validateRequest();
+const createCategoryHandler: CustomHandlerWithResponse = async (
+  req: CustomNextRequest,
+) => {
+  const { user } = req;
 
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+  const body = await req.json();
+  const { name, icon, color } = categorySchema.parse(body);
 
-    const body = await request.json();
+  const category = await prisma.category.create({
+    data: {
+      userId: user!.id,
+      name,
+      icon,
+      color,
+    },
+  });
 
-    const result = categorySchema.safeParse(body);
-    if (!result.success) {
-      return NextResponse.json(
-        { error: result.error.format() },
-        { status: 400 },
-      );
-    }
+  return NextResponse.json(category, { status: 201 });
+};
 
-    const { name, icon, color } = result.data;
-
-    const category = await prisma.category.upsert({
-      where: { userId_name: { userId: user.id, name } },
-      update: {
-        icon,
-        color,
-      },
-      create: {
-        userId: user.id,
-        name,
-        icon,
-        color,
-      },
-    });
-
-    return NextResponse.json(category, { status: 200 });
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 },
-    );
-  }
-}
+export const POST = customMiddleware(createCategoryHandler);

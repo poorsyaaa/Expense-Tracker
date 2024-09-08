@@ -1,0 +1,72 @@
+import { ColumnDef } from "@tanstack/react-table";
+import { Category } from "@/api/types/settings";
+import { Button } from "@/components/ui/button";
+import { Pencil, Trash, Loader2 } from "lucide-react";
+
+export const columns: (
+  handleCategorySelect: (category: Category) => void,
+  handleDeleteCategory: (categoryId: string) => void,
+  deletingCategoryId: string | null,
+) => ColumnDef<Category>[] = (
+  handleCategorySelect,
+  handleDeleteCategory,
+  deletingCategoryId,
+) => [
+  {
+    accessorKey: "name",
+    header: "Name",
+  },
+  {
+    accessorKey: "icon",
+    header: "Icon",
+    cell: ({ row }) => (
+      <div className="flex items-center">
+        <i className={`icon-${row.original.icon} mr-2`} />
+        {row.original.icon}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "color",
+    header: "Color",
+    cell: ({ row }) => (
+      <div
+        className="h-6 w-6 rounded-full"
+        style={{ backgroundColor: row.original.color }}
+      />
+    ),
+  },
+  {
+    id: "actions",
+    header: "",
+    cell: ({ row }) => (
+      <div className="flex space-x-2">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => handleCategorySelect(row.original)}
+        >
+          <Pencil className="mr-2 h-4 w-4" />
+          Edit
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => handleDeleteCategory(row.original.id)}
+        >
+          {deletingCategoryId === row.original.id ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Deleting...
+            </>
+          ) : (
+            <>
+              <Trash className="mr-2 h-4 w-4" />
+              Delete
+            </>
+          )}
+        </Button>
+      </div>
+    ),
+  },
+];

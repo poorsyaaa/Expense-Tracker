@@ -1,60 +1,52 @@
-import { validateRequest } from "@/lib/auth";
-import prisma from "@/lib/db";
+import { NextResponse } from "next/server";
+import prisma from "@/lib/server/db";
 import { updateExpenseSchema } from "@/lib/schema/expenses";
-import { NextRequest, NextResponse } from "next/server";
+import {
+  CustomNextRequest,
+  CustomHandlerWithParams,
+  customMiddleware,
+  ContextWithParams,
+} from "@/lib/server/middleware";
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { expenseId: string } },
-) {
-  try {
-    const { user } = await validateRequest();
+const getExpenseHandler: CustomHandlerWithParams = async (
+  req: CustomNextRequest,
+  { params }: ContextWithParams,
+) => {
+  const { user } = req;
 
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+  const expense = await prisma.expense.findUnique({
+    where: { id: params.expenseId, userId: user!.id },
+  });
 
-    const expense = await prisma.expense.findUnique({
-      where: { id: params.expenseId },
-    });
-
-    if (!expense) {
-      return NextResponse.json({ error: "Expense not found" }, { status: 404 });
-    }
-
-    return NextResponse.json(expense, { status: 200 });
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 },
-    );
+  if (!expense) {
+    return NextResponse.json({ error: "Expense not found" }, { status: 404 });
   }
-}
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { expenseId: string } },
-) {
-  try {
-    const { user } = await validateRequest();
+  return NextResponse.json(expense, { status: 200 });
+};
 
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+const updateExpenseHandler: CustomHandlerWithParams = async (
+  req: CustomNextRequest,
+  { params }: ContextWithParams,
+) => {
+  const { user } = req;
 
-    const body = await request.json();
+  const body = await req.json();
+  const {
+    description,
+    amount,
+    categoryId,
+    recurring,
+    frequency,
+    startDate,
+    endDate,
+    dueDate,
+    isPaid = false,
+  } = updateExpenseSchema.parse(body);
 
-    const result = updateExpenseSchema.safeParse(body);
-
-    if (!result.success) {
-      return NextResponse.json(
-        { error: result.error.format() },
-        { status: 400 },
-      );
-    }
-
-    const {
+  const updatedExpense = await prisma.expense.update({
+    where: { id: params.expenseId, userId: user!.id },
+    data: {
       description,
       amount,
       categoryId,
@@ -63,56 +55,26 @@ export async function PUT(
       startDate,
       endDate,
       dueDate,
-      isPaid = false,
-    } = result.data;
+      isPaid,
+    },
+  });
 
-    const updatedExpense = await prisma.expense.update({
-      where: { id: params.expenseId },
-      data: {
-        description,
-        amount,
-        categoryId,
-        recurring,
-        frequency,
-        startDate,
-        endDate,
-        dueDate,
-        isPaid,
-      },
-    });
+  return NextResponse.json(updatedExpense, { status: 200 });
+};
 
-    return NextResponse.json(updatedExpense, { status: 200 });
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 },
-    );
-  }
-}
+const deleteExpenseHandler: CustomHandlerWithParams = async (
+  req: CustomNextRequest,
+  { params }: ContextWithParams,
+) => {
+  const { user } = req;
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export async function DELETE(
-  _request: NextRequest,
-  { params }: { params: { expenseId: string } },
-) {
-  try {
-    const { user } = await validateRequest();
+  const deletedExpense = await prisma.expense.delete({
+    where: { id: params.expenseId, userId: user!.id },
+  });
 
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+  return NextResponse.json(deletedExpense, { status: 200 });
+};
 
-    const deletedExpense = await prisma.expense.delete({
-      where: { id: params.expenseId },
-    });
-
-    return NextResponse.json(deletedExpense, { status: 200 });
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 },
-    );
-  }
-}
+export const GET = customMiddleware(getExpenseHandler);
+export const PUT = customMiddleware(updateExpenseHandler);
+export const DELETE = customMiddleware(deleteExpenseHandler);

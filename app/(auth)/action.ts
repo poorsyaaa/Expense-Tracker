@@ -6,7 +6,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { lucia, validateRequest } from "@/lib/auth";
-import prisma from "@/lib/db";
+import prisma from "@/lib/server/db";
 import {
   LoginSchema,
   loginSchema,

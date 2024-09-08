@@ -12,14 +12,18 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Loader2 } from "lucide-react";
-import { useCreateOrUpdateCategory } from "@/api/mutations/settings-hook";
+import {
+  useCreateCategory,
+  useUpdateCategory,
+} from "@/api/mutations/settings-hook";
 import { categorySchema, CategorySchema } from "@/lib/schema/settings";
 import { GradientPicker } from "@/components/ui/color-picker";
 import { IconPicker } from "@/components/ui/icon-picker";
 import { Separator } from "@/components/ui/separator";
+import { Category } from "@/api/types/settings";
 
 interface CategorySettingsFormProps {
-  selectedCategory?: CategorySchema | null;
+  selectedCategory?: Category | null;
   onFormReset: () => void;
 }
 
@@ -27,20 +31,18 @@ const CategorySettingsForm: React.FC<CategorySettingsFormProps> = ({
   selectedCategory,
   onFormReset,
 }) => {
-  console.log(selectedCategory);
   const submitButtonText = selectedCategory
     ? "Update Category"
     : "Save Category";
 
-  const { mutate, isPending } = useCreateOrUpdateCategory();
+  const { mutate: createCategory, isPending: isCreating } = useCreateCategory();
+  const { mutate: updateCategory, isPending: isUpdating } = useUpdateCategory();
 
-  // Initialize form with default values
   const form = useForm<CategorySchema>({
     resolver: zodResolver(categorySchema),
     defaultValues: { name: "", icon: "DollarSign", color: "#09203f" },
   });
 
-  // Update form with selected category data when editing
   useEffect(() => {
     if (selectedCategory) {
       form.reset({
@@ -54,17 +56,38 @@ const CategorySettingsForm: React.FC<CategorySettingsFormProps> = ({
   }, [selectedCategory, form]);
 
   const onSubmit = (data: CategorySchema) => {
-    mutate({
-      data,
-      endpoint: "/settings/category",
-    });
-    onFormReset();
+    if (selectedCategory) {
+      // If a category is selected, update the category
+      updateCategory(
+        { data, endpoint: `/settings/category/${selectedCategory.id}` },
+        {
+          onSuccess: () => {
+            onFormReset();
+          },
+          onError: (error) => {
+            console.error("Update error:", error);
+          },
+        },
+      );
+    } else {
+      // If no category is selected, create a new one
+      createCategory(
+        { data, endpoint: "/settings/category" },
+        {
+          onSuccess: () => {
+            onFormReset();
+          },
+          onError: (error) => {
+            console.error("Create error:", error);
+          },
+        },
+      );
+    }
   };
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
-        {/* Category Name Field */}
         <FormField
           control={form.control}
           name="name"
@@ -78,8 +101,6 @@ const CategorySettingsForm: React.FC<CategorySettingsFormProps> = ({
             </FormItem>
           )}
         />
-
-        {/* Category Icon Field */}
         <FormField
           control={form.control}
           name="icon"
@@ -96,8 +117,6 @@ const CategorySettingsForm: React.FC<CategorySettingsFormProps> = ({
             </FormItem>
           )}
         />
-
-        {/* Category Color Field */}
         <FormField
           control={form.control}
           name="color"
@@ -116,8 +135,8 @@ const CategorySettingsForm: React.FC<CategorySettingsFormProps> = ({
         />
         <Separator className="my-4" />
         <div className="mt-4 flex justify-end">
-          <Button type="submit" disabled={isPending}>
-            {isPending ? (
+          <Button type="submit" disabled={isCreating || isUpdating}>
+            {isCreating || isUpdating ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Saving...
