@@ -15,7 +15,6 @@ model User {
   passwordHash     String
   googleId         String?           @unique
   avatarUrl        String?
-  bio              String?
   session          Session[]
   category         Category[]
   monthlyBudget    MonthlyBudget[]

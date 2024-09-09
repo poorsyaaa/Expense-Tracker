@@ -8,7 +8,12 @@
     "start": "next start",
     "lint": "next lint",
     "format": "prettier --write \"{app,lib,context,components,api}/**/*.{js,jsx,ts,tsx}\" && eslint \"{app,lib,context,components,api}/**/*.{js,jsx,ts,tsx}\" --fix",
-    "setup": "bash ./setup.sh"
+    "setup": "bash ./setup.sh",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:build": "docker-compose build",
+    "docker:build-no-cache": "docker-compose build --no-cache",
+    "docker:deploy": "docker build -t ghcr.io/yourusername/dmy-expense-tracker:latest . && docker push ghcr.io/yourusername/dmy-expense-tracker:latest"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",

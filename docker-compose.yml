@@ -1,0 +1,15 @@
+version: "3.8"
+
+services:
+  dmy-expense-tracker:
+    container_name: dmy-expense-racker
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      NODE_ENV: production
+      HOSTNAME: 0.0.0.0
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
