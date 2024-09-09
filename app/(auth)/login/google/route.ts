@@ -12,18 +12,18 @@ export async function GET() {
 
   cookies().set("state", state, {
     path: "/",
-    httpOnly: true,
-    sameSite: "lax",
-    maxAge: 60 * 10,
     secure: process.env.NODE_ENV === "production",
+    httpOnly: true,
+    maxAge: 60 * 10,
+    sameSite: "lax",
   });
 
   cookies().set("code_verifier", codeVerifier, {
     path: "/",
-    httpOnly: true,
-    sameSite: "lax",
-    maxAge: 60 * 10,
     secure: process.env.NODE_ENV === "production",
+    httpOnly: true,
+    maxAge: 60 * 10,
+    sameSite: "lax",
   });
 
   return Response.redirect(url);

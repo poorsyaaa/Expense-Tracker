@@ -4,7 +4,7 @@ import { generateUsername } from "@/lib/utils";
 import { OAuth2RequestError } from "arctic";
 import axios from "axios";
 import { cookies } from "next/headers";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
   const code = req.nextUrl.searchParams.get("code");
@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
     !storedCodeVerifier ||
     state !== storedState
   ) {
-    return new Response(null, { status: 400 });
+    return new NextResponse(null, { status: 400 });
   }
 
   try {
@@ -29,16 +29,17 @@ export async function GET(req: NextRequest) {
       storedCodeVerifier,
     );
 
-    const googleUser = await axios.get<{ id: string; name: string }>(
-      "https://www.googleapis.com/oauth2/v1/userinfo",
-      {
-        headers: {
-          Authorization: `Bearer ${tokens.accessToken}`,
-        },
+    const googleUser = await axios.get<{
+      id: string;
+      name: string;
+      picture?: string;
+    }>("https://www.googleapis.com/oauth2/v1/userinfo", {
+      headers: {
+        Authorization: `Bearer ${tokens.accessToken}`,
       },
-    );
+    });
 
-    const { id, name } = googleUser.data;
+    const { id, name, picture } = googleUser.data;
 
     const existingUser = await prisma.user.findUnique({
       where: {
@@ -55,8 +56,8 @@ export async function GET(req: NextRequest) {
         sessionCookie.attributes,
       );
 
-      return new Response(null, {
-        status: 200,
+      return new NextResponse(null, {
+        status: 302,
         headers: {
           Location: "/",
         },
@@ -71,6 +72,7 @@ export async function GET(req: NextRequest) {
         displayName: username,
         passwordHash: "",
         googleId: id,
+        avatarUrl: picture,
       },
     });
 
@@ -82,8 +84,8 @@ export async function GET(req: NextRequest) {
       sessionCookie.attributes,
     );
 
-    return new Response(null, {
-      status: 200,
+    return new NextResponse(null, {
+      status: 302,
       headers: {
         Location: "/",
       },
@@ -92,12 +94,12 @@ export async function GET(req: NextRequest) {
     console.error(error);
 
     if (error instanceof OAuth2RequestError) {
-      return new Response(null, {
+      return new NextResponse(null, {
         status: 400,
       });
     }
 
-    return new Response(null, {
+    return new NextResponse(null, {
       status: 500,
     });
   }

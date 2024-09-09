@@ -19,25 +19,27 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useSession } from "@/context/sessionContext";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const UserMenu = () => {
   const { user } = useSession();
 
   const { theme, setTheme } = useTheme();
 
-  //   const queryClient = useQueryClient();
+  const queryClient = useQueryClient();
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Avatar>
           <AvatarImage
+            className="h-[35px] w-[35px] rounded-full"
             src={
               user.avatarUrl ??
-              `https://ui-avatars.com/api/?name=${user.displayName}&rounded=true&size=35&background=random&format=svg&bold=true`
+              `https://ui-avatars.com/api/?name=${user.displayName}&size=35&background=random&format=svg&bold=true`
             }
           />
-          <AvatarFallback>{user.displayName}</AvatarFallback>
+          <AvatarFallback delayMs={600}>{user.displayName}</AvatarFallback>
           <span className="sr-only">Toggle user menu</span>
         </Avatar>
       </DropdownMenuTrigger>
@@ -78,7 +80,7 @@ export const UserMenu = () => {
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={() => {
-            // queryClient.clear();
+            queryClient.clear();
             logoutAction();
           }}
         >

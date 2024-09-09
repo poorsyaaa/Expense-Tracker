@@ -33,7 +33,6 @@ export default function Page() {
         <Button
           type="button"
           variant="outline"
-          disabled
           className="mt-3 w-full bg-white text-black hover:bg-gray-100 hover:text-black"
         >
           <a
