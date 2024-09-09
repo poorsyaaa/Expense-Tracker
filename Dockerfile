@@ -17,7 +17,7 @@ COPY . .
 # Run Prisma generate (to generate Prisma client) before building
 RUN npx prisma generate && npm run build
 
-# Runner stage
+# Final runner stage with a smaller image
 FROM base AS runner
 WORKDIR /app
 
@@ -27,15 +27,10 @@ ENV NODE_ENV production
 # Create a non-root user for security
 RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nextjs
 
-# Set proper ownership for nextjs user
-RUN mkdir .next && chown nextjs:nodejs .next
-
-# Copy necessary files from the builder stage
+# Set proper ownership directly while copying the files
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
-
-# COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 
 # Switch to the non-root user
 USER nextjs
@@ -48,4 +43,4 @@ ENV HOSTNAME 0.0.0.0
 EXPOSE 3000
 
 # Start the application
-CMD ["npm", "run", "start"]
+CMD ["node", "server.js"]
