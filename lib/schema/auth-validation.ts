@@ -12,6 +12,8 @@ export const signUpSchema = z.object({
     8,
     "Password must be at least 8 characters long",
   ),
+  // Honeypot fields - must be empty
+  extraInfo: z.string().max(0, "Invalid input").optional(),
 });
 
 export const loginSchema = signUpSchema.omit({ email: true });

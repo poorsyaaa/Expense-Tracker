@@ -4,7 +4,6 @@ import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
-import Link from "next/link";
 
 import { signUpAction } from "../action";
 
@@ -22,6 +21,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { SignUpSchema, signUpSchema } from "@/lib/schema/auth-validation";
+import HoneypotField from "./honeypot-field";
+import { Label } from "@/components/ui/label";
 
 export const SignUpForm = () => {
   const [formError, setFormError] = useState<string>();
@@ -33,6 +34,7 @@ export const SignUpForm = () => {
       username: "",
       email: "",
       password: "",
+      extraInfo: "",
     },
   });
 
@@ -89,7 +91,10 @@ export const SignUpForm = () => {
             </FormItem>
           )}
         />
-        {formError && <p className="text-sm text-red-600">{formError}</p>}
+        <HoneypotField />
+        {formError && (
+          <Label className="text-sm text-red-600">{formError}</Label>
+        )}
         <Button type="submit" className="w-full" disabled={isPending}>
           {isPending ? (
             <>
@@ -100,15 +105,6 @@ export const SignUpForm = () => {
             "Create an account"
           )}
         </Button>
-        <Button variant="outline" className="w-full" disabled>
-          Sign up with Google (Soon)
-        </Button>
-        <div className="mt-4 text-center text-sm">
-          Already have an account?{" "}
-          <Link href="/login" className="underline">
-            Login
-          </Link>
-        </div>
       </form>
     </Form>
   );

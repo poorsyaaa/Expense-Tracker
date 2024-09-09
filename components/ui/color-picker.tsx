@@ -41,7 +41,7 @@ const GRADIENT_COLORS = [
   "linear-gradient(to top left,#ff75c3,#ffa647,#ffe83f,#9fff5b,#70e2ff,#cd93ff)",
 ];
 
-export function GradientPicker({
+export const GradientPicker = ({
   background,
   setBackground,
   className,
@@ -49,7 +49,7 @@ export function GradientPicker({
   background: string;
   setBackground: (background: string) => void;
   className?: string;
-}>) {
+}>) => {
   // Memoize the tab selection based on background content
   const defaultTab = useMemo(
     () => (background.includes("gradient") ? "gradient" : "solid"),
@@ -123,7 +123,7 @@ export function GradientPicker({
       </PopoverContent>
     </Popover>
   );
-}
+};
 
 // Component for rendering color squares (solid or gradient)
 const ColorSquare = ({

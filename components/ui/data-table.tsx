@@ -25,12 +25,12 @@ interface DataTableProps<TData, TValue> {
   emptyDisplay?: React.ReactNode;
 }
 
-export function DataTable<TData, TValue>({
+export const DataTable = <TData, TValue>({
   columns,
   data,
   isLoading,
   emptyDisplay,
-}: Readonly<DataTableProps<TData, TValue>>) {
+}: Readonly<DataTableProps<TData, TValue>>) => {
   const table = useReactTable({
     data,
     columns,
@@ -117,4 +117,4 @@ export function DataTable<TData, TValue>({
       </Table>
     </div>
   );
-}
+};

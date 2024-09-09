@@ -59,6 +59,12 @@ export const signUpAction = async (
       };
     }
 
+    // await prisma.$transaction(async (tx) => {}, {
+    //   maxWait: 5000,
+    //   timeout: 10000,
+    //   isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+    // });
+
     const user = await prisma.user.create({
       data: {
         username,

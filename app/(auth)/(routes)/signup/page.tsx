@@ -9,6 +9,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import GoogleIcon from "../../_components/google-icon";
 
 export const metadata: Metadata = {
   title: "Sign Up",
@@ -27,6 +30,26 @@ export default function Page() {
       </CardHeader>
       <CardContent>
         <SignUpForm />
+        <Button
+          type="button"
+          variant="outline"
+          disabled
+          className="mt-3 w-full bg-white text-black hover:bg-gray-100 hover:text-black"
+        >
+          <a
+            href="/login/google"
+            className="flex w-full items-center justify-center gap-2"
+          >
+            <GoogleIcon />
+            Sign up with Google
+          </a>
+        </Button>
+        <div className="mt-4 text-center text-sm">
+          Already have an account?{" "}
+          <Link href="/login" className="underline">
+            Login
+          </Link>
+        </div>
       </CardContent>
     </Card>
   );

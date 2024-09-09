@@ -21,8 +21,10 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { LoginSchema, loginSchema } from "@/lib/schema/auth-validation";
+import HoneypotField from "./honeypot-field";
+import { Label } from "@/components/ui/label";
 
-export function LoginForm() {
+export const LoginForm = () => {
   const [formError, setFormError] = useState<string | undefined>();
   const [isPending, startTransition] = useTransition();
 
@@ -31,6 +33,7 @@ export function LoginForm() {
     defaultValues: {
       username: "",
       password: "",
+      extraInfo: "",
     },
   });
 
@@ -76,7 +79,10 @@ export function LoginForm() {
             </FormItem>
           )}
         />
-        {formError && <p className="text-sm text-red-600">{formError}</p>}
+        <HoneypotField />
+        {formError && (
+          <Label className="text-sm text-red-600">{formError}</Label>
+        )}
         <Button type="submit" className="w-full" disabled={isPending}>
           {isPending ? (
             <>
@@ -87,16 +93,7 @@ export function LoginForm() {
             "Login"
           )}
         </Button>
-        <Button variant="outline" className="w-full" disabled>
-          Login with Google (Soon)
-        </Button>
-        <div className="mt-4 text-center text-sm">
-          Don&apos;t have an account?{" "}
-          <Link href="/signup" className="underline">
-            Sign up
-          </Link>
-        </div>
       </form>
     </Form>
   );
-}
+};
