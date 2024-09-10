@@ -1,3 +1,5 @@
+import { SettingsSchema } from "@/lib/schema/settings";
+
 export interface SettingsResponse {
   default_settings: DefaultSettings;
   categories: Category[];
@@ -9,6 +11,11 @@ export interface DefaultSettings {
   id: string;
   defaultBudget: number;
   defaultIncome: number;
+  currency: string;
+  locale: string;
+  timeZone: string;
+  dateFormat: string;
+  defaultPaymentMethod: SettingsSchema["defaultPaymentMethod"];
   userId: string;
   createdAt: string;
 }

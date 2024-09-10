@@ -7,11 +7,14 @@ import {
   customMiddleware,
 } from "@/lib/server/middleware";
 
+export const dynamic = "force-dynamic"; // Add this when using req.nextUrl.searchParams
+
 const createExpenseHandler: CustomHandlerWithResponse = async (
   req: CustomNextRequest,
 ) => {
   const { user } = req;
   const body = await req.json();
+
   const {
     description,
     amount,
@@ -22,6 +25,10 @@ const createExpenseHandler: CustomHandlerWithResponse = async (
     endDate,
     dueDate,
     isPaid = false,
+    type,
+    paymentMethod,
+    tags,
+    expenseNote,
   } = expenseSchema.parse(body);
 
   const newExpense = await prisma.expense.create({
@@ -35,7 +42,25 @@ const createExpenseHandler: CustomHandlerWithResponse = async (
       endDate: endDate ? new Date(endDate) : null,
       dueDate: dueDate ? new Date(dueDate) : null,
       isPaid,
+      type,
+      paymentMethod,
       userId: user!.id,
+      tags: {
+        connectOrCreate: tags?.map((tag: string) => ({
+          where: {
+            name_userId: {
+              name: tag,
+              userId: user!.id,
+            },
+          },
+          create: { name: tag, userId: user!.id },
+        })),
+      },
+      expenseNote: {
+        create: expenseNote?.map((note: string) => ({
+          note,
+        })),
+      },
     },
   });
 
@@ -57,11 +82,21 @@ const getExpensesHandler: CustomHandlerWithResponse = async (
 
   const whereClause = {
     userId: user!.id,
-    ...(month && year && { month, year }),
+    ...(month &&
+      year && {
+        startDate: {
+          gte: new Date(year, month - 1, 1),
+          lt: new Date(year, month, 1),
+        },
+      }),
   };
 
   const expenses = await prisma.expense.findMany({
     where: whereClause,
+    include: {
+      tags: true,
+      expenseNote: true,
+    },
   });
 
   return NextResponse.json(expenses, { status: 200 });

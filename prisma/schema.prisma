@@ -7,6 +7,28 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum ExpenseType {
+  ONE_TIME
+  RECURRING
+  TRANSFER
+}
+
+enum Frequency {
+  DAILY
+  WEEKLY
+  MONTHLY
+  YEARLY
+}
+
+enum PaymentMethod {
+  CREDIT_CARD
+  DEBIT_CARD
+  CASH
+  BANK_TRANSFER
+  DIGITAL_BANK
+  OTHER
+}
+
 model User {
   id               String            @id @default(uuid())
   username         String            @unique
@@ -21,6 +43,7 @@ model User {
   income           MonthlyIncome[]
   settingsDefaults SettingsDefaults?
   expense          Expense[]
+  tags             Tag[]
 
   createdAt DateTime @default(now())
 
@@ -40,11 +63,21 @@ model Session {
 }
 
 model SettingsDefaults {
-  id            String @id @default(uuid())
-  defaultBudget Float
-  defaultIncome Float
-  userId        String @unique
-  user          User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                   String         @id @default(uuid())
+  defaultBudget        Float
+  defaultIncome        Float
+  currency             String         @default("PHP")
+  // reminderFrequency    Frequency?
+  locale               String?        @default("en-US")
+  timeZone             String?        @default("UTC")
+  dateFormat           String?        @default("MM/DD/YYYY")
+  // autoCategorization   Boolean        @default(false)
+  // defaultIncomeSource  String?
+  // notificationsEnabled Boolean        @default(true)
+  defaultPaymentMethod PaymentMethod? @default(CASH)
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
 
@@ -98,22 +131,50 @@ model MonthlyIncome {
 }
 
 model Expense {
-  id          String    @id @default(uuid())
-  description String?
-  amount      Float
-  categoryId  String
-  category    Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  userId      String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  recurring   Boolean
-  frequency   String? //Daily, Weekly, Monthly, Yearly
-  startDate   DateTime
-  endDate     DateTime?
-  dueDate     DateTime?
-  isPaid      Boolean
+  id            String        @id @default(uuid())
+  description   String?
+  amount        Float
+  type          ExpenseType
+  paymentMethod PaymentMethod
+  categoryId    String
+  category      Category      @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  userId        String
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recurring     Boolean
+  frequency     Frequency?
+  startDate     DateTime
+  endDate       DateTime?
+  dueDate       DateTime?
+  isPaid        Boolean
+  tags          Tag[]
+  expenseNote   ExpenseNote[]
 
   createdAt DateTime @default(now())
 
   @@index([userId, categoryId])
   @@map("expenses")
+}
+
+model Tag {
+  id       String    @id @default(uuid())
+  name     String    @unique
+  userId   String
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expenses Expense[]
+
+  createdAt DateTime @default(now())
+
+  @@unique([name, userId])
+  @@map("tags")
+}
+
+model ExpenseNote {
+  id        String  @id @default(uuid())
+  expenseId String
+  expense   Expense @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+  note      String
+
+  createdAt DateTime @default(now())
+
+  @@map("expense_notes")
 }

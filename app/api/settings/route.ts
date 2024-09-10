@@ -7,6 +7,8 @@ import {
   customMiddleware,
 } from "@/lib/server/middleware";
 
+export const dynamic = "force-dynamic"; // Add this when using req.nextUrl.searchParams
+
 const getSettingsHandler: CustomHandlerWithResponse = async (
   req: CustomNextRequest,
 ) => {

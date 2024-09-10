@@ -8,6 +8,7 @@ import {
   MonthlyIncome,
   SettingsResponse,
 } from "@/api/types/settings";
+import { SettingsSchema } from "@/lib/schema/settings";
 import { createContext, useContext, ReactNode, useMemo } from "react";
 
 interface SettingsContextType {
@@ -17,6 +18,11 @@ interface SettingsContextType {
     | {
         defaultBudget: number;
         defaultIncome: number;
+        currency: string;
+        locale: string;
+        timeZone: string;
+        dateFormat: string;
+        defaultPaymentMethod: SettingsSchema["defaultPaymentMethod"];
       };
   categories?: Category[] | [];
   monthly_budgets?: MonthlyBudget[] | [];
@@ -35,12 +41,20 @@ export default function SettingsProvider({
 }>) {
   const { data, isLoading, error } = useGetAllSettings();
 
+  // create a function that will convert the data to the correct format using timzezon and date format from settings
+  // const convertDate = (date: string | Date) => {};
+
   const contextValue = useMemo(
     () => ({
       data,
       default_settings: data?.default_settings ?? {
         defaultBudget: 0,
         defaultIncome: 0,
+        currency: "PHP",
+        locale: "en-US",
+        timeZone: "UTC",
+        dateFormat: "MM/dd/yyyy",
+        defaultPaymentMethod: "CASH",
       },
       categories: data?.categories ?? [],
       monthly_budgets: data?.monthly_budgets ?? [],

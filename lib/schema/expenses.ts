@@ -5,11 +5,22 @@ export const expenseSchema = z.object({
   amount: z.number().positive(),
   categoryId: z.string(),
   recurring: z.boolean(),
-  frequency: z.enum(["daily", "weekly", "monthly", "yearly"]).optional(),
-  startDate: z.string(), // We'll parse this as a date
+  frequency: z.enum(["DAILY", "WEEKLY", "MONTHLY", "YEARLY"]).optional(),
+  startDate: z.string(),
   endDate: z.string().optional(),
   dueDate: z.string().optional(),
   isPaid: z.boolean().optional(),
+  type: z.enum(["ONE_TIME", "RECURRING", "TRANSFER"]),
+  paymentMethod: z.enum([
+    "CREDIT_CARD",
+    "DEBIT_CARD",
+    "CASH",
+    "BANK_TRANSFER",
+    "DIGITAL_BANK",
+    "OTHER",
+  ]),
+  tags: z.array(z.string()).optional(),
+  expenseNote: z.array(z.string()).optional(),
 });
 
 export const updateExpenseSchema = z.object({
@@ -17,11 +28,24 @@ export const updateExpenseSchema = z.object({
   amount: z.number().positive().optional(),
   categoryId: z.string().optional(),
   recurring: z.boolean().optional(),
-  frequency: z.enum(["daily", "weekly", "monthly", "yearly"]).optional(),
-  startDate: z.string().optional(), // We'll parse this as a date
+  frequency: z.enum(["DAILY", "WEEKLY", "MONTHLY", "YEARLY"]).optional(),
+  startDate: z.string().optional(),
   endDate: z.string().optional(),
   dueDate: z.string().optional(),
   isPaid: z.boolean().optional(),
+  type: z.enum(["ONE_TIME", "RECURRING", "TRANSFER"]).optional(),
+  paymentMethod: z
+    .enum([
+      "CREDIT_CARD",
+      "DEBIT_CARD",
+      "CASH",
+      "BANK_TRANSFER",
+      "DIGITAL_BANK",
+      "OTHER",
+    ])
+    .optional(),
+  tags: z.array(z.string()).optional(),
+  expenseNote: z.array(z.string()).optional(),
 });
 
 export const queryParamsSchema = z.object({
