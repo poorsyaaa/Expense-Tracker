@@ -3,13 +3,11 @@ import prisma from "@/lib/server/db";
 import { settingsSchema } from "@/lib/schema/settings";
 import {
   CustomNextRequest,
-  CustomHandlerWithResponse,
+  CustomHandler,
   customMiddleware,
 } from "@/lib/server/middleware";
 
-const updateSettingsHandler: CustomHandlerWithResponse = async (
-  req: CustomNextRequest,
-) => {
+const updateSettingsHandler: CustomHandler = async (req: CustomNextRequest) => {
   const { user } = req;
 
   const body = await req.json();

@@ -3,15 +3,24 @@ import prisma from "@/lib/server/db";
 import { updateExpenseSchema } from "@/lib/schema/expenses";
 import {
   CustomNextRequest,
-  CustomHandlerWithParams,
+  CustomHandler,
   customMiddleware,
-  ContextWithParams,
+  HandlerContext,
 } from "@/lib/server/middleware";
 
-const getExpenseHandler: CustomHandlerWithParams = async (
+const getExpenseHandler: CustomHandler = async (
   req: CustomNextRequest,
-  { params }: ContextWithParams,
+  context: HandlerContext,
 ) => {
+  const { params } = context;
+
+  if (!params?.expenseId) {
+    return NextResponse.json(
+      { error: "Expense ID is missing" },
+      { status: 400 },
+    );
+  }
+
   const { user } = req;
 
   const expense = await prisma.expense.findFirst({
@@ -32,10 +41,19 @@ const getExpenseHandler: CustomHandlerWithParams = async (
   return NextResponse.json({ expense }, { status: 200 });
 };
 
-const updateExpenseHandler: CustomHandlerWithParams = async (
+const updateExpenseHandler: CustomHandler = async (
   req: CustomNextRequest,
-  { params }: ContextWithParams,
+  context: HandlerContext,
 ) => {
+  const { params } = context;
+
+  if (!params?.expenseId) {
+    return NextResponse.json(
+      { error: "Expense ID is missing" },
+      { status: 400 },
+    );
+  }
+
   const { user } = req;
 
   const body = await req.json();
@@ -91,10 +109,19 @@ const updateExpenseHandler: CustomHandlerWithParams = async (
   );
 };
 
-const deleteExpenseHandler: CustomHandlerWithParams = async (
+const deleteExpenseHandler: CustomHandler = async (
   req: CustomNextRequest,
-  { params }: ContextWithParams,
+  context: HandlerContext,
 ) => {
+  const { params } = context;
+
+  if (!params?.expenseId) {
+    return NextResponse.json(
+      { error: "Expense ID is missing" },
+      { status: 400 },
+    );
+  }
+
   const { user } = req;
 
   const deletedExpense = await prisma.expense.deleteMany({

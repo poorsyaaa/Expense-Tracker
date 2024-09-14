@@ -2,16 +2,22 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/server/db";
 import { budgetSchema } from "@/lib/schema/settings";
 import {
-  CustomHandlerWithParams,
+  CustomHandler,
   CustomNextRequest,
-  ContextWithParams,
+  HandlerContext,
   customMiddleware,
 } from "@/lib/server/middleware";
 
-const getBudgetHandler: CustomHandlerWithParams = async (
+const getBudgetHandler: CustomHandler = async (
   req: CustomNextRequest,
-  { params }: ContextWithParams,
+  context: HandlerContext,
 ) => {
+  const { params } = context;
+
+  if (!params?.budgetId) {
+    return NextResponse.json({ error: "Missing budget ID" }, { status: 400 });
+  }
+
   const { user } = req;
 
   const budget = await prisma.monthlyBudget.findFirst({
@@ -28,10 +34,16 @@ const getBudgetHandler: CustomHandlerWithParams = async (
   return NextResponse.json({ monthly_budget: budget }, { status: 200 });
 };
 
-const updateBudgetHandler: CustomHandlerWithParams = async (
+const updateBudgetHandler: CustomHandler = async (
   req: CustomNextRequest,
-  { params }: ContextWithParams,
+  context: HandlerContext,
 ) => {
+  const { params } = context;
+
+  if (!params?.budgetId) {
+    return NextResponse.json({ error: "Missing budget ID" }, { status: 400 });
+  }
+
   const { user } = req;
 
   const body = await req.json();

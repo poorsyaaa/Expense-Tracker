@@ -3,13 +3,11 @@ import prisma from "@/lib/server/db";
 import { categorySchema } from "@/lib/schema/settings";
 import {
   CustomNextRequest,
-  CustomHandlerWithResponse,
+  CustomHandler,
   customMiddleware,
 } from "@/lib/server/middleware";
 
-const createCategoryHandler: CustomHandlerWithResponse = async (
-  req: CustomNextRequest,
-) => {
+const createCategoryHandler: CustomHandler = async (req: CustomNextRequest) => {
   const { user } = req;
 
   const body = await req.json();

@@ -3,15 +3,13 @@ import prisma from "@/lib/server/db";
 import { expenseSchema, queryParamsSchema } from "@/lib/schema/expenses";
 import {
   CustomNextRequest,
-  CustomHandlerWithResponse,
+  CustomHandler,
   customMiddleware,
 } from "@/lib/server/middleware";
 
 export const dynamic = "force-dynamic"; // Add this when using req.nextUrl.searchParams
 
-const createExpenseHandler: CustomHandlerWithResponse = async (
-  req: CustomNextRequest,
-) => {
+const createExpenseHandler: CustomHandler = async (req: CustomNextRequest) => {
   const { user } = req;
   const body = await req.json();
 
@@ -70,9 +68,7 @@ const createExpenseHandler: CustomHandlerWithResponse = async (
   );
 };
 
-const getExpensesHandler: CustomHandlerWithResponse = async (
-  req: CustomNextRequest,
-) => {
+const getExpensesHandler: CustomHandler = async (req: CustomNextRequest) => {
   const { user } = req;
 
   const monthParam = req.nextUrl.searchParams.get("month") ?? "";

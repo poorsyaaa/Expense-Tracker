@@ -2,127 +2,89 @@ import { Prisma } from "@prisma/client";
 import { ApiError } from "next/dist/server/api-utils";
 import { ZodError } from "zod";
 import { NextResponse, NextRequest } from "next/server";
-import { validateRequest } from "../auth";
 import { User } from "lucia";
+import authMiddleware from "./middleware/auth-middleware";
 
 export type CustomNextRequest = NextRequest & {
   user?: User;
 };
 
-// Context includes params for dynamic routes
-export type ContextWithParams = {
-  params: { [key: string]: string };
+export type HandlerContext = {
+  params?: { [key: string]: string };
+  res?: NextResponse;
 };
 
-// CustomHandler for dynamic routes
-export type CustomHandlerWithParams = (
+export type CustomHandler = (
   req: CustomNextRequest,
-  context: ContextWithParams,
+  context: HandlerContext,
 ) => Promise<NextResponse | void>;
-
-// CustomHandler for non-dynamic routes
-export type CustomHandlerWithResponse = (
-  req: CustomNextRequest,
-  res: NextResponse,
-) => Promise<NextResponse | void>;
-
-// Overload 1: Middleware that takes req and context with params (dynamic route)
-export function customMiddleware(
-  ...handlers: CustomHandlerWithParams[]
-): (
-  req: CustomNextRequest,
-  context: { params: { [key: string]: string } },
-) => Promise<NextResponse | void>;
-
-// Overload 2: Middleware that takes req and res (non-dynamic route)
-export function customMiddleware(
-  ...handlers: CustomHandlerWithResponse[]
-): (req: CustomNextRequest, res: NextResponse) => Promise<NextResponse | void>;
 
 // Implementation of the middleware
-export function customMiddleware(
-  ...handlers: (CustomHandlerWithParams | CustomHandlerWithResponse)[]
-) {
+export function customMiddleware(...handlers: CustomHandler[]) {
   return async (
     req: CustomNextRequest,
     secondArg: NextResponse | { params: { [key: string]: string } },
   ) => {
     try {
-      await authMiddleware(req); // Run authentication middleware
+      await authMiddleware(req);
 
-      // Check if the second argument is a NextResponse (res) or context with params
-      const isRes = secondArg instanceof NextResponse;
+      const context: HandlerContext = {};
+
+      if ("params" in secondArg) {
+        context.params = secondArg.params;
+      } else {
+        context.res = secondArg;
+      }
 
       for (const handler of handlers) {
-        if (isRes) {
-          // For non-dynamic routes, pass res
-          const result = await (handler as CustomHandlerWithResponse)(
-            req,
-            secondArg,
-          );
-          if (result instanceof NextResponse) return result;
-        } else {
-          // For dynamic routes, pass context with params
-          const result = await (handler as CustomHandlerWithParams)(
-            req,
-            secondArg as { params: { [key: string]: string } },
-          );
-          if (result instanceof NextResponse) return result;
-        }
+        const result = await handler(req, context);
+        if (result instanceof NextResponse) return result;
       }
     } catch (error) {
-      console.error("Middleware Error:", error);
-
-      // Handle Prisma errors
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === "P2002"
-      ) {
-        return NextResponse.json(
-          {
-            error: "Database unique constraint violation.",
-            message: error.message,
-          },
-          { status: 409 },
-        );
-      }
-
-      // Handle validation errors
-      if (error instanceof ZodError) {
-        return NextResponse.json(
-          { error: "Validation Error", issues: error.format() },
-          { status: 400 },
-        );
-      }
-
-      // Handle API errors
-      if (error instanceof ApiError) {
-        return NextResponse.json(
-          {
-            error: error.message,
-          },
-          {
-            status: error.statusCode,
-            statusText: error.message,
-          },
-        );
-      }
-
-      // Handle internal server errors
-      return NextResponse.json(
-        { error: "Internal Server Error" },
-        { status: 500 },
-      );
+      return handleError(error);
     }
   };
 }
 
-// Authentication middleware function
-async function authMiddleware(req: CustomNextRequest) {
-  const { user } = await validateRequest();
-  if (!user) {
-    throw new ApiError(401, "Unauthorized");
+// Error handling function
+function handleError(error: unknown): NextResponse {
+  console.error("Middleware Error:", error);
+
+  // Handle Prisma errors
+  if (
+    error instanceof Prisma.PrismaClientKnownRequestError &&
+    error.code === "P2002"
+  ) {
+    return NextResponse.json(
+      {
+        error: "Database unique constraint violation.",
+        message: error.message,
+      },
+      { status: 409 },
+    );
   }
 
-  req.user = user;
+  // Handle validation errors
+  if (error instanceof ZodError) {
+    return NextResponse.json(
+      { error: "Validation Error", issues: error.format() },
+      { status: 400 },
+    );
+  }
+
+  // Handle API errors
+  if (error instanceof ApiError) {
+    return NextResponse.json(
+      {
+        error: error.message,
+      },
+      {
+        status: error.statusCode,
+        statusText: error.message,
+      },
+    );
+  }
+
+  // Handle internal server errors
+  return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
 }

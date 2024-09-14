@@ -3,13 +3,11 @@ import prisma from "@/lib/server/db";
 import { incomeSchema } from "@/lib/schema/settings";
 import {
   CustomNextRequest,
-  CustomHandlerWithResponse,
+  CustomHandler,
   customMiddleware,
 } from "@/lib/server/middleware";
 
-const createIncomeHandler: CustomHandlerWithResponse = async (
-  req: CustomNextRequest,
-) => {
+const createIncomeHandler: CustomHandler = async (req: CustomNextRequest) => {
   const { user } = req;
 
   const body = await req.json();

@@ -3,15 +3,21 @@ import prisma from "@/lib/server/db";
 import { categorySchema } from "@/lib/schema/settings";
 import {
   CustomNextRequest,
+  HandlerContext,
+  CustomHandler,
   customMiddleware,
-  ContextWithParams,
-  CustomHandlerWithParams,
 } from "@/lib/server/middleware";
 
-const getCategoryHandler: CustomHandlerWithParams = async (
+const getCategoryHandler: CustomHandler = async (
   req: CustomNextRequest,
-  { params }: ContextWithParams,
+  context: HandlerContext,
 ) => {
+  const { params } = context;
+
+  if (!params?.categoryId) {
+    return NextResponse.json({ error: "Missing category ID" }, { status: 400 });
+  }
+
   const { user } = req;
 
   const category = await prisma.category.findFirst({
@@ -28,10 +34,16 @@ const getCategoryHandler: CustomHandlerWithParams = async (
   return NextResponse.json({ category }, { status: 200 });
 };
 
-const updateCategoryHandler: CustomHandlerWithParams = async (
+const updateCategoryHandler: CustomHandler = async (
   req: CustomNextRequest,
-  { params }: ContextWithParams,
+  context: HandlerContext,
 ) => {
+  const { params } = context;
+
+  if (!params?.categoryId) {
+    return NextResponse.json({ error: "Missing category ID" }, { status: 400 });
+  }
+
   const { user } = req;
 
   const body = await req.json();
@@ -55,10 +67,16 @@ const updateCategoryHandler: CustomHandlerWithParams = async (
   );
 };
 
-const deleteCategoryHandler: CustomHandlerWithParams = async (
+const deleteCategoryHandler: CustomHandler = async (
   req: CustomNextRequest,
-  { params }: ContextWithParams,
+  context: HandlerContext,
 ) => {
+  const { params } = context;
+
+  if (!params?.categoryId) {
+    return NextResponse.json({ error: "Missing category ID" }, { status: 400 });
+  }
+
   const { user } = req;
 
   await prisma.category.delete({

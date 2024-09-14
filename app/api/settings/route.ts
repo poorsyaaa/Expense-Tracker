@@ -3,15 +3,13 @@ import prisma from "@/lib/server/db";
 import { queryParamsSchema } from "@/lib/schema/settings";
 import {
   CustomNextRequest,
-  CustomHandlerWithResponse,
+  CustomHandler,
   customMiddleware,
 } from "@/lib/server/middleware";
 
 export const dynamic = "force-dynamic"; // Add this when using req.nextUrl.searchParams
 
-const getSettingsHandler: CustomHandlerWithResponse = async (
-  req: CustomNextRequest,
-) => {
+const getSettingsHandler: CustomHandler = async (req: CustomNextRequest) => {
   const { user } = req;
   const month = req.nextUrl.searchParams.get("month");
   const year = req.nextUrl.searchParams.get("year");

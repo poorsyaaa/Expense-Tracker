@@ -4,14 +4,25 @@ import { incomeSchema } from "@/lib/schema/settings";
 import {
   CustomNextRequest,
   customMiddleware,
-  ContextWithParams,
-  CustomHandlerWithParams,
+  HandlerContext,
+  CustomHandler,
 } from "@/lib/server/middleware";
 
-const getIncomeHandler: CustomHandlerWithParams = async (
+const getIncomeHandler: CustomHandler = async (
   req: CustomNextRequest,
-  { params }: ContextWithParams,
+  context: HandlerContext,
 ) => {
+  const { params } = context;
+
+  if (!params?.incomeId) {
+    return NextResponse.json(
+      {
+        error: "Missing income ID",
+      },
+      { status: 400 },
+    );
+  }
+
   const { user } = req;
 
   const income = await prisma.monthlyIncome.findFirst({
@@ -28,10 +39,21 @@ const getIncomeHandler: CustomHandlerWithParams = async (
   return NextResponse.json({ monthly_income: income }, { status: 200 });
 };
 
-const updateIncomeHandler: CustomHandlerWithParams = async (
+const updateIncomeHandler: CustomHandler = async (
   req: CustomNextRequest,
-  { params }: ContextWithParams,
+  context: HandlerContext,
 ) => {
+  const { params } = context;
+
+  if (!params?.incomeId) {
+    return NextResponse.json(
+      {
+        error: "Missing income ID",
+      },
+      { status: 400 },
+    );
+  }
+
   const { user } = req;
 
   const body = await req.json();
