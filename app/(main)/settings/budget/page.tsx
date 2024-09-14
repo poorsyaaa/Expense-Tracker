@@ -20,11 +20,12 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { MonthlyIncome } from "@/api/types/settings";
-import IncomeSettingsForm from "../../_components/income-settings-form";
+
 import { DataTable } from "@/components/ui/data-table";
 import { Label } from "@radix-ui/react-label";
 import { budgetColumns, incomeColumns } from "./column";
-import BudgetSettingsForm from "../../_components/budget-settings-form";
+import IncomeSettingsForm from "../../_components/forms/income-settings-form";
+import BudgetSettingsForm from "../../_components/forms/budget-settings-form";
 
 export default function Page() {
   const queryClient = useQueryClient();

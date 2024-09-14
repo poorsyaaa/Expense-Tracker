@@ -22,14 +22,15 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select"; // Import ShadCN Select
+
+import { Separator } from "@/components/ui/separator";
 import {
   currencies,
-  dateFormats,
   localeLanguages,
-  paymentMethods,
   timeZones,
-} from "../config/constant";
-import { Separator } from "@/components/ui/separator";
+  dateFormats,
+  paymentMethods,
+} from "../../config/constant";
 
 interface GeneralSettingsFormProps {
   defaultBudget?: number;

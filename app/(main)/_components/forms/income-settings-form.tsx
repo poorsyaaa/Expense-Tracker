@@ -25,7 +25,7 @@ import {
   SelectValue,
   Select,
 } from "@/components/ui/select";
-import { months, years } from "../config/constant";
+import { months, years } from "../../config/constant";
 import { MonthlyIncome } from "@/api/types/settings";
 import { Separator } from "@/components/ui/separator";
 

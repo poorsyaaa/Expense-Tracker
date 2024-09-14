@@ -51,7 +51,6 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
             </FormItem>
           )}
         />
-
         <FormField
           control={form.control}
           name="displayName"
@@ -65,7 +64,6 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
             </FormItem>
           )}
         />
-
         <FormField
           control={form.control}
           name="email"

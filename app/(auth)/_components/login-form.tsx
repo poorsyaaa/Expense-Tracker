@@ -8,7 +8,7 @@ import Link from "next/link";
 
 import { loginAction } from "../action";
 
-import { PasswordInput } from "./password-input";
+import { PasswordInput } from "../../../components/ui/password-input";
 
 import { Button } from "@/components/ui/button";
 import {

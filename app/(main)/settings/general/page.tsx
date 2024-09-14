@@ -1,7 +1,7 @@
 "use client";
 
 import { useSettings } from "@/context/settingsContext";
-import GeneralSettingsForm from "../../_components/general-settings-form";
+
 import {
   Card,
   CardContent,
@@ -10,6 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
+import GeneralSettingsForm from "../../_components/forms/general-settings-form";
 
 export default function Page() {
   const { default_settings, isLoading } = useSettings();

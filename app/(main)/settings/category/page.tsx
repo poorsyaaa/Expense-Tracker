@@ -2,7 +2,7 @@
 
 import { useSettings } from "@/context/settingsContext";
 import { useState } from "react";
-import CategorySettingsForm from "../../_components/category-settings-form";
+import CategorySettingsForm from "../../_components/forms/category-settings-form";
 import { Button } from "@/components/ui/button";
 import {
   Card,

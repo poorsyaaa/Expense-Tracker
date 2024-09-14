@@ -7,7 +7,7 @@ import { Loader2 } from "lucide-react";
 
 import { signUpAction } from "../action";
 
-import { PasswordInput } from "./password-input";
+import { PasswordInput } from "../../../components/ui/password-input";
 
 import { Button } from "@/components/ui/button";
 import {

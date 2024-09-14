@@ -3,13 +3,18 @@ import {
   SheetDescription,
   SheetHeader,
   Sheet,
+  SheetTitle,
 } from "@/components/ui/sheet";
 import { User } from "lucia";
 import { PropsWithChildren, useState } from "react";
-import { ProfileForm } from "./profile-form";
-import { ProfileSchema } from "@/lib/schema/profile";
+import { ProfileForm } from "./forms/profile-form";
+import { PasswordSchema, ProfileSchema } from "@/lib/schema/profile";
 import { Separator } from "@/components/ui/separator";
-import { useUpdateProfile } from "@/api/mutations/profile-services";
+import {
+  useResetPassword,
+  useUpdateProfile,
+} from "@/api/mutations/profile-services";
+import { PasswordForm } from "./forms/reset-password-form";
 
 interface ProfileSheetProps {
   user: User;
@@ -22,11 +27,20 @@ export const ProfileSheet: React.FC<PropsWithChildren<ProfileSheetProps>> = ({
   isOpen,
   onClose,
 }) => {
-  const [formError, setFormError] = useState<string | undefined>(undefined);
+  const [profileFormError, setProfileFormError] = useState<
+    string | undefined
+  >();
+  const [resetFormError, setResetFormError] = useState<string | undefined>(
+    undefined,
+  );
+
   const { mutate: updateProfile, isPending: isUpdatePending } =
     useUpdateProfile();
+  const { mutate: resetPassword, isPending: isPasswordPending } =
+    useResetPassword();
 
   const onProfileSubmit = (data: ProfileSchema) => {
+    console.log(data);
     updateProfile(
       {
         data,
@@ -34,11 +48,29 @@ export const ProfileSheet: React.FC<PropsWithChildren<ProfileSheetProps>> = ({
       },
       {
         onSuccess: () => {
-          setFormError(undefined);
+          setProfileFormError(undefined);
           onClose();
         },
         onError: (error) => {
-          setFormError(error.message);
+          setProfileFormError(error.message);
+        },
+      },
+    );
+  };
+
+  const onPasswordSubmit = (data: PasswordSchema) => {
+    resetPassword(
+      {
+        data,
+        endpoint: "/profile/reset-password",
+      },
+      {
+        onSuccess: () => {
+          setResetFormError(undefined);
+          onClose();
+        },
+        onError: (error) => {
+          setResetFormError(error.message);
         },
       },
     );
@@ -47,24 +79,29 @@ export const ProfileSheet: React.FC<PropsWithChildren<ProfileSheetProps>> = ({
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent>
-        <SheetHeader>Edit Profile</SheetHeader>
-        <SheetDescription>
-          Make changes to your profile here. Click save when you&apos;re done.
-        </SheetDescription>
-        <div className="grid gap-4 py-4">
-          <ProfileForm
-            defaultValues={{
-              username: user.username,
-              displayName: user.displayName,
-              email: user.email,
-              avatarUrl: user.avatarUrl,
-            }}
-            isPending={isUpdatePending}
-            onSubmit={onProfileSubmit}
-            formError={formError}
-          />
-          <Separator />
-        </div>
+        <SheetHeader>
+          <SheetTitle>Edit Profile</SheetTitle>
+          <SheetDescription>
+            Make changes to your profile here. Click save when you&apos;re done.
+          </SheetDescription>
+        </SheetHeader>
+        <ProfileForm
+          defaultValues={{
+            username: user.username,
+            displayName: user.displayName,
+            email: user.email,
+            // avatarUrl: user.avatarUrl,
+          }}
+          isPending={isUpdatePending}
+          onSubmit={onProfileSubmit}
+          formError={profileFormError}
+        />
+        <Separator className="my-4" />
+        <PasswordForm
+          isPending={isPasswordPending}
+          onSubmit={onPasswordSubmit}
+          formError={resetFormError}
+        />
       </SheetContent>
     </Sheet>
   );
