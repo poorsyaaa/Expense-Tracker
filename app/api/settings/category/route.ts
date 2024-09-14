@@ -24,7 +24,10 @@ const createCategoryHandler: CustomHandlerWithResponse = async (
     },
   });
 
-  return NextResponse.json(category, { status: 201 });
+  return NextResponse.json(
+    { message: "Category created", category },
+    { status: 201 },
+  );
 };
 
 export const POST = customMiddleware(createCategoryHandler);

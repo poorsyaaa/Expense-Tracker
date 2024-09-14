@@ -46,7 +46,10 @@ const updateSettingsHandler: CustomHandlerWithResponse = async (
     },
   });
 
-  return NextResponse.json(defaults, { status: 200 });
+  return NextResponse.json(
+    { message: "Settings updated", default_settings: defaults },
+    { status: 200 },
+  );
 };
 
 export const POST = customMiddleware(updateSettingsHandler);

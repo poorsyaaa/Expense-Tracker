@@ -34,6 +34,8 @@ model User {
   username         String            @unique
   displayName      String
   email            String?           @unique
+  isEmailVerified  Boolean?          @default(false)
+  googleEmail      String?           @unique
   passwordHash     String
   googleId         String?           @unique
   avatarUrl        String?

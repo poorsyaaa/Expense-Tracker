@@ -24,7 +24,10 @@ const createIncomeHandler: CustomHandlerWithResponse = async (
     },
   });
 
-  return NextResponse.json({ monthly_income: income }, { status: 200 });
+  return NextResponse.json(
+    { message: "Income created", monthly_income: income },
+    { status: 200 },
+  );
 };
 
 export const POST = customMiddleware(createIncomeHandler);

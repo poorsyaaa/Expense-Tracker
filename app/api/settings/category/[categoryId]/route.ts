@@ -25,7 +25,7 @@ const getCategoryHandler: CustomHandlerWithParams = async (
     return NextResponse.json({ error: "Category not found" }, { status: 404 });
   }
 
-  return NextResponse.json(category, { status: 200 });
+  return NextResponse.json({ category }, { status: 200 });
 };
 
 const updateCategoryHandler: CustomHandlerWithParams = async (
@@ -49,7 +49,10 @@ const updateCategoryHandler: CustomHandlerWithParams = async (
     },
   });
 
-  return NextResponse.json(category, { status: 200 });
+  return NextResponse.json(
+    { message: "Category updated", category },
+    { status: 200 },
+  );
 };
 
 const deleteCategoryHandler: CustomHandlerWithParams = async (

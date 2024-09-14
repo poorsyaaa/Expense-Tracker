@@ -64,7 +64,10 @@ const createExpenseHandler: CustomHandlerWithResponse = async (
     },
   });
 
-  return NextResponse.json(newExpense, { status: 201 });
+  return NextResponse.json(
+    { message: "Expense created", expense: newExpense },
+    { status: 201 },
+  );
 };
 
 const getExpensesHandler: CustomHandlerWithResponse = async (
@@ -99,7 +102,7 @@ const getExpensesHandler: CustomHandlerWithResponse = async (
     },
   });
 
-  return NextResponse.json(expenses, { status: 200 });
+  return NextResponse.json({ expenses }, { status: 200 });
 };
 
 export const POST = customMiddleware(createExpenseHandler);

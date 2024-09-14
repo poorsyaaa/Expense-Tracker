@@ -49,7 +49,10 @@ const updateIncomeHandler: CustomHandlerWithParams = async (
     },
   });
 
-  return NextResponse.json({ monthly_income: income }, { status: 200 });
+  return NextResponse.json(
+    { message: "Income updated", monthly_income: income },
+    { status: 200 },
+  );
 };
 
 export const GET = customMiddleware(getIncomeHandler);

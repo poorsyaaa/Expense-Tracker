@@ -29,7 +29,7 @@ const getExpenseHandler: CustomHandlerWithParams = async (
     return NextResponse.json({ error: "Expense not found" }, { status: 404 });
   }
 
-  return NextResponse.json(expense, { status: 200 });
+  return NextResponse.json({ expense }, { status: 200 });
 };
 
 const updateExpenseHandler: CustomHandlerWithParams = async (
@@ -86,7 +86,7 @@ const updateExpenseHandler: CustomHandlerWithParams = async (
   });
 
   return NextResponse.json(
-    { updated_expense: updatedExpense },
+    { message: "Expense updated", expense: updatedExpense },
     { status: 200 },
   );
 };

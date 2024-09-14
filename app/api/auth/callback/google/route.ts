@@ -34,6 +34,7 @@ export async function GET(req: NextRequest) {
     const googleUser = await axios.get<{
       id: string;
       name: string;
+      email: string;
       picture?: string;
     }>("https://www.googleapis.com/oauth2/v1/userinfo", {
       headers: {
@@ -41,7 +42,7 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    const { id, name, picture } = googleUser.data;
+    const { id, name, picture, email } = googleUser.data;
 
     const existingUser = await prisma.user.findUnique({
       where: {
@@ -72,6 +73,7 @@ export async function GET(req: NextRequest) {
       data: {
         username,
         displayName: username,
+        googleEmail: email,
         passwordHash: "",
         googleId: id,
         avatarUrl: picture,

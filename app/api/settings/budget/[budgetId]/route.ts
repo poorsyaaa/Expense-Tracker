@@ -25,7 +25,7 @@ const getBudgetHandler: CustomHandlerWithParams = async (
     return NextResponse.json({ error: "Budget not found" }, { status: 404 });
   }
 
-  return NextResponse.json(budget, { status: 200 });
+  return NextResponse.json({ monthly_budget: budget }, { status: 200 });
 };
 
 const updateBudgetHandler: CustomHandlerWithParams = async (
@@ -49,7 +49,10 @@ const updateBudgetHandler: CustomHandlerWithParams = async (
     },
   });
 
-  return NextResponse.json({ monthly_budget: budget }, { status: 200 });
+  return NextResponse.json(
+    { message: "Budget updated", monthly_budget: budget },
+    { status: 200 },
+  );
 };
 
 export const GET = customMiddleware(getBudgetHandler);

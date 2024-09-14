@@ -24,7 +24,10 @@ const createBudgetHandler: CustomHandlerWithResponse = async (
     },
   });
 
-  return NextResponse.json({ monthly_budget: budget }, { status: 200 });
+  return NextResponse.json(
+    { message: "Budget created", monthly_budget: budget },
+    { status: 200 },
+  );
 };
 
 export const POST = customMiddleware(createBudgetHandler);

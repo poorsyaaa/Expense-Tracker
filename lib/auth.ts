@@ -20,6 +20,7 @@ export const lucia = new Lucia(adapter, {
       id: attributes.id,
       username: attributes.username,
       displayName: attributes.displayName,
+      email: attributes.email,
       avatarUrl: attributes.avatarUrl,
       googleId: attributes.googleId,
     };
@@ -37,6 +38,7 @@ interface DatabaseUserAttributes {
   id: string;
   username: string;
   displayName: string;
+  email: string;
   avatarUrl: string;
   googleId: string;
 }
