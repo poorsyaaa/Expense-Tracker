@@ -11,20 +11,22 @@ export type CustomNextRequest = NextRequest & {
 
 export type HandlerContext = {
   params?: { [key: string]: string };
+
   res?: NextResponse;
 };
 
 export type CustomHandler = (
   req: CustomNextRequest,
   context: HandlerContext,
+  next: () => Promise<NextResponse | void>,
 ) => Promise<NextResponse | void>;
 
-// Implementation of the middleware
+// Main middleware function to handle multiple middleware functions
 export function customMiddleware(...handlers: CustomHandler[]) {
   return async (
     req: CustomNextRequest,
     secondArg: NextResponse | { params: { [key: string]: string } },
-  ) => {
+  ): Promise<NextResponse | void> => {
     try {
       await authMiddleware(req);
 
@@ -36,17 +38,28 @@ export function customMiddleware(...handlers: CustomHandler[]) {
         context.res = secondArg;
       }
 
-      for (const handler of handlers) {
-        const result = await handler(req, context);
-        if (result instanceof NextResponse) return result;
-      }
+      let index = -1;
+
+      // Helper function to iterate through middleware functions
+      const runner = async (): Promise<NextResponse | void> => {
+        index++;
+        if (index < handlers.length) {
+          const handler = handlers[index];
+          return handler(req, context, runner);
+        }
+        return NextResponse.next();
+      };
+
+      const response = await runner();
+
+      return response;
     } catch (error) {
       return handleError(error);
     }
   };
 }
 
-// Error handling function
+// Centralized error handling function
 function handleError(error: unknown): NextResponse {
   console.error("Middleware Error:", error);
 
@@ -64,7 +77,7 @@ function handleError(error: unknown): NextResponse {
     );
   }
 
-  // Handle validation errors
+  // Handle Zod validation errors
   if (error instanceof ZodError) {
     return NextResponse.json(
       { error: "Validation Error", issues: error.format() },
@@ -85,6 +98,6 @@ function handleError(error: unknown): NextResponse {
     );
   }
 
-  // Handle internal server errors
+  // Fallback to internal server error
   return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
 }
