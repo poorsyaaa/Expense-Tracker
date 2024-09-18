@@ -389,73 +389,84 @@ async function createExpenses(
     return;
   }
 
+  // Get current date details
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
+  const currentMonth = currentDate.getMonth();
+  const startDate = new Date(currentYear, currentMonth, 1);
+
   for (let i = 0; i < expenseCount; i++) {
+    // Get current due date details + 28 days
+    const dueDate: Date = new Date(startDate);
+    dueDate.setDate(dueDate.getDate() + 28);
+
     const randomCategory = faker.helpers.arrayElement(categories);
     const randomTags = faker.helpers.arrayElements(
       tags,
       faker.number.int({ min: 1, max: 3 }),
     );
 
-    const expense = await tx.expense.create({
-      data: {
-        description: faker.lorem.sentence(),
-        amount: Number(
-          faker.finance.amount({
-            min: 1000,
-            max: 10000,
-            dec: 2,
-          }),
-        ),
-        type: faker.helpers.arrayElement(["ONE_TIME", "RECURRING", "TRANSFER"]),
-        paymentMethod: faker.helpers.arrayElement([
-          "CREDIT_CARD",
-          "DEBIT_CARD",
-          "CASH",
-          "BANK_TRANSFER",
-          "DIGITAL_BANK",
-          "OTHER",
-        ]),
-        categoryId: randomCategory.id,
-        userId,
-        recurring: faker.datatype.boolean(),
-        frequency: faker.helpers.arrayElement([
-          "DAILY",
-          "WEEKLY",
-          "MONTHLY",
-          "YEARLY",
-          null,
-        ]),
-        startDate: faker.date.past(),
-        endDate: faker.datatype.boolean() ? faker.date.future() : null,
-        dueDate: faker.datatype.boolean() ? faker.date.future() : null,
-        isPaid: faker.datatype.boolean(),
-        tags: {
-          connect: randomTags.map((tag) => ({ id: tag.id })),
+    try {
+      const expense = await tx.expense.create({
+        data: {
+          description: faker.lorem.sentence(),
+          amount: Number(
+            faker.finance.amount({
+              min: 1000,
+              max: 10000,
+              dec: 2,
+            }),
+          ),
+          type: faker.helpers.arrayElement([
+            "ONE_TIME",
+            "RECURRING",
+            "TRANSFER",
+          ]),
+          paymentMethod: faker.helpers.arrayElement([
+            "CREDIT_CARD",
+            "DEBIT_CARD",
+            "CASH",
+            "BANK_TRANSFER",
+            "DIGITAL_BANK",
+            "OTHER",
+          ]),
+          categoryId: randomCategory.id,
+          userId,
+          startDate: startDate,
+          dueDate: dueDate,
+          isPaid: faker.datatype.boolean(),
+          tags: {
+            connect: randomTags.map((tag) => ({ id: tag.id })),
+          },
         },
-      },
-    });
-
-    console.log(
-      `[INFO] Expense created - Description: "${expense.description}", Amount: ${expense.amount}`,
-    );
-
-    const noteCount = faker.number.int({ min: 0, max: 3 });
-    if (noteCount > 0) {
-      const expenseNotesData: Prisma.ExpenseNoteCreateManyInput[] = [];
-
-      for (let j = 0; j < noteCount; j++) {
-        expenseNotesData.push({
-          expenseId: expense.id,
-          note: faker.lorem.sentence(),
-        });
-      }
-
-      await tx.expenseNote.createMany({
-        data: expenseNotesData,
       });
 
       console.log(
-        `[INFO] Created ${noteCount} ExpenseNotes for Expense ID: ${expense.id}`,
+        `[INFO] Expense created - Description: "${expense.description}", Amount: ${expense.amount}`,
+      );
+
+      const noteCount = faker.number.int({ min: 0, max: 3 });
+      if (noteCount > 0) {
+        const expenseNotesData: Prisma.ExpenseNoteCreateManyInput[] = [];
+
+        for (let j = 0; j < noteCount; j++) {
+          expenseNotesData.push({
+            expenseId: expense.id,
+            note: faker.lorem.sentence(),
+          });
+        }
+
+        await tx.expenseNote.createMany({
+          data: expenseNotesData,
+        });
+
+        console.log(
+          `[INFO] Created ${noteCount} ExpenseNotes for Expense ID: ${expense.id}`,
+        );
+      }
+    } catch (error) {
+      console.error(
+        `[ERROR] Failed to create Expense for User ID: ${userId} - Error: ${error}`,
       );
     }
   }

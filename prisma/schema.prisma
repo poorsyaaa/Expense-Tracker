@@ -13,12 +13,12 @@ enum ExpenseType {
   TRANSFER
 }
 
-enum Frequency {
-  DAILY
-  WEEKLY
-  MONTHLY
-  YEARLY
-}
+// enum Frequency {
+//   DAILY
+//   WEEKLY
+//   MONTHLY
+//   YEARLY
+// }
 
 enum PaymentMethod {
   CREDIT_CARD
@@ -142,10 +142,10 @@ model Expense {
   category      Category      @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   userId        String
   user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  recurring     Boolean
-  frequency     Frequency?
+  // recurring     Boolean
+  // frequency     Frequency?
   startDate     DateTime
-  endDate       DateTime?
+  // endDate       DateTime?
   dueDate       DateTime?
   isPaid        Boolean
   tags          Tag[]

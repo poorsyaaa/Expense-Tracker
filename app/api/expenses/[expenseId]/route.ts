@@ -61,10 +61,7 @@ const updateExpenseHandler: CustomHandler = async (
     description,
     amount,
     categoryId,
-    recurring,
-    frequency,
     startDate,
-    endDate,
     dueDate,
     isPaid = false,
     tags, // New field: tags to be updated
@@ -80,10 +77,7 @@ const updateExpenseHandler: CustomHandler = async (
       description,
       amount,
       categoryId,
-      recurring,
-      frequency,
       startDate: startDate ? new Date(startDate) : undefined,
-      endDate: endDate ? new Date(endDate) : undefined,
       dueDate: dueDate ? new Date(dueDate) : undefined,
       isPaid,
       tags: {

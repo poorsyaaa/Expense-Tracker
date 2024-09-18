@@ -2,16 +2,14 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/server/db";
 import { passwordSchema } from "@/lib/schema/profile";
 import {
-  CustomHandlerWithResponse,
+  CustomHandler,
   CustomNextRequest,
   customMiddleware,
 } from "@/lib/server/middleware";
 import { hash, verify } from "@node-rs/argon2";
 import { revalidatePath } from "next/cache";
 
-const resetPasswordHandler: CustomHandlerWithResponse = async (
-  req: CustomNextRequest,
-) => {
+const resetPasswordHandler: CustomHandler = async (req: CustomNextRequest) => {
   const { user } = req;
 
   const body = await req.json();
