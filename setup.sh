@@ -100,8 +100,31 @@ fi
 
 # Ask if the user wants to seed the database
 if prompt_yes_no "Do you want to seed the Prisma database now?"; then
-  info "Running Prisma DB seed..."
-  if npx prisma db seed; then
+  # Prompt for number of categories, tags, expenses
+  read -rp "Enter number of categories (default 5): " input_categories
+  categories=${input_categories:-5}
+
+  read -rp "Enter number of tags (default 5): " input_tags
+  tags=${input_tags:-5}
+
+  read -rp "Enter number of expenses (default 10): " input_expenses
+  expenses=${input_expenses:-10}
+
+  # Ask if the user wants to reset the database
+  if prompt_yes_no "Do you want to reset the database before seeding?"; then
+    reset=true
+  else
+    reset=false
+  fi
+
+  # Construct seed command with arguments
+  seed_command="npx prisma db seed -- --categories=${categories} --tags=${tags} --expenses=${expenses}"
+  if [ "$reset" = true ]; then
+    seed_command+=" --reset"
+  fi
+
+  info "Running Prisma DB seed with command: ${seed_command}"
+  if eval "$seed_command"; then
     success "Prisma DB seeding completed successfully."
   else
     error "Prisma DB seeding failed."

@@ -27,8 +27,6 @@ export const signUpAction = async (
       parallelism: 1,
     });
 
-    // const userId = generateIdFromEntropySize(32);
-
     const existingUsername = await prisma.user.findFirst({
       where: {
         username: {
@@ -58,12 +56,6 @@ export const signUpAction = async (
         error: "Email already taken",
       };
     }
-
-    // await prisma.$transaction(async (tx) => {}, {
-    //   maxWait: 5000,
-    //   timeout: 10000,
-    //   isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
-    // });
 
     const user = await prisma.user.create({
       data: {
@@ -159,8 +151,6 @@ export const logoutAction = async () => {
 
   if (!session) {
     throw new Error("Unauthorized");
-
-    // return redirect("/401");
   }
 
   await lucia.invalidateSession(session.id);
