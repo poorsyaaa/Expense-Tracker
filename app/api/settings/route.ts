@@ -6,6 +6,7 @@ import {
   CustomHandler,
   customMiddleware,
 } from "@/lib/server/middleware";
+import { handleSettledResult } from "@/lib/server/utils";
 
 export const dynamic = "force-dynamic"; // Add this when using req.nextUrl.searchParams
 
@@ -35,14 +36,10 @@ const getSettingsHandler: CustomHandler = async (req: CustomNextRequest) => {
         : prisma.monthlyIncome.findMany({ where: { userId: user!.id } }),
     ]);
 
-  const settings =
-    settingsResult.status === "fulfilled" ? settingsResult.value : null;
-  const categories =
-    categoriesResult.status === "fulfilled" ? categoriesResult.value : [];
-  const monthlyBudget =
-    budgetResult.status === "fulfilled" ? budgetResult.value : [];
-  const monthlyIncome =
-    incomeResult.status === "fulfilled" ? incomeResult.value : [];
+  const settings = handleSettledResult(settingsResult, null);
+  const categories = handleSettledResult(categoriesResult, []);
+  const monthlyBudget = handleSettledResult(budgetResult, []);
+  const monthlyIncome = handleSettledResult(incomeResult, []);
 
   return NextResponse.json(
     {

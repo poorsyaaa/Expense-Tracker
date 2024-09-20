@@ -154,6 +154,8 @@ model Expense {
   createdAt DateTime @default(now())
 
   @@index([userId, categoryId])
+  @@index([startDate])
+  @@index([dueDate])
   @@map("expenses")
 }
 

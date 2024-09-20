@@ -1,6 +1,6 @@
 import { google, lucia } from "@/lib/auth";
 import prisma from "@/lib/server/db";
-import { generateUsername } from "@/lib/utils";
+import { generateUsername } from "@/lib/server/utils";
 import { OAuth2RequestError } from "arctic";
 import axios from "axios";
 import { cookies } from "next/headers";

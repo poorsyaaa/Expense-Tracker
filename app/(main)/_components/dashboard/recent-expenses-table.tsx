@@ -36,7 +36,7 @@ const RecentExpensesTable: React.FC<RecentExpensesTableProps> = ({
   currency,
 }) => {
   return (
-    <div className="xl:col-span-3">
+    <div className="xl:col-span-2">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <div className="grid gap-2">

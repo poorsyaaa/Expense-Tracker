@@ -1,7 +1,12 @@
 import { Battery, Calendar, DollarSign, PieChart } from "lucide-react";
-import DashboardCard from "./_components/dashboard/dashboard-card";
+import DashboardCard from "./_components/dashboard/card/dashboard-card";
 import RecentExpensesTable from "./_components/dashboard/recent-expenses-table";
 import UpcomingExpenses from "./_components/dashboard/upcoming-expenses";
+import SavingsOverviewCard from "./_components/dashboard/card/savings-overview-card";
+import ExpenseTrends from "./_components/dashboard/chart/expense-trend";
+import BudgetUtilization from "./_components/dashboard/chart/budget-utilization";
+import IncomeVsExpenses from "./_components/dashboard/chart/income-vs-expense";
+import SpendingByCategoryComponent from "./_components/dashboard/chart/spending-by-category";
 
 export default function Home() {
   return (
@@ -32,10 +37,83 @@ export default function Home() {
           title="Expenses This Month"
           amount={2000}
           currency="PHP"
-          subtitle="2 expenses this month"
+          subtitle="Updated just now"
           icon={<Calendar className="h-4 w-4 text-muted-foreground" />}
         />
       </div>
+      {/* overview*/}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
+        <SavingsOverviewCard
+          data={{
+            income: 5000,
+            expenses: 3245.67,
+            savings: 1754.33,
+          }}
+        />
+      </div>
+      {/* chart*/}
+      <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-2 xl:grid-cols-4">
+        <SpendingByCategoryComponent
+          data={[
+            { category: "Food", amount: 1200, fill: "#F87171" },
+            { category: "Housing", amount: 2500, fill: "#4CAF50" },
+            { category: "Transportation", amount: 800, fill: "#2196F3" },
+            { category: "Entertainment", amount: 600, fill: "#FFC107" },
+            { category: "Healthcare", amount: 400, fill: "#9C27B0" },
+            { category: "Utilities", amount: 300, fill: "#FF5722" },
+            { category: "Others", amount: 500, fill: "#607D8B" },
+          ]}
+        />
+        <IncomeVsExpenses
+          data={[
+            { month: "January", income: 1235, expenses: 3000 },
+            { month: "February", income: 50600, expenses: 3200 },
+            { month: "March", income: 6123, expenses: 3100 },
+            { month: "April", income: 975, expenses: 1235 },
+            { month: "May", income: 5000, expenses: 66123 },
+            { month: "June", income: 5000, expenses: 3100 },
+            { month: "July", income: 5000, expenses: 12356 },
+            { month: "August", income: 3354, expenses: 6123 },
+            { month: "September", income: 2315, expenses: 3200 },
+            { month: "October", income: 5000, expenses: 6123 },
+            { month: "November", income: 23123, expenses: 1232 },
+            { month: "December", income: 1324, expenses: 123 },
+          ]}
+          trend={{
+            type: "down",
+            value: 3.8,
+          }}
+        />
+        <BudgetUtilization
+          budget={5000}
+          utilized={3245.67}
+          trend={{
+            type: "down",
+            value: 3.8,
+          }}
+        />
+        <ExpenseTrends
+          data={[
+            { month: "January", amount: 10 },
+            { month: "February", amount: 2700 },
+            { month: "March", amount: 2300 },
+            { month: "April", amount: 2400 },
+            { month: "May", amount: 2600 },
+            { month: "June", amount: 2200 },
+            { month: "July", amount: 2100 },
+            { month: "August", amount: 2500 },
+            { month: "September", amount: 2600 },
+            { month: "October", amount: 2300 },
+            { month: "November", amount: 2200 },
+            { month: "December", amount: 2800 },
+          ]}
+          trend={{
+            type: "down",
+            value: 3.8,
+          }}
+        />
+      </div>
+      {/* table*/}
       <div className="grid gap-4 md:gap-8 lg:grid-cols-2 xl:grid-cols-3">
         <RecentExpensesTable
           expenses={[
