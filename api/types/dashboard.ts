@@ -8,6 +8,7 @@ export interface DashboardResponse {
 
 export interface DashboardCards {
   totalExpenses: number;
+  totalExpensesThisYear: number;
   monthlyBudget: number;
   totalExpensesThisMonth: number;
   remainingBudget: number;

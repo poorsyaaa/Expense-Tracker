@@ -16,7 +16,6 @@ const getDashboardDataHandler: CustomHandler = async (
   const { user } = req;
   const { searchParams } = req.nextUrl;
 
-  // Parse the year and month from query params or use current date
   const { year, month } = dashboardParamsSchema.parse({
     year: searchParams.get("year")
       ? Number(searchParams.get("year"))
@@ -30,7 +29,6 @@ const getDashboardDataHandler: CustomHandler = async (
   const currentYear = currentDate.getFullYear();
   const currentMonth = currentDate.getMonth() + 1;
 
-  // Calculate date ranges for the provided or current year and month
   const {
     startOfMonth,
     endOfMonth,
@@ -39,32 +37,54 @@ const getDashboardDataHandler: CustomHandler = async (
     endOfPreviousMonth,
   } = getDateRanges(year ?? currentYear, month ?? currentMonth);
 
-  // Calculate the adjusted year and month for the last 12 months
   const adjustedMonth = (month ?? currentMonth) - 11;
   const adjustedYear = (year ?? currentYear) - (adjustedMonth <= 0 ? 1 : 0);
   const normalizedAdjustedMonth =
     adjustedMonth <= 0 ? 12 + adjustedMonth : adjustedMonth;
 
-  // Database queries using Prisma
   const [
-    totalExpensesResult,
+    // 1. Total Expenses (All-Time)
+    totalExpensesAllTimeResult,
+    // 2. Total Expenses (This Year)
+    totalExpensesThisYearResult,
+    // 3. Monthly Budget (Current Month)
     monthlyBudgetResult,
+    // 4. Expenses This Month
     expensesThisMonthResult,
+    // 5. Total Income (This Year)
     totalIncomeResult,
+    // 6. Spending by Category
     spendingByCategoryResult,
+    // 7. Income vs Expenses (Last 12 Months) - Income
     incomeVsExpensesIncomeResult,
+    // 8. Income vs Expenses (Last 12 Months) - Expenses
     incomeVsExpensesExpensesResult,
+    // 9. Recent Expenses (Last 5)
     recentExpensesResult,
+    // 10. Upcoming Expenses (Due Date >= Today)
     upcomingExpensesResult,
+    // 11. Settings Defaults
     settingsDefaultsResult,
+    // 12. Previous Month Expenses
     previousMonthExpensesResult,
   ] = await prisma.$transaction([
-    // 1. Total Expenses (All-time)
+    // 1. Total Expenses (All-Time)
     prisma.expense.aggregate({
       _sum: { amount: true },
       where: { userId: user!.id },
     }),
-    // 2. Monthly Budget (Current Month)
+    // 2. Total Expenses (This Year)
+    prisma.expense.aggregate({
+      _sum: { amount: true },
+      where: {
+        userId: user!.id,
+        startDate: {
+          gte: new Date(year ?? currentYear, 0, 1),
+          lt: new Date((year ?? currentYear) + 1, 0, 1),
+        },
+      },
+    }),
+    // 3. Monthly Budget (Current Month)
     prisma.monthlyBudget.findUnique({
       where: {
         userId_month_year: {
@@ -75,7 +95,7 @@ const getDashboardDataHandler: CustomHandler = async (
       },
       select: { amount: true },
     }),
-    // 3. Expenses This Month
+    // 4. Expenses This Month
     prisma.expense.aggregate({
       _sum: { amount: true },
       where: {
@@ -86,34 +106,22 @@ const getDashboardDataHandler: CustomHandler = async (
         },
       },
     }),
-    // 4. Total Income (Up to current month and year)
+    // 5. Total Income (This Year)
     prisma.monthlyIncome.aggregate({
       _sum: { amount: true },
       where: {
         userId: user!.id,
-        OR: [
-          {
-            year: year,
-            month: {
-              lte: month,
-            },
-          },
-          {
-            year: {
-              lt: year,
-            },
-          },
-        ],
+        year: year ?? currentYear,
       },
     }),
-    // 5. Spending by Category
+    // 6. Spending by Category
     prisma.expense.groupBy({
       by: ["categoryId"],
       _sum: { amount: true },
       where: { userId: user!.id },
       orderBy: { _sum: { amount: "desc" } },
     }),
-    // 6. Income vs Expenses (Last 12 Months) - Income
+    // 7. Income vs Expenses (Last 12 Months) - Income
     prisma.monthlyIncome.findMany({
       where: {
         userId: user!.id,
@@ -135,7 +143,7 @@ const getDashboardDataHandler: CustomHandler = async (
       select: { month: true, amount: true, year: true },
       orderBy: [{ year: "asc" }, { month: "asc" }],
     }),
-    // 7. Income vs Expenses (Last 12 Months) - Expenses
+    // 8. Income vs Expenses (Last 12 Months) - Expenses
     prisma.expense.findMany({
       where: {
         userId: user!.id,
@@ -149,7 +157,7 @@ const getDashboardDataHandler: CustomHandler = async (
         amount: true,
       },
     }),
-    // 8. Recent Expenses (Last 5)
+    // 9. Recent Expenses (Last 5)
     prisma.expense.findMany({
       where: { userId: user!.id },
       orderBy: { startDate: "desc" },
@@ -165,7 +173,7 @@ const getDashboardDataHandler: CustomHandler = async (
         startDate: true,
       },
     }),
-    // 9. Upcoming Expenses (Due Date >= Today)
+    // 10. Upcoming Expenses (Due Date >= Today)
     prisma.expense.findMany({
       where: {
         userId: user!.id,
@@ -185,12 +193,12 @@ const getDashboardDataHandler: CustomHandler = async (
         },
       },
     }),
-    // 10. Settings Defaults
+    // 11. Settings Defaults
     prisma.settingsDefaults.findUnique({
       where: { userId: user!.id },
       select: { defaultBudget: true, defaultIncome: true },
     }),
-    // 11. Previous Month Expenses
+    // 12. Previous Month Expenses
     prisma.expense.aggregate({
       _sum: { amount: true },
       where: {
@@ -205,7 +213,8 @@ const getDashboardDataHandler: CustomHandler = async (
 
   // Cards
 
-  const totalExpenses = totalExpensesResult?._sum.amount ?? 0;
+  const totalExpensesAllTime = totalExpensesAllTimeResult?._sum.amount ?? 0;
+  const totalExpensesThisYear = totalExpensesThisYearResult?._sum.amount ?? 0;
   const monthlyBudget =
     monthlyBudgetResult?.amount ?? settingsDefaultsResult?.defaultBudget ?? 0;
   const totalExpensesThisMonth = expensesThisMonthResult._sum.amount ?? 0;
@@ -216,7 +225,7 @@ const getDashboardDataHandler: CustomHandler = async (
 
   const totalIncome =
     totalIncomeResult._sum.amount ?? settingsDefaultsResult?.defaultIncome ?? 0;
-  const totalSavings = totalIncome - totalExpenses;
+  const totalSavingsThisYear = totalIncome - totalExpensesThisYear;
 
   // Charts
 
@@ -344,7 +353,8 @@ const getDashboardDataHandler: CustomHandler = async (
   return NextResponse.json(
     {
       card: {
-        totalExpenses,
+        totalExpenses: totalExpensesAllTime,
+        totalExpensesThisYear,
         monthlyBudget,
         totalExpensesThisMonth,
         remainingBudget,
@@ -353,8 +363,8 @@ const getDashboardDataHandler: CustomHandler = async (
       overview: {
         savingsOverview: {
           totalIncome,
-          totalExpenses,
-          totalSavings,
+          totalExpenses: totalExpensesThisYear,
+          totalSavings: totalSavingsThisYear,
         },
       },
       chart: {
