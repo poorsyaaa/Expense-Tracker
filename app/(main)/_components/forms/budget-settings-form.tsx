@@ -91,12 +91,12 @@ const BudgetSettingsForm: React.FC<BudgetSettingsFormProps> = ({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
           name="amount"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="w-full">
               <FormLabel>Monthly Budget</FormLabel>
               <FormControl>
                 <Input
@@ -109,6 +109,7 @@ const BudgetSettingsForm: React.FC<BudgetSettingsFormProps> = ({
                     if (e.target.value === "") return field.onChange(undefined);
                     field.onChange(Number(e.target.value));
                   }}
+                  className="w-full"
                 />
               </FormControl>
               <FormMessage />
@@ -119,7 +120,7 @@ const BudgetSettingsForm: React.FC<BudgetSettingsFormProps> = ({
           control={form.control}
           name="month"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="w-full">
               <FormLabel>Month</FormLabel>
               <Select
                 onValueChange={(value) => {
@@ -129,7 +130,7 @@ const BudgetSettingsForm: React.FC<BudgetSettingsFormProps> = ({
                 value={field.value ? field.value.toString() : ""}
               >
                 <FormControl>
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select month" />
                   </SelectTrigger>
                 </FormControl>
@@ -149,7 +150,7 @@ const BudgetSettingsForm: React.FC<BudgetSettingsFormProps> = ({
           control={form.control}
           name="year"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="w-full">
               <FormLabel>Year</FormLabel>
               <Select
                 onValueChange={(value) => {
@@ -159,7 +160,7 @@ const BudgetSettingsForm: React.FC<BudgetSettingsFormProps> = ({
                 value={field.value.toString()}
               >
                 <FormControl>
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select year" />
                   </SelectTrigger>
                 </FormControl>
@@ -176,8 +177,12 @@ const BudgetSettingsForm: React.FC<BudgetSettingsFormProps> = ({
           )}
         />
         <Separator className="my-4" />
-        <div className="mt-4 flex justify-end">
-          <Button type="submit" disabled={isCreating || isUpdating}>
+        <div className="flex justify-end">
+          <Button
+            type="submit"
+            className="w-full sm:w-auto"
+            disabled={isCreating || isUpdating}
+          >
             {isCreating || isUpdating ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

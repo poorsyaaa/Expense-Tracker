@@ -87,13 +87,16 @@ const GeneralSettingsForm: React.FC<GeneralSettingsFormProps> = ({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-4" // Adds spacing between form elements
+      >
         {/* Default Budget Field */}
         <FormField
           control={form.control}
           name="defaultBudget"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="w-full">
               <FormLabel>Default Budget</FormLabel>
               <FormControl>
                 <Input
@@ -117,7 +120,7 @@ const GeneralSettingsForm: React.FC<GeneralSettingsFormProps> = ({
           control={form.control}
           name="defaultIncome"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="w-full">
               <FormLabel>Default Income</FormLabel>
               <FormControl>
                 <Input
@@ -141,7 +144,7 @@ const GeneralSettingsForm: React.FC<GeneralSettingsFormProps> = ({
           control={form.control}
           name="currency"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="w-full">
               <FormLabel>Currency</FormLabel>
               <Select
                 onValueChange={(value) => field.onChange(value)}
@@ -170,7 +173,7 @@ const GeneralSettingsForm: React.FC<GeneralSettingsFormProps> = ({
           control={form.control}
           name="locale"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="w-full">
               <FormLabel>Locale (will be supported soon)</FormLabel>
               <Select
                 disabled
@@ -200,7 +203,7 @@ const GeneralSettingsForm: React.FC<GeneralSettingsFormProps> = ({
           control={form.control}
           name="timeZone"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="w-full">
               <FormLabel>Time Zone</FormLabel>
               <Select
                 onValueChange={(value) => field.onChange(value)}
@@ -229,7 +232,7 @@ const GeneralSettingsForm: React.FC<GeneralSettingsFormProps> = ({
           control={form.control}
           name="dateFormat"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="w-full">
               <FormLabel>Date Format</FormLabel>
               <Select
                 onValueChange={(value) => field.onChange(value)}
@@ -258,7 +261,7 @@ const GeneralSettingsForm: React.FC<GeneralSettingsFormProps> = ({
           control={form.control}
           name="defaultPaymentMethod"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="w-full">
               <FormLabel>Default Payment Method</FormLabel>
               <Select
                 onValueChange={(value) => field.onChange(value)}
@@ -282,8 +285,12 @@ const GeneralSettingsForm: React.FC<GeneralSettingsFormProps> = ({
           )}
         />
         <Separator className="my-4" />
-        <div className="mt-4 flex justify-end">
-          <Button type="submit" disabled={isPending}>
+        <div className="flex justify-end">
+          <Button
+            type="submit"
+            className="w-full sm:w-auto"
+            disabled={isPending}
+          >
             {isPending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

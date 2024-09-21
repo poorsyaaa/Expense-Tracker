@@ -52,7 +52,6 @@ const CategorySettingsForm: React.FC<CategorySettingsFormProps> = ({
 
   const onSubmit = (data: CategorySchema) => {
     if (selectedCategory) {
-      // If a category is selected, update the category
       updateCategory(
         { data, endpoint: `/settings/category/${selectedCategory.id}` },
         {
@@ -65,7 +64,6 @@ const CategorySettingsForm: React.FC<CategorySettingsFormProps> = ({
         },
       );
     } else {
-      // If no category is selected, create a new one
       createCategory(
         { data, endpoint: "/settings/category" },
         {
@@ -82,7 +80,7 @@ const CategorySettingsForm: React.FC<CategorySettingsFormProps> = ({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
           name="name"
@@ -90,7 +88,11 @@ const CategorySettingsForm: React.FC<CategorySettingsFormProps> = ({
             <FormItem>
               <FormLabel>Category Name</FormLabel>
               <FormControl>
-                <Input {...field} placeholder="Enter category name" />
+                <Input
+                  {...field}
+                  placeholder="Enter category name"
+                  className="w-full"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -106,6 +108,7 @@ const CategorySettingsForm: React.FC<CategorySettingsFormProps> = ({
                 <IconPicker
                   icon={field.value}
                   setIcon={(icon) => field.onChange(icon)}
+                  className="w-full"
                 />
               </FormControl>
               <FormMessage />
@@ -122,6 +125,7 @@ const CategorySettingsForm: React.FC<CategorySettingsFormProps> = ({
                 <GradientPicker
                   background={field.value ?? "#09203f"}
                   setBackground={(color) => field.onChange(color)}
+                  className="w-full"
                 />
               </FormControl>
               <FormMessage />
@@ -129,8 +133,12 @@ const CategorySettingsForm: React.FC<CategorySettingsFormProps> = ({
           )}
         />
         <Separator className="my-4" />
-        <div className="mt-4 flex justify-end">
-          <Button type="submit" disabled={isCreating || isUpdating}>
+        <div className="mt-4">
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={isCreating || isUpdating}
+          >
             {isCreating || isUpdating ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
