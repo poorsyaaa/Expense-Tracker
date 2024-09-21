@@ -46,21 +46,29 @@ const SpendingByCategoryComponent: React.FC<SpendingByCategoryProps> = ({
   );
 
   return (
-    <Card>
+    <Card className="w-full">
       <CardHeader>
         <CardTitle>Spending by Category</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="w-full">
         <ChartContainer
           config={chartConfig}
           className="mx-auto aspect-square max-h-[300px]"
         >
-          <PieChart>
+          <PieChart width={300} height={300}>
             <ChartTooltip
               cursor={false}
               content={<ChartTooltipContent hideLabel indicator="line" />}
             />
-            <Pie data={data} dataKey="amount" nameKey="category" />
+            <Pie
+              data={data}
+              dataKey="amount"
+              nameKey="category"
+              cx="50%"
+              cy="50%"
+              outerRadius={100}
+              fill="var(--color-category)"
+            />
             <ChartLegend
               content={<ChartLegendContent nameKey="category" />}
               className="translate-y-2 flex-wrap gap-2 md:translate-y-5 [&>*]:basis-1/6 [&>*]:justify-center"

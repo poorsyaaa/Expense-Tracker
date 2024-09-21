@@ -62,3 +62,27 @@ export const generateChartConfig = (
 
   return config;
 };
+
+export const calculateAverages = (
+  data: {
+    month: string;
+    income: number;
+    expenses: number;
+  }[],
+) => {
+  const total = data.reduce(
+    (acc, item) => {
+      acc.income += item.income;
+      acc.expenses += item.expenses;
+      return acc;
+    },
+    { income: 0, expenses: 0 },
+  );
+
+  const count = data.length;
+
+  return {
+    income: count ? total.income / count : 0,
+    expenses: count ? total.expenses / count : 0,
+  };
+};

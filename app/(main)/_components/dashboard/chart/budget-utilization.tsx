@@ -39,14 +39,13 @@ const chartConfig = {
     color: "hsl(var(--chart-1))",
   },
 } satisfies ChartConfig;
+
 const BudgetUtilization: React.FC<BudgetUtilizationProps> = ({
   percentage,
-  budget,
-  utilized,
+  // budget,
+  // utilized,
   trend,
 }) => {
-  console.log(budget, utilized);
-
   const angle = parseFloat(percentage ?? "0.00") * 3.6;
 
   const data = [
@@ -58,16 +57,18 @@ const BudgetUtilization: React.FC<BudgetUtilizationProps> = ({
   ];
 
   return (
-    <Card>
+    <Card className="w-full">
       <CardHeader>
         <CardTitle>Budget Utilization</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="w-full">
         <ChartContainer
           config={chartConfig}
-          className="mx-auto aspect-square max-h-[250px]"
+          className="mx-auto aspect-square max-h-[300px]"
         >
           <RadialBarChart
+            width={300}
+            height={300}
             data={data}
             startAngle={0}
             endAngle={angle}

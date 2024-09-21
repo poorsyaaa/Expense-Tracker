@@ -1,6 +1,13 @@
 "use client";
 
-import { BarChart, Bar, XAxis, CartesianGrid } from "recharts";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  CartesianGrid,
+  Label,
+  ReferenceLine,
+} from "recharts";
 import {
   Card,
   CardHeader,
@@ -15,6 +22,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { TrendingDown, TrendingUp } from "lucide-react";
+import { calculateAverages } from "@/lib/utils";
 
 interface IncomeExpenses {
   month: string; // e.g., "January"
@@ -47,21 +55,24 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 const IncomeVsExpenses: React.FC<IncomeVsExpensesProps> = ({ data, trend }) => {
+  const average = calculateAverages(data);
+
   return (
-    <Card>
+    <Card className="w-full">
       <CardHeader>
         <CardTitle>Monthly Income vs. Expenses</CardTitle>
       </CardHeader>
-      <CardContent>
-        <ChartContainer config={chartConfig} className="min-h-[230px] w-full">
+      <CardContent className="w-full">
+        <ChartContainer config={chartConfig} className="h-[300px] w-full">
           <BarChart
-            accessibilityLayer
+            width={300}
+            height={300}
             data={data}
-            margin={{
-              top: 20,
-            }}
+            margin={{ top: 20, right: 20, left: 20, bottom: 20 }}
           >
             <CartesianGrid vertical={false} />
+            <Bar dataKey="income" fill="var(--color-income)" radius={8} />
+            <Bar dataKey="expenses" fill="var(--color-expenses)" radius={8} />
             <XAxis
               dataKey="month"
               tickLine={false}
@@ -73,8 +84,48 @@ const IncomeVsExpenses: React.FC<IncomeVsExpensesProps> = ({ data, trend }) => {
               cursor={false}
               content={<ChartTooltipContent hideLabel indicator="dashed" />}
             />
-            <Bar dataKey="income" fill="var(--color-income)" radius={8} />
-            <Bar dataKey="expenses" fill="var(--color-expenses)" radius={8} />
+            <ReferenceLine
+              y={average?.income ?? 0}
+              stroke="hsl(var(--muted-foreground))"
+              strokeDasharray="3 3"
+              strokeWidth={1}
+            >
+              <Label
+                position="insideBottomLeft"
+                value="Average Income"
+                offset={10}
+                fill="hsl(var(--foreground))"
+              />
+              <Label
+                position="insideTopLeft"
+                value={average?.income.toLocaleString() ?? 0}
+                className="text-lg"
+                fill="hsl(var(--foreground))"
+                offset={10}
+                startOffset={100}
+              />
+            </ReferenceLine>
+            <ReferenceLine
+              y={average?.expenses ?? 0}
+              stroke="hsl(var(--muted-foreground))"
+              strokeDasharray="3 3"
+              strokeWidth={1}
+            >
+              <Label
+                position="insideBottomRight"
+                value="Average Expenses"
+                offset={10}
+                fill="hsl(var(--foreground))"
+              />
+              <Label
+                position="insideTopRight"
+                value={average?.expenses.toLocaleString() ?? 0}
+                className="text-lg"
+                fill="hsl(var(--foreground))"
+                offset={10}
+                startOffset={100}
+              />
+            </ReferenceLine>
           </BarChart>
         </ChartContainer>
       </CardContent>

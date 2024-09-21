@@ -1,6 +1,6 @@
 "use client";
 
-import { LineChart, Line, XAxis, CartesianGrid } from "recharts";
+import { LineChart, Line, XAxis, CartesianGrid, YAxis } from "recharts";
 import {
   Card,
   CardHeader,
@@ -40,18 +40,25 @@ const chartConfig = {
 
 const ExpenseTrends: React.FC<ExpenseTrendsProps> = ({ data, trend }) => {
   return (
-    <Card>
+    <Card className="w-full">
       <CardHeader>
         <CardTitle>Expense Trends Over Time</CardTitle>
       </CardHeader>
-      <CardContent>
-        <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
+      <CardContent className="w-full">
+        <ChartContainer config={chartConfig} className="h-[300px] w-full">
           <LineChart
-            accessibilityLayer
+            width={300}
+            height={300}
             data={data}
-            margin={{ left: 12, right: 12 }}
+            margin={{ top: 20, right: 20, left: 20, bottom: 20 }}
           >
-            <CartesianGrid vertical={false} />
+            <CartesianGrid
+              strokeDasharray="4 4"
+              vertical={false}
+              stroke="hsl(var(--muted-foreground))"
+              strokeOpacity={0.5}
+            />
+            <YAxis hide domain={["dataMin - 10", "dataMax + 30"]} />
             <XAxis
               dataKey="month"
               tickLine={false}
@@ -59,16 +66,17 @@ const ExpenseTrends: React.FC<ExpenseTrendsProps> = ({ data, trend }) => {
               tickMargin={8}
               tickFormatter={(value) => value.slice(0, 3)}
             />
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent hideLabel />}
-            />
             <Line
               dataKey="amount"
               type="natural"
               stroke="var(--color-amount)"
               strokeWidth={2}
               dot={true}
+              values="amount"
+            />
+            <ChartTooltip
+              cursor={false}
+              content={<ChartTooltipContent indicator="line" />}
             />
           </LineChart>
         </ChartContainer>

@@ -8,13 +8,14 @@ import SavingsOverviewCard from "./_components/dashboard/card/savings-overview-c
 import ExpenseTrends from "./_components/dashboard/chart/expense-trend";
 import BudgetUtilization from "./_components/dashboard/chart/budget-utilization";
 import IncomeVsExpenses from "./_components/dashboard/chart/income-vs-expense";
-import SpendingByCategoryComponent from "./_components/dashboard/chart/spending-by-category";
+import SpendingByCategory from "./_components/dashboard/chart/spending-by-category";
 import { useGetDashboardData } from "@/api/queries/dashboard-hook";
 import {
   calculatePercentage,
   calculatePercentageChange,
   formatDate,
 } from "@/lib/utils";
+import { DatePickerWithPresets } from "./_components/date-picker";
 
 export default function Dashboard() {
   const currentDate = new Date();
@@ -38,6 +39,7 @@ export default function Dashboard() {
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+      <DatePickerWithPresets className="flex flex-1 items-end justify-end" />
       <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
         <DashboardCard
           title="Total expenses"
@@ -83,8 +85,8 @@ export default function Dashboard() {
         />
       </div>
       {/* chart*/}
-      <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-2 xl:grid-cols-4">
-        <SpendingByCategoryComponent
+      <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4">
+        <SpendingByCategory
           data={data.chart.spendingByCategory.map((category) => ({
             category: category.categoryName,
             amount: category.amount,

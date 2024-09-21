@@ -40,7 +40,6 @@ export const ProfileSheet: React.FC<PropsWithChildren<ProfileSheetProps>> = ({
     useResetPassword();
 
   const onProfileSubmit = (data: ProfileSchema) => {
-    console.log(data);
     updateProfile(
       {
         data,
