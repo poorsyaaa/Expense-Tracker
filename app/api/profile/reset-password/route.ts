@@ -7,7 +7,6 @@ import {
   customMiddleware,
 } from "@/lib/server/middleware";
 import { hash, verify } from "@node-rs/argon2";
-import { revalidatePath } from "next/cache";
 
 const resetPasswordHandler: CustomHandler = async (req: CustomNextRequest) => {
   const { user } = req;
@@ -75,8 +74,6 @@ const resetPasswordHandler: CustomHandler = async (req: CustomNextRequest) => {
       },
     });
   }
-
-  revalidatePath("/");
 
   return NextResponse.json(
     { message: "Password updated successfully" },

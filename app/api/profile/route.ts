@@ -6,7 +6,6 @@ import {
   customMiddleware,
   CustomNextRequest,
 } from "@/lib/server/middleware";
-import { revalidatePath } from "next/cache";
 
 const updateProfileHandler: CustomHandler = async (req: CustomNextRequest) => {
   const { user } = req;
@@ -25,8 +24,6 @@ const updateProfileHandler: CustomHandler = async (req: CustomNextRequest) => {
       email,
     },
   });
-
-  revalidatePath("/");
 
   return NextResponse.json(
     { message: "Profile updated successfully", profile },

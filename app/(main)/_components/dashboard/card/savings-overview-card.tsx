@@ -1,5 +1,5 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { calculatePercentage } from "@/lib/utils";
+import { calculatePercentage, cn } from "@/lib/utils";
 
 interface SavingsOverview {
   income: number;
@@ -39,7 +39,7 @@ const SavingsOverviewCard: React.FC<SavingsOverviewProps> = ({
           </div>
           <div className="flex items-center justify-between">
             <span className="font-medium">Savings:</span>
-            <span className="font-semibold text-green-600">
+            <span className={cn("font-semibold", data.savings < 0 ? "text-red-500" : "text-green-500")}>
               {data.savings.toLocaleString()} {currency} ({savingsPercentage}%)
             </span>
           </div>
