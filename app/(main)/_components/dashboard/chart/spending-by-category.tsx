@@ -3,37 +3,48 @@
 import { Pie, PieChart } from "recharts";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import {
-  ChartConfig,
   ChartContainer,
   ChartLegend,
   ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { generateChartConfig } from "@/lib/utils";
+import { ICONS_MAP } from "@/components/ui/icon-picker";
 
 interface SpendingByCategory {
   category: string;
   amount: number;
   fill?: string;
+  icon?: string;
 }
 
 interface SpendingByCategoryProps {
   data: SpendingByCategory[];
+  currency?: string;
 }
-
-const chartConfig = {
-  category: {
-    label: "Category",
-  },
-  amount: {
-    label: "Amount",
-    color: "hsl(var(--chart-1))",
-  },
-} satisfies ChartConfig;
 
 const SpendingByCategoryComponent: React.FC<SpendingByCategoryProps> = ({
   data,
 }) => {
+  const chartConfig = generateChartConfig(
+    data.map((item) => ({
+      property: item.category,
+      label: item.category,
+      fill: item.fill,
+      icon: item.icon ? ICONS_MAP[item.icon] : undefined,
+    })),
+    {
+      category: {
+        label: "Category",
+      },
+      amount: {
+        label: "Amount",
+        color: "hsl(var(--chart-1))",
+      },
+    },
+  );
+
   return (
     <Card>
       <CardHeader>
@@ -47,7 +58,7 @@ const SpendingByCategoryComponent: React.FC<SpendingByCategoryProps> = ({
           <PieChart>
             <ChartTooltip
               cursor={false}
-              content={<ChartTooltipContent hideLabel />}
+              content={<ChartTooltipContent hideLabel indicator="line" />}
             />
             <Pie data={data} dataKey="amount" nameKey="category" />
             <ChartLegend

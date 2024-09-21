@@ -24,8 +24,9 @@ interface Trend {
 }
 
 interface BudgetUtilizationProps {
-  budget: number;
-  utilized: number;
+  percentage: string;
+  budget?: number;
+  utilized?: number;
   trend?: Trend;
 }
 
@@ -39,20 +40,14 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 const BudgetUtilization: React.FC<BudgetUtilizationProps> = ({
+  percentage,
   budget,
   utilized,
   trend,
 }) => {
-  const validBudget = budget >= 0 ? budget : 0;
-  const validUtilized = utilized >= 0 ? utilized : 0;
-  const finalUtilized =
-    validUtilized > validBudget ? validBudget : validUtilized;
+  console.log(budget, utilized);
 
-  const percentage = finalUtilized
-    ? ((finalUtilized / validBudget) * 100).toFixed(2)
-    : "0.00";
-
-  const angle = parseFloat(percentage) * 3.6;
+  const angle = parseFloat(percentage ?? "0.00") * 3.6;
 
   const data = [
     {

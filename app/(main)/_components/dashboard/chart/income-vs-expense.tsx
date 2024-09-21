@@ -71,7 +71,7 @@ const IncomeVsExpenses: React.FC<IncomeVsExpensesProps> = ({ data, trend }) => {
             />
             <ChartTooltip
               cursor={false}
-              content={<ChartTooltipContent hideLabel />}
+              content={<ChartTooltipContent hideLabel indicator="dashed" />}
             />
             <Bar dataKey="income" fill="var(--color-income)" radius={8} />
             <Bar dataKey="expenses" fill="var(--color-expenses)" radius={8} />

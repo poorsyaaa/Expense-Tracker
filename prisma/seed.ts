@@ -15,8 +15,7 @@ import minimist from "minimist";
 // Initialize Prisma Client
 const prisma = new PrismaClient();
 
-// Destructure SEEDING_PASSWORD from environment variables with a fallback
-const { SEEDING_PASSWORD = "defaultPassword123" } = process.env;
+const { SEEDING_USERNAME, SEEDING_PASSWORD = "test12345" } = process.env;
 
 // Define ICONS as an array of strings
 const ICONS = [
@@ -134,7 +133,9 @@ async function createUser(tx: Prisma.TransactionClient): Promise<User> {
   // Create the user
   const user = await tx.user.create({
     data: {
-      username: faker.internet.userName().replace(/[^a-zA-Z0-9]/g, ""),
+      username:
+        SEEDING_USERNAME ??
+        faker.internet.userName().replace(/[^a-zA-Z0-9]/g, ""),
       displayName: faker.person.fullName(),
       email: faker.internet.exampleEmail(),
       isEmailVerified: false,
@@ -264,96 +265,145 @@ async function createTags(
 }
 
 /**
- * Creates monthlyBudget entries from January of the current year to December of the next year.
- * @param tx Prisma.TransactionClient
- * @param userId string
- * @param defaultBudget number
- * @param currentYear number
- * @returns {Promise<MonthlyBudget[]>} Created budgets
+ * Creates monthly budgets for the last 12 months starting from the current month.
+ *
+ * @param tx - Prisma TransactionClient for executing database operations within a transaction.
+ * @param userId - The ID of the user for whom the budgets are being created.
+ * @param defaultBudget - The maximum budget amount for seeding.
+ * @returns A promise that resolves to an array of created MonthlyBudget records.
  */
 async function createMonthlyBudgets(
   tx: Prisma.TransactionClient,
   userId: string,
   defaultBudget: number,
-  currentYear: number,
 ): Promise<MonthlyBudget[]> {
   const budgets: MonthlyBudget[] = [];
 
-  // Define the start and end years
-  const startYear = currentYear;
-  const endYear = currentYear + 1;
+  const date = new Date();
+  date.setDate(1);
+  date.setHours(0, 0, 0, 0);
 
-  // Iterate through each year
-  for (let year = startYear; year <= endYear; year++) {
-    // Iterate through each month from January (1) to December (12)
-    for (let month = 1; month <= 12; month++) {
-      const budget = await tx.monthlyBudget.create({
-        data: {
-          amount: Number(
-            faker.finance.amount({ min: 29999, max: defaultBudget, dec: 2 }),
-          ),
+  for (let i = 0; i < 12; i++) {
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
+
+    const budget = await tx.monthlyBudget.upsert({
+      where: {
+        userId_month_year: {
+          userId,
           month,
           year,
-          userId,
         },
-      });
+      },
+      update: {
+        amount: Number(
+          faker.finance.amount({ min: 29999, max: defaultBudget, dec: 2 }),
+        ),
+      },
+      create: {
+        amount: Number(
+          faker.finance.amount({ min: 29999, max: defaultBudget, dec: 2 }),
+        ),
+        month,
+        year,
+        userId,
+      },
+    });
 
-      console.log(
-        `[INFO] Created MonthlyBudget - User ID: ${userId} | Month: ${month}, Year: ${year} | Amount: ${budget.amount}`,
-      );
+    console.log(
+      `[INFO] Created MonthlyBudget - User ID: ${userId} | Month: ${month}, Year: ${year} | Amount: ${budget.amount}`,
+    );
 
-      budgets.push(budget);
-    }
+    budgets.push(budget);
+
+    // Move to the previous month
+    date.setMonth(date.getMonth() - 1);
   }
 
   return budgets;
 }
 
 /**
- * Creates monthlyIncome entries from January of the current year to December of the next year.
- * @param tx Prisma.TransactionClient
- * @param userId string
- * @param defaultIncome number
- * @param currentYear number
- * @returns {Promise<MonthlyIncome[]>} Created incomes
+ * Creates monthlyIncome entries for the last 12 months starting from the current month.
+ *
+ * @param tx Prisma.TransactionClient for executing database operations within a transaction.
+ * @param userId The ID of the user for whom the incomes are being created.
+ * @param defaultIncome The maximum income amount for seeding.
+ * @returns A promise that resolves to an array of created MonthlyIncome records.
  */
 async function createMonthlyIncomes(
   tx: Prisma.TransactionClient,
   userId: string,
   defaultIncome: number,
-  currentYear: number,
 ): Promise<MonthlyIncome[]> {
   const incomes: MonthlyIncome[] = [];
 
-  // Define the start and end years
-  const startYear = currentYear;
-  const endYear = currentYear + 1;
+  const date = new Date();
+  date.setDate(1);
+  date.setHours(0, 0, 0, 0);
 
-  // Iterate through each year
-  for (let year = startYear; year <= endYear; year++) {
-    // Iterate through each month from January (1) to December (12)
-    for (let month = 1; month <= 12; month++) {
-      const income = await tx.monthlyIncome.create({
-        data: {
-          amount: Number(
-            faker.finance.amount({ min: 40000, max: defaultIncome, dec: 2 }),
-          ),
+  for (let i = 0; i < 12; i++) {
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
+
+    const income = await tx.monthlyIncome.upsert({
+      where: {
+        userId_month_year: {
+          userId,
           month,
           year,
-          userId,
         },
-      });
+      },
+      update: {
+        amount: Number(
+          faker.finance.amount({ min: 40000, max: defaultIncome, dec: 2 }),
+        ),
+      },
+      create: {
+        amount: Number(
+          faker.finance.amount({ min: 40000, max: defaultIncome, dec: 2 }),
+        ),
+        month,
+        year,
+        userId,
+      },
+    });
 
-      console.log(
-        `[INFO] Created MonthlyIncome - User ID: ${userId} | Month: ${month}, Year: ${year} | Amount: ${income.amount}`,
-      );
+    console.log(
+      `[INFO] Created/Updated MonthlyIncome - User ID: ${userId} | Month: ${month}, Year: ${year} | Amount: ${income.amount}`,
+    );
 
-      incomes.push(income);
-    }
+    incomes.push(income);
+
+    date.setMonth(date.getMonth() - 1);
   }
 
   return incomes;
 }
+
+/**
+ * Generates a random Date object within the last 12 months.
+ * @returns {Date}
+ */
+const getRandomDateWithinLast12Months = (): Date => {
+  const currentDate = new Date();
+  const pastDate = new Date();
+  pastDate.setMonth(currentDate.getMonth() - 11);
+
+  if (currentDate.getMonth() < 11) {
+    pastDate.setFullYear(currentDate.getFullYear() - 1);
+  }
+
+  const startTimestamp = pastDate.getTime();
+  const endTimestamp = currentDate.getTime();
+
+  const randomTimestamp = faker.number.int({
+    min: startTimestamp,
+    max: endTimestamp,
+  });
+
+  return new Date(randomTimestamp);
+};
 
 /**
  * Creates expenses and associated notes for a given user.
@@ -389,13 +439,10 @@ async function createExpenses(
     return;
   }
 
-  // Get current date details
-  const currentDate = new Date();
-  const currentYear = currentDate.getFullYear();
-  const currentMonth = currentDate.getMonth();
-  const startDate = new Date(currentYear, currentMonth, 1);
-
   for (let i = 0; i < expenseCount; i++) {
+    // Generate a random start date within the last 12 months
+    const startDate = getRandomDateWithinLast12Months();
+
     // Get current due date details + 28 days
     const dueDate: Date = new Date(startDate);
     dueDate.setDate(dueDate.getDate() + 28);
@@ -516,21 +563,10 @@ async function main() {
         await createTags(tx, user.id, tagCount);
 
         // 5. Create MonthlyBudgets
-        const currentYear = new Date().getFullYear();
-        await createMonthlyBudgets(
-          tx,
-          user.id,
-          settings.defaultBudget,
-          currentYear,
-        );
+        await createMonthlyBudgets(tx, user.id, settings.defaultBudget);
 
         // 6. Create MonthlyIncomes
-        await createMonthlyIncomes(
-          tx,
-          user.id,
-          settings.defaultIncome,
-          currentYear,
-        );
+        await createMonthlyIncomes(tx, user.id, settings.defaultIncome);
 
         // 7. Create Expenses and ExpenseNotes
         await createExpenses(tx, user.id, expenseCount);

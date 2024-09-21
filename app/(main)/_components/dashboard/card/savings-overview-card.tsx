@@ -1,4 +1,5 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { calculatePercentage } from "@/lib/utils";
 
 interface SavingsOverview {
   income: number;
@@ -8,10 +9,14 @@ interface SavingsOverview {
 
 interface SavingsOverviewProps {
   data: SavingsOverview;
+  currency?: string;
 }
 
-const SavingsOverviewCard: React.FC<SavingsOverviewProps> = ({ data }) => {
-  const savingsPercentage = ((data.savings / data.income) * 100).toFixed(2);
+const SavingsOverviewCard: React.FC<SavingsOverviewProps> = ({
+  data,
+  currency,
+}) => {
+  const savingsPercentage = calculatePercentage(data.savings, data.income);
 
   return (
     <Card>
@@ -23,19 +28,19 @@ const SavingsOverviewCard: React.FC<SavingsOverviewProps> = ({ data }) => {
           <div className="mb-2 flex items-center justify-between">
             <span className="font-medium">Income:</span>
             <span className="font-semibold">
-              ${data.income.toLocaleString()}
+              {data.income.toLocaleString()} {currency}
             </span>
           </div>
           <div className="mb-2 flex items-center justify-between">
             <span className="font-medium">Expenses:</span>
             <span className="font-semibold">
-              ${data.expenses.toLocaleString()}
+              {data.expenses.toLocaleString()} {currency}
             </span>
           </div>
           <div className="flex items-center justify-between">
             <span className="font-medium">Savings:</span>
             <span className="font-semibold text-green-600">
-              ${data.savings.toLocaleString()} ({savingsPercentage}%)
+              {data.savings.toLocaleString()} {currency} ({savingsPercentage}%)
             </span>
           </div>
         </div>

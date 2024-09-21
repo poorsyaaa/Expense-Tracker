@@ -5,7 +5,7 @@ import {
   CustomHandler,
   customMiddleware,
 } from "@/lib/server/middleware";
-import { dashboardSchema } from "@/lib/schema/dashboard";
+import { dashboardParamsSchema } from "@/lib/schema/dashboard";
 import { getDateRanges } from "@/lib/server/utils";
 
 export const dynamic = "force-dynamic"; // Add this when using req.nextUrl.searchParams
@@ -17,7 +17,7 @@ const getDashboardDataHandler: CustomHandler = async (
 
   const { searchParams } = req.nextUrl;
 
-  const { year, month } = dashboardSchema.parse({
+  const { year, month } = dashboardParamsSchema.parse({
     year: searchParams.get("year")
       ? Number(searchParams.get("year"))
       : undefined,
@@ -168,6 +168,7 @@ const getDashboardDataHandler: CustomHandler = async (
         dueDate: {
           gte: new Date(),
         },
+        isPaid: false,
       },
       orderBy: { dueDate: "asc" },
       select: {
@@ -213,6 +214,9 @@ const getDashboardDataHandler: CustomHandler = async (
     totalIncomeResult._sum.amount ?? settingsDefaultsResult?.defaultIncome ?? 0;
   const totalSavings = totalIncome - totalExpenses;
 
+  console.log("incomeVsExpensesIncomeResult", incomeVsExpensesIncomeResult);
+  console.log("incomeVsExpensesExpensesResult", incomeVsExpensesExpensesResult);
+
   // Charts
 
   const existingCategories = await prisma.category.findMany({
@@ -233,7 +237,7 @@ const getDashboardDataHandler: CustomHandler = async (
     return {
       categoryId: existingCategory?.id,
       categoryName: existingCategory?.name,
-      amount: category.amount,
+      amount: category._sum?.amount ?? 0,
       fill: existingCategory?.color,
       icon: existingCategory?.icon,
     };
@@ -282,6 +286,39 @@ const getDashboardDataHandler: CustomHandler = async (
     ? ((totalExpensesThisMonth / monthlyBudget) * 100).toFixed(2)
     : "0.00";
 
+  const expenseTrends = Array.from({ length: 12 }, (_, i) => {
+    const monthOffset = (month ?? currentMonth) - 12 + i + 1;
+    let monthIndex = monthOffset;
+    let queryYear = year ?? currentYear;
+
+    if (monthOffset <= 0) {
+      monthIndex = 12 + monthOffset;
+      queryYear = (year ?? currentYear) - 1;
+    }
+
+    const monthName = new Date(queryYear, monthIndex - 1, 1).toLocaleString(
+      "default",
+      {
+        month: "long",
+      },
+    );
+
+    const expenseData = incomeVsExpensesExpensesResult
+      .filter((expense) => {
+        const expenseDate = new Date(expense.startDate);
+        return (
+          expenseDate.getMonth() + 1 === monthIndex &&
+          expenseDate.getFullYear() === queryYear
+        );
+      })
+      .reduce((sum, expense) => sum + expense.amount, 0);
+
+    return {
+      month: monthName,
+      amount: expenseData ?? 0,
+    };
+  });
+
   // Tables
 
   const recentExpenses = recentExpensesResult.map((expense) => ({
@@ -325,12 +362,13 @@ const getDashboardDataHandler: CustomHandler = async (
           utilized: totalExpensesThisMonth,
           percentage,
         },
+        expenseTrends,
       },
       table: {
         recentExpenses,
         upcomingExpenses,
       },
-      expenseTrends: [],
+      updatedAt: new Date().toISOString(),
     },
     { status: 200 },
   );

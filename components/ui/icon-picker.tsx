@@ -37,6 +37,21 @@ const ICONS: Record<string, React.FC<React.SVGProps<SVGSVGElement>>> = {
   Truck,
 };
 
+export const ICONS_MAP: { [key: string]: React.ComponentType } = {
+  DollarSign,
+  CreditCard,
+  Wallet,
+  PiggyBank,
+  Banknote,
+  Coins,
+  ChartBar,
+  Receipt,
+  ShoppingBag,
+  Briefcase,
+  Gift,
+  Truck,
+};
+
 // Memoize the IconPicker component to prevent unnecessary re-renders
 export const IconPicker = React.memo(function IconPicker({
   icon = "DollarSign", // Default value for the icon
