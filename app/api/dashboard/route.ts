@@ -1,3 +1,5 @@
+// /pages/api/dashboard.ts
+
 import { NextResponse } from "next/server";
 import prisma from "@/lib/server/db";
 import {
@@ -7,8 +9,16 @@ import {
 } from "@/lib/server/middleware";
 import { dashboardParamsSchema } from "@/lib/schema/dashboard";
 import { getDateRanges } from "@/lib/server/utils";
+import {
+  startOfYear,
+  endOfYear,
+  subMonths,
+  format,
+  getMonth,
+  getYear,
+} from "date-fns";
 
-export const dynamic = "force-dynamic"; // Add this when using req.nextUrl.searchParams
+export const dynamic = "force-dynamic"; // Required when using req.nextUrl.searchParams
 
 const getDashboardDataHandler: CustomHandler = async (
   req: CustomNextRequest,
@@ -16,6 +26,7 @@ const getDashboardDataHandler: CustomHandler = async (
   const { user } = req;
   const { searchParams } = req.nextUrl;
 
+  // Parse and validate query parameters
   const { year, month } = dashboardParamsSchema.parse({
     year: searchParams.get("year")
       ? Number(searchParams.get("year"))
@@ -37,35 +48,22 @@ const getDashboardDataHandler: CustomHandler = async (
     endOfPreviousMonth,
   } = getDateRanges(year ?? currentYear, month ?? currentMonth);
 
-  const adjustedMonth = (month ?? currentMonth) - 11;
-  const adjustedYear = (year ?? currentYear) - (adjustedMonth <= 0 ? 1 : 0);
-  const normalizedAdjustedMonth =
-    adjustedMonth <= 0 ? 12 + adjustedMonth : adjustedMonth;
+  const adjustedDate = subMonths(startOfMonth, 11);
+  const normalizedAdjustedMonth = adjustedDate.getMonth() + 1;
 
+  // Execute multiple Prisma queries in a transaction
   const [
-    // 1. Total Expenses (All-Time)
     totalExpensesAllTimeResult,
-    // 2. Total Expenses (This Year)
     totalExpensesThisYearResult,
-    // 3. Monthly Budget (Current Month)
     monthlyBudgetResult,
-    // 4. Expenses This Month
     expensesThisMonthResult,
-    // 5. Total Income (This Year)
     totalIncomeResult,
-    // 6. Spending by Category
     spendingByCategoryResult,
-    // 7. Income vs Expenses (Last 12 Months) - Income
     incomeVsExpensesIncomeResult,
-    // 8. Income vs Expenses (Last 12 Months) - Expenses
     incomeVsExpensesExpensesResult,
-    // 9. Recent Expenses (Last 5)
     recentExpensesResult,
-    // 10. Upcoming Expenses (Due Date >= Today)
     upcomingExpensesResult,
-    // 11. Settings Defaults
     settingsDefaultsResult,
-    // 12. Previous Month Expenses
     previousMonthExpensesResult,
   ] = await prisma.$transaction([
     // 1. Total Expenses (All-Time)
@@ -79,8 +77,8 @@ const getDashboardDataHandler: CustomHandler = async (
       where: {
         userId: user!.id,
         startDate: {
-          gte: new Date(year ?? currentYear, 0, 1),
-          lt: new Date((year ?? currentYear) + 1, 0, 1),
+          gte: startOfYear(year ? new Date(year, 0, 1) : currentDate),
+          lt: endOfYear(year ? new Date(year, 0, 1) : currentDate),
         },
       },
     }),
@@ -148,7 +146,7 @@ const getDashboardDataHandler: CustomHandler = async (
       where: {
         userId: user!.id,
         startDate: {
-          gte: new Date(adjustedYear, normalizedAdjustedMonth - 1, 1),
+          gte: adjustedDate,
           lt: endOfMonth,
         },
       },
@@ -211,7 +209,7 @@ const getDashboardDataHandler: CustomHandler = async (
     }),
   ]);
 
-  // Cards
+  // **Cards Calculation**
 
   const totalExpensesAllTime = totalExpensesAllTimeResult?._sum.amount ?? 0;
   const totalExpensesThisYear = totalExpensesThisYearResult?._sum.amount ?? 0;
@@ -221,14 +219,15 @@ const getDashboardDataHandler: CustomHandler = async (
   const remainingBudget = monthlyBudget - totalExpensesThisMonth;
   const previousMonthExpenses = previousMonthExpensesResult._sum.amount ?? 0;
 
-  // Overviews
+  // **Overviews Calculation**
 
   const totalIncome =
     totalIncomeResult._sum.amount ?? settingsDefaultsResult?.defaultIncome ?? 0;
   const totalSavingsThisYear = totalIncome - totalExpensesThisYear;
 
-  // Charts
+  // **Charts Calculation**
 
+  // Fetch existing categories for spending by category
   const existingCategories = await prisma.category.findMany({
     where: {
       userId: user!.id,
@@ -253,22 +252,13 @@ const getDashboardDataHandler: CustomHandler = async (
     };
   });
 
+  // Income vs Expenses for the last 12 months
   const incomeVsExpenses = Array.from({ length: 12 }, (_, i) => {
-    const monthOffset = (month ?? currentMonth) - 12 + i + 1;
-    let monthIndex = monthOffset;
-    let queryYear = year ?? currentYear;
+    const date = subMonths(startOfMonth, 11 - i);
+    const queryYear = date.getFullYear();
+    const monthIndex = date.getMonth() + 1;
 
-    if (monthOffset <= 0) {
-      monthIndex = 12 + monthOffset;
-      queryYear = (year ?? currentYear) - 1;
-    }
-
-    const monthName = new Date(queryYear, monthIndex - 1, 1).toLocaleString(
-      "default",
-      {
-        month: "short",
-      },
-    );
+    const monthName = format(date, "MMM");
 
     const income =
       incomeVsExpensesIncomeResult.find(
@@ -279,10 +269,9 @@ const getDashboardDataHandler: CustomHandler = async (
 
     const expenses = incomeVsExpensesExpensesResult
       .filter((expense) => {
-        const expenseDate = new Date(expense.startDate);
         return (
-          expenseDate.getMonth() + 1 === monthIndex &&
-          expenseDate.getFullYear() === queryYear
+          getMonth(expense.startDate) + 1 === monthIndex &&
+          getYear(expense.startDate) === queryYear
         );
       })
       .reduce((sum, expense) => sum + expense.amount, 0);
@@ -294,33 +283,21 @@ const getDashboardDataHandler: CustomHandler = async (
     };
   });
 
+  // Calculate budget utilization percentage
   const percentage = monthlyBudget
     ? ((totalExpensesThisMonth / monthlyBudget) * 100).toFixed(2)
     : "0.00";
 
+  // Expense trends for the last 12 months
   const expenseTrends = Array.from({ length: 12 }, (_, i) => {
-    const monthOffset = (month ?? currentMonth) - 12 + i + 1;
-    let monthIndex = monthOffset;
-    let queryYear = year ?? currentYear;
-
-    if (monthOffset <= 0) {
-      monthIndex = 12 + monthOffset;
-      queryYear = (year ?? currentYear) - 1;
-    }
-
-    const monthName = new Date(queryYear, monthIndex - 1, 1).toLocaleString(
-      "default",
-      {
-        month: "long",
-      },
-    );
+    const date = subMonths(startOfMonth, 11 - i);
+    const monthName = format(date, "MMMM");
 
     const expenseData = incomeVsExpensesExpensesResult
       .filter((expense) => {
-        const expenseDate = new Date(expense.startDate);
         return (
-          expenseDate.getMonth() + 1 === monthIndex &&
-          expenseDate.getFullYear() === queryYear
+          getMonth(expense.startDate) + 1 === date.getMonth() + 1 &&
+          getYear(expense.startDate) === date.getFullYear()
         );
       })
       .reduce((sum, expense) => sum + expense.amount, 0);
@@ -331,7 +308,7 @@ const getDashboardDataHandler: CustomHandler = async (
     };
   });
 
-  // Tables
+  // **Tables Formatting**
 
   const recentExpenses = recentExpensesResult.map((expense) => ({
     id: expense.id,
@@ -339,16 +316,18 @@ const getDashboardDataHandler: CustomHandler = async (
     amount: expense.amount,
     category: expense.category.name,
     paymentMethod: expense.paymentMethod,
-    date: expense.startDate.toISOString().split("T")[0],
+    date: format(expense.startDate, "yyyy-MM-dd"),
   }));
 
   const upcomingExpenses = upcomingExpensesResult.map((expense) => ({
     id: expense.id,
     name: expense.description ?? "No Description",
-    dueDate: expense.dueDate?.toISOString().split("T")[0] ?? "",
+    dueDate: expense.dueDate ? format(expense.dueDate, "yyyy-MM-dd") : "",
     amount: expense.amount,
     icon: expense.category.icon ?? "/default-icon.png",
   }));
+
+  // **Response Construction**
 
   return NextResponse.json(
     {
@@ -381,7 +360,7 @@ const getDashboardDataHandler: CustomHandler = async (
         recentExpenses,
         upcomingExpenses,
       },
-      updatedAt: new Date().toISOString(),
+      updatedAt: format(new Date(), "yyyy-MM-dd'T'HH:mm:ss.SSSxxx"),
     },
     { status: 200 },
   );

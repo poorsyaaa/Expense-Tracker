@@ -1,4 +1,11 @@
 import { getRandomValues } from "crypto";
+import {
+  startOfMonth,
+  endOfMonth,
+  subMonths,
+  getMonth,
+  getYear,
+} from "date-fns";
 
 export const handleSettledResult = <T>(
   result: PromiseSettledResult<T>,
@@ -30,20 +37,19 @@ export const generateUsername = (name: string) => {
 };
 
 export const getDateRanges = (year: number, month: number) => {
-  const startOfMonth = new Date(year, month - 1, 1);
-  const endOfMonth = new Date(year, month, 0);
+  const currentDate = new Date(year, month - 1, 1);
+  const startOfCurrentMonth = startOfMonth(currentDate);
+  const endOfCurrentMonth = endOfMonth(currentDate);
 
-  const previousMonth = month === 1 ? 12 : month - 1;
-  const previousYear = month === 1 ? year - 1 : year;
-
-  const startOfPreviousMonth = new Date(previousYear, previousMonth - 1, 1);
-  const endOfPreviousMonth = new Date(previousYear, previousMonth, 0);
+  const previousMonthDate = subMonths(startOfCurrentMonth, 1);
+  const startOfPreviousMonth = startOfMonth(previousMonthDate);
+  const endOfPreviousMonth = endOfMonth(previousMonthDate);
 
   return {
-    startOfMonth,
-    endOfMonth,
-    previousMonth,
-    previousYear,
+    startOfMonth: startOfCurrentMonth,
+    endOfMonth: endOfCurrentMonth,
+    previousMonth: getMonth(previousMonthDate) + 1, // getMonth returns 0-11
+    previousYear: getYear(previousMonthDate),
     startOfPreviousMonth,
     endOfPreviousMonth,
   };
