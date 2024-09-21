@@ -14,9 +14,9 @@ const getDashboardDataHandler: CustomHandler = async (
   req: CustomNextRequest,
 ) => {
   const { user } = req;
-
   const { searchParams } = req.nextUrl;
 
+  // Parse the year and month from query params or use current date
   const { year, month } = dashboardParamsSchema.parse({
     year: searchParams.get("year")
       ? Number(searchParams.get("year"))
@@ -30,6 +30,7 @@ const getDashboardDataHandler: CustomHandler = async (
   const currentYear = currentDate.getFullYear();
   const currentMonth = currentDate.getMonth() + 1;
 
+  // Calculate date ranges for the provided or current year and month
   const {
     startOfMonth,
     endOfMonth,
@@ -38,10 +39,13 @@ const getDashboardDataHandler: CustomHandler = async (
     endOfPreviousMonth,
   } = getDateRanges(year ?? currentYear, month ?? currentMonth);
 
-  const adjustedYear =
-    month - 11 > 0 ? (year ?? currentYear) : (year ?? currentYear) - 1;
-  const adjustedMonth = month - 11 > 0 ? month - 11 : 12 + (month - 11);
+  // Calculate the adjusted year and month for the last 12 months
+  const adjustedMonth = (month ?? currentMonth) - 11;
+  const adjustedYear = (year ?? currentYear) - (adjustedMonth <= 0 ? 1 : 0);
+  const normalizedAdjustedMonth =
+    adjustedMonth <= 0 ? 12 + adjustedMonth : adjustedMonth;
 
+  // Database queries using Prisma
   const [
     totalExpensesResult,
     monthlyBudgetResult,
@@ -117,7 +121,7 @@ const getDashboardDataHandler: CustomHandler = async (
           {
             year: previousYear,
             month: {
-              gte: adjustedMonth,
+              gte: normalizedAdjustedMonth,
             },
           },
           {
@@ -136,7 +140,7 @@ const getDashboardDataHandler: CustomHandler = async (
       where: {
         userId: user!.id,
         startDate: {
-          gte: new Date(adjustedYear, adjustedMonth - 1, 1),
+          gte: new Date(adjustedYear, normalizedAdjustedMonth - 1, 1),
           lt: endOfMonth,
         },
       },
@@ -214,9 +218,6 @@ const getDashboardDataHandler: CustomHandler = async (
     totalIncomeResult._sum.amount ?? settingsDefaultsResult?.defaultIncome ?? 0;
   const totalSavings = totalIncome - totalExpenses;
 
-  console.log("incomeVsExpensesIncomeResult", incomeVsExpensesIncomeResult);
-  console.log("incomeVsExpensesExpensesResult", incomeVsExpensesExpensesResult);
-
   // Charts
 
   const existingCategories = await prisma.category.findMany({
@@ -263,7 +264,9 @@ const getDashboardDataHandler: CustomHandler = async (
     const income =
       incomeVsExpensesIncomeResult.find(
         (m) => m.month === monthIndex && m.year === queryYear,
-      )?.amount ?? 0;
+      )?.amount ??
+      settingsDefaultsResult?.defaultIncome ??
+      0;
 
     const expenses = incomeVsExpensesExpensesResult
       .filter((expense) => {
