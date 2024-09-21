@@ -130,7 +130,11 @@ const BudgetUtilization: React.FC<BudgetUtilizationProps> = ({
             if (trend?.type === "up") {
               return (
                 <>
-                  Budget Utilized Increased by {trend.value}% this month
+                  Budget Utilized Increased by{" "}
+                  <span className="text-md font-semibold text-green-500">
+                    {trend.value}%
+                  </span>{" "}
+                  this month
                   <TrendingUp className="h-4 w-4 text-green-500" />
                 </>
               );
@@ -138,7 +142,11 @@ const BudgetUtilization: React.FC<BudgetUtilizationProps> = ({
               return (
                 <>
                   <span>
-                    Budget Utilized Decreased by {trend.value}% this month
+                    Budget Utilized Decreased by{" "}
+                    <span className="text-md font-semibold text-red-500">
+                      {trend.value}%
+                    </span>{" "}
+                    this month
                   </span>
                   <TrendingDown className="h-4 w-4 text-red-500" />
                 </>

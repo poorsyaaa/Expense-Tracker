@@ -136,14 +136,22 @@ const IncomeVsExpenses: React.FC<IncomeVsExpensesProps> = ({ data, trend }) => {
               if (trend.type === "up") {
                 return (
                   <>
-                    Income Increased by {trend.value}% this year
+                    Income Increased by{" "}
+                    <span className="text-md font-semibold text-green-500">
+                      {trend.value}%
+                    </span>
+                    this year
                     <TrendingUp className="h-4 w-4 text-green-500" />
                   </>
                 );
               } else if (trend.type === "down") {
                 return (
                   <>
-                    Income Decreased by {trend.value}% this year
+                    Income Decreased by{" "}
+                    <span className="text-md font-semibold text-red-500">
+                      {trend.value}%
+                    </span>
+                    this year
                     <TrendingDown className="h-4 w-4 text-red-500" />
                   </>
                 );

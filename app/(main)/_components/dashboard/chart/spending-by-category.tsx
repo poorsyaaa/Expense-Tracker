@@ -1,7 +1,13 @@
 "use client";
 
 import { Pie, PieChart } from "recharts";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
 import {
   ChartContainer,
   ChartLegend,
@@ -11,6 +17,7 @@ import {
 } from "@/components/ui/chart";
 import { generateChartConfig } from "@/lib/utils";
 import { ICONS_MAP } from "@/components/ui/icon-picker";
+import { Notebook } from "lucide-react";
 
 interface SpendingByCategory {
   category: string;
@@ -71,11 +78,20 @@ const SpendingByCategoryComponent: React.FC<SpendingByCategoryProps> = ({
             />
             <ChartLegend
               content={<ChartLegendContent nameKey="category" />}
-              className="translate-y-2 flex-wrap gap-2 md:translate-y-5 [&>*]:basis-1/6 [&>*]:justify-center"
+              className="-translate-y-2 flex-wrap gap-2 [&>*]:basis-1/6 [&>*]:justify-center"
             />
           </PieChart>
         </ChartContainer>
       </CardContent>
+      <CardFooter className="flex-col items-start gap-2 text-sm">
+        <p className="flex items-center gap-1 font-medium leading-none">
+          Category Breakdown and Spending
+          <Notebook className="h-4 w-4" />
+        </p>
+        <p className="leading-none text-muted-foreground">
+          Showing how much you&apos;ve spent in each category
+        </p>
+      </CardFooter>
     </Card>
   );
 };

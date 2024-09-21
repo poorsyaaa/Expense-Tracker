@@ -87,14 +87,22 @@ const ExpenseTrends: React.FC<ExpenseTrendsProps> = ({ data, trend }) => {
             if (trend?.type === "up") {
               return (
                 <>
-                  Expenses Increased by {trend.value}% this year
+                  Expenses Increased by{" "}
+                  <span className="text-md font-semibold text-green-500">
+                    {trend.value}%
+                  </span>{" "}
+                  this year
                   <TrendingUp className="h-4 w-4 text-green-500" />
                 </>
               );
             } else if (trend?.type === "down") {
               return (
                 <>
-                  Expenses Decreased by {trend.value}% this year
+                  Expenses Decreased by{" "}
+                  <span className="text-md font-semibold text-red-500">
+                    {trend.value}%
+                  </span>{" "}
+                  this year
                   <TrendingDown className="h-4 w-4 text-red-500" />
                 </>
               );
