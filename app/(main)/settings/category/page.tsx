@@ -26,6 +26,7 @@ import { useDeleteCategory } from "@/api/mutations/settings-hook";
 import { useQueryClient } from "@tanstack/react-query";
 import { DataTable } from "@/components/ui/data-table";
 import { columns } from "./column";
+import { PaginationState, SortingState } from "@tanstack/react-table";
 
 export default function Page() {
   const queryClient = useQueryClient();
@@ -38,6 +39,11 @@ export default function Page() {
   const [deletingCategoryId, setDeletingCategoryId] = useState<string | null>(
     null,
   );
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+  const [sorting, setSorting] = useState<SortingState>([]);
 
   const handleCategorySelect = (category: Category) => {
     setSelectedCategory(category);
@@ -73,34 +79,43 @@ export default function Page() {
   return (
     <>
       <Card>
-        <div className="flex items-center justify-between">
-          <CardHeader>
+        <div className="flex flex-col p-6 pb-4 md:flex-row md:items-center md:justify-between">
+          <CardHeader className="p-0">
             <CardTitle>Category Settings</CardTitle>
             <CardDescription>Add or update your categories</CardDescription>
           </CardHeader>
-          <div className="flex flex-col space-y-1.5 p-6">
-            <Button onClick={handleAddNewCategory}>
+          <div className="mt-4 md:mt-0">
+            <Button onClick={handleAddNewCategory} className="w-full md:w-auto">
               <Plus className="mr-2 h-4 w-4" /> Add Category
             </Button>
           </div>
         </div>
-        <CardContent>
-          <DataTable
-            columns={columns(
-              handleCategorySelect,
-              handleDeleteCategory,
-              deletingCategoryId,
-            )}
-            data={categories ?? []}
-            isLoading={isLoading}
-            emptyDisplay={
-              <div className="flex flex-col items-center py-10">
-                <FilePlus className="mb-4 h-12 w-12" />
-                <Label>No categories found.</Label>
-                <Label>Click on the plus button to add a new category.</Label>
-              </div>
-            }
-          />
+        <CardContent className="px-6 pb-6">
+          <div className="overflow-x-auto">
+            <DataTable
+              columns={columns(
+                handleCategorySelect,
+                handleDeleteCategory,
+                deletingCategoryId,
+              )}
+              data={categories ?? []}
+              isLoading={isLoading}
+              emptyDisplay={
+                <div className="flex flex-col items-center py-10">
+                  <FilePlus className="mb-4 h-12 w-12" />
+                  <Label>No categories found.</Label>
+                  <Label>Click on the plus button to add a new category.</Label>
+                </div>
+              }
+              state={{
+                totalCount: categories?.length ?? 0,
+                pagination,
+                sortBy: sorting,
+              }}
+              onPaginationChange={setPagination}
+              onSortingChange={setSorting}
+            />
+          </div>
         </CardContent>
       </Card>
 

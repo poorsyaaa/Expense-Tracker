@@ -2,21 +2,31 @@ import { ColumnDef } from "@tanstack/react-table";
 import { MonthlyBudget, MonthlyIncome } from "@/api/types/settings";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
+import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
 
 export const incomeColumns: (
   handleIncomeSelect: (income: MonthlyIncome) => void,
 ) => ColumnDef<MonthlyIncome>[] = (handleIncomeSelect) => [
   {
     accessorKey: "amount",
-    header: "Amount",
+    accessorFn: (row) => row.amount,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Amount" />
+    ),
   },
   {
     accessorKey: "month",
-    header: "Month",
+    accessorFn: (row) => row.month,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Month" />
+    ),
   },
   {
     accessorKey: "year",
-    header: "Year",
+    accessorFn: (row) => row.year,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Year" />
+    ),
   },
   {
     id: "actions",

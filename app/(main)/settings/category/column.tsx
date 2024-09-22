@@ -2,6 +2,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Category } from "@/api/types/settings";
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash, Loader2 } from "lucide-react";
+import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
 
 export const columns: (
   handleCategorySelect: (category: Category) => void,
@@ -14,11 +15,17 @@ export const columns: (
 ) => [
   {
     accessorKey: "name",
-    header: "Name",
+    accessorFn: (row) => row.name,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Name" />
+    ),
   },
   {
     accessorKey: "icon",
-    header: "Icon",
+    accessorFn: (row) => row.icon,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Icon" />
+    ),
     cell: ({ row }) => (
       <div className="flex items-center">
         <i className={`icon-${row.original.icon} mr-2`} />
@@ -28,7 +35,10 @@ export const columns: (
   },
   {
     accessorKey: "color",
-    header: "Color",
+    accessorFn: (row) => row.color,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Color" />
+    ),
     cell: ({ row }) => (
       <div
         className="h-6 w-6 rounded-full"

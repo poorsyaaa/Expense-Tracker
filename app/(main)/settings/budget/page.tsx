@@ -56,7 +56,7 @@ export default function Page() {
   };
 
   const handleAddNewBudget = () => {
-    setSelectedIncome(null);
+    setSelectedBudget(null);
     setOpenBudgetDialog(true);
   };
 
@@ -72,13 +72,13 @@ export default function Page() {
   return (
     <>
       <Card>
-        <div className="flex items-center justify-between">
-          <CardHeader>
+        <div className="flex flex-col p-6 pb-4 md:flex-row md:items-center md:justify-between">
+          <CardHeader className="p-0">
             <CardTitle>Monthly Income Settings</CardTitle>
             <CardDescription>Manage your monthly income</CardDescription>
           </CardHeader>
-          <div className="flex flex-col space-y-1.5 p-6">
-            <Button onClick={handleAddNewIncome}>
+          <div className="mt-4 md:mt-0">
+            <Button onClick={handleAddNewIncome} className="w-full md:w-auto">
               <Plus className="mr-2 h-4 w-4" /> Add monthly income
             </Button>
           </div>
@@ -97,17 +97,22 @@ export default function Page() {
                 </Label>
               </div>
             }
+            state={{
+              totalCount: monthly_incomes?.length ?? 0,
+              pagination: { pageIndex: 0, pageSize: 10 }, // Adjust according to your pagination state
+              sortBy: [], // Initial sorting state
+            }}
           />
         </CardContent>
       </Card>
       <Card>
-        <div className="flex items-center justify-between">
-          <CardHeader>
+        <div className="flex flex-col p-6 pb-4 md:flex-row md:items-center md:justify-between">
+          <CardHeader className="p-0">
             <CardTitle>Monthly Budget Settings</CardTitle>
             <CardDescription>Manage your monthly budget</CardDescription>
           </CardHeader>
-          <div className="flex flex-col space-y-1.5 p-6">
-            <Button onClick={handleAddNewBudget}>
+          <div className="mt-4 md:mt-0">
+            <Button onClick={handleAddNewBudget} className="w-full md:w-auto">
               <Plus className="mr-2 h-4 w-4" /> Add monthly budget
             </Button>
           </div>
@@ -126,6 +131,11 @@ export default function Page() {
                 </Label>
               </div>
             }
+            state={{
+              totalCount: monthly_budgets?.length ?? 0,
+              pagination: { pageIndex: 0, pageSize: 10 }, // Adjust according to your pagination state
+              sortBy: [], // Initial sorting state
+            }}
           />
         </CardContent>
       </Card>
@@ -160,12 +170,12 @@ export default function Page() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {selectedIncome
+              {selectedBudget
                 ? "Update Monthly Budget"
                 : "Add New Monthly Budget"}
             </DialogTitle>
             <DialogDescription>
-              {selectedIncome
+              {selectedBudget
                 ? "Update your monthly budget"
                 : "Add a new monthly budget"}
             </DialogDescription>
