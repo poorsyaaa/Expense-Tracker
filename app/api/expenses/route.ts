@@ -89,6 +89,7 @@ const getExpensesHandler: CustomHandler = async (req: CustomNextRequest) => {
     include: {
       tags: true,
       expenseNote: true,
+      category: true,
     },
   });
 
