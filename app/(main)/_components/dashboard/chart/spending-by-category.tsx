@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/chart";
 import { generateChartConfig } from "@/lib/utils";
 import { ICONS_MAP } from "@/components/ui/icon-picker";
-import { Notebook } from "lucide-react";
+import { ChartPie } from "lucide-react";
 
 interface SpendingByCategory {
   category: string;
@@ -31,9 +31,7 @@ interface SpendingByCategoryProps {
   currency?: string;
 }
 
-const SpendingByCategoryComponent: React.FC<SpendingByCategoryProps> = ({
-  data,
-}) => {
+const SpendingByCategory: React.FC<SpendingByCategoryProps> = ({ data }) => {
   const chartConfig = generateChartConfig(
     data.map((item) => ({
       property: item.category,
@@ -85,15 +83,16 @@ const SpendingByCategoryComponent: React.FC<SpendingByCategoryProps> = ({
       </CardContent>
       <CardFooter className="flex-col items-start gap-2 text-sm">
         <p className="flex items-center gap-1 font-medium leading-none">
-          Category Breakdown and Spending
-          <Notebook className="h-4 w-4" />
+          Category and Spending breakdown
+          <ChartPie className="h-4 w-4" />
         </p>
         <p className="leading-none text-muted-foreground">
-          Showing how much you&apos;ve spent in each category
+          Showing your spending distribution across categories for the selected
+          date range.
         </p>
       </CardFooter>
     </Card>
   );
 };
 
-export default SpendingByCategoryComponent;
+export default SpendingByCategory;

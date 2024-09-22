@@ -1,10 +1,12 @@
+// /components/DatePickerWithPresets.tsx
+
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import {
   format,
-  startOfToday,
   subDays,
+  startOfToday,
   startOfWeek,
   endOfWeek,
   startOfMonth,
@@ -30,8 +32,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useMediaQuery } from "@/hooks/useMediaQuery"; // Adjust this import as needed
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { Separator } from "@/components/ui/separator";
+import { DashboardParamsSchema } from "@/lib/schema/dashboard";
 
 type DateRangeOption =
   | "today"
@@ -46,19 +49,37 @@ type DateRangeOption =
   | "last_year"
   | "custom";
 
+interface DatePickerWithPresetsProps
+  extends React.HTMLAttributes<HTMLDivElement> {
+  onDateChange: (params: DashboardParamsSchema) => void;
+  initialPreset?: DateRangeOption;
+  initialDate?: DateRange;
+}
+
 export function DatePickerWithPresets({
   className,
-}: Readonly<React.HTMLAttributes<HTMLDivElement>>) {
-  const [date, setDate] = useState<DateRange | undefined>();
-  const [preset, setPreset] = useState<DateRangeOption>("custom");
-  const [month, setMonth] = useState<Date | undefined>(); // State to control calendar month view
+  onDateChange,
+  initialPreset = "this_month",
+  initialDate,
+}: Readonly<DatePickerWithPresetsProps>) {
+  const [date, setDate] = useState<DateRange | undefined>(initialDate);
+  const [preset, setPreset] = useState<DateRangeOption>(initialPreset);
+  const [month, setMonth] = useState<Date | undefined>(initialDate?.from);
+  const [showApply, setShowApply] = useState<boolean>(false);
 
-  // Determine screen size for responsiveness
   const isMobile =
-    useMediaQuery("(max-width: 768px)") || window.innerWidth <= 768;
+    useMediaQuery("(max-width: 768px)") ||
+    (typeof window !== "undefined" && window.innerWidth <= 768);
   const numberOfMonths = isMobile ? 1 : 2;
 
-  // Function to update date range based on preset
+  // Synchronize internal state with props
+  useEffect(() => {
+    setPreset(initialPreset);
+    setDate(initialDate);
+    setMonth(initialDate?.from);
+    setShowApply(false); // Hide apply button on initial load or preset change
+  }, [initialPreset, initialDate]);
+
   const updateDateRange = (selectedPreset: DateRangeOption) => {
     const today = startOfToday();
     let newDate: DateRange | undefined = undefined;
@@ -77,12 +98,15 @@ export function DatePickerWithPresets({
         newDate = { from: subDays(today, 29), to: today };
         break;
       case "this_week":
-        newDate = { from: startOfWeek(today), to: endOfWeek(today) };
+        newDate = {
+          from: startOfWeek(today, { weekStartsOn: 1 }),
+          to: endOfWeek(today, { weekStartsOn: 1 }),
+        };
         break;
       case "last_week":
         newDate = {
-          from: startOfWeek(subDays(today, 7)),
-          to: endOfWeek(subDays(today, 7)),
+          from: startOfWeek(subDays(today, 7), { weekStartsOn: 1 }),
+          to: endOfWeek(subDays(today, 7), { weekStartsOn: 1 }),
         };
         break;
       case "this_month":
@@ -114,20 +138,43 @@ export function DatePickerWithPresets({
     }
 
     setDate(newDate);
-    setMonth(newDate?.from); // Update calendar to show the selected date range's start month
+    setMonth(newDate?.from);
+    setShowApply(true);
+    setPreset(selectedPreset); // Ensure preset is updated
   };
 
-  // Handle preset change
   const handlePresetChange = (selectedPreset: DateRangeOption) => {
-    setPreset(selectedPreset);
     updateDateRange(selectedPreset);
   };
 
-  // Handle manual date range selection
   const handleDateSelect = (range: DateRange | undefined) => {
     setDate(range);
     setPreset("custom");
-    setMonth(range?.from); // Update calendar to show the custom date range's start month
+    setMonth(range?.from);
+    setShowApply(true);
+  };
+
+  const handleApply = () => {
+    if (date?.from && date?.to) {
+      onDateChange({
+        dateRange: preset,
+        startDate: format(date.from, "yyyy-MM-dd"),
+        endDate: format(date.to, "yyyy-MM-dd"),
+      });
+    } else if (date?.from && !date.to) {
+      onDateChange({
+        dateRange: preset,
+        startDate: format(date.from, "yyyy-MM-dd"),
+        endDate: undefined,
+      });
+    } else {
+      onDateChange({
+        dateRange: preset,
+        startDate: undefined,
+        endDate: undefined,
+      });
+    }
+    setShowApply(false);
   };
 
   const dateText = useMemo(() => {
@@ -150,7 +197,7 @@ export function DatePickerWithPresets({
             id="date"
             variant={"outline"}
             className={cn(
-              "w-[350px] justify-start text-left font-normal", // Full-width button
+              "w-[350px] justify-start text-left font-normal",
               !date && "text-muted-foreground",
             )}
           >
@@ -160,18 +207,16 @@ export function DatePickerWithPresets({
         </PopoverTrigger>
         <PopoverContent className={cn("w-auto p-0", isMobile ? "w-full" : "")}>
           <div className="flex h-full flex-col p-4">
-            {/* Date Picker */}
             <Calendar
               initialFocus
               mode="range"
-              month={month} // Control the calendar's displayed month
+              month={month}
               selected={date}
               onSelect={handleDateSelect}
               numberOfMonths={numberOfMonths}
               className="mt-4 w-full"
             />
             <Separator className="my-4" />
-            {/* Dropdown for Preset Selection */}
             <Select
               value={preset}
               onValueChange={(value) =>
@@ -195,6 +240,18 @@ export function DatePickerWithPresets({
                 <SelectItem value="custom">Custom</SelectItem>
               </SelectContent>
             </Select>
+            {showApply && (
+              <>
+                <Separator className="my-4" />
+                <Button
+                  type="button" // Prevent form submission
+                  onClick={handleApply}
+                  className="w-full"
+                >
+                  Apply
+                </Button>
+              </>
+            )}
           </div>
         </PopoverContent>
       </Popover>

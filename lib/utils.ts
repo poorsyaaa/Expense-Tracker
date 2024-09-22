@@ -86,3 +86,21 @@ export const calculateAverages = (
     expenses: count ? total.expenses / count : 0,
   };
 };
+
+export const formatPreset = (preset: string) => {
+  const presets: { [key: string]: string } = {
+    today: "Today",
+    yesterday: "Yesterday",
+    last_7_days: "Last 7 Days",
+    last_30_days: "Last 30 Days",
+    this_week: "This Week",
+    last_week: "Last Week",
+    this_month: "This Month",
+    last_month: "Last Month",
+    this_year: "This Year",
+    last_year: "Last Year",
+    custom: "Custom Range",
+  };
+
+  return presets[preset] || preset;
+};

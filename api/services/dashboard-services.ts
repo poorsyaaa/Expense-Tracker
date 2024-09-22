@@ -1,10 +1,10 @@
 import axiosInstance from "@/lib/axiosInstance";
-import { DashboardParamsScehema } from "@/lib/schema/dashboard";
+import { DashboardParamsSchema } from "@/lib/schema/dashboard";
 import { DefaultOptions } from "../types";
-import { DashboardResponse } from "../types/dashboard";
+import { DashboardMonthResponse, DashboardResponse } from "../types/dashboard";
 
 export const getDashboardData = async (
-  options: DefaultOptions<DashboardParamsScehema, never, never>,
+  options: DefaultOptions<DashboardParamsSchema, never, never>,
 ) => {
   const { endpoint, queryParams, signal } = options;
 
@@ -12,5 +12,17 @@ export const getDashboardData = async (
     params: queryParams,
     signal,
   });
+  return response.data;
+};
+
+export const getMonthlyDashboardData = async (options: DefaultOptions) => {
+  const { endpoint, signal } = options;
+
+  const response = await axiosInstance.get<DashboardMonthResponse>(
+    endpoint ?? `/dashboard/month`,
+    {
+      signal,
+    },
+  );
   return response.data;
 };

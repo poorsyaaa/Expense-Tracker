@@ -14,21 +14,15 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { TrendingDown, TrendingUp } from "lucide-react";
+import { ChartLine } from "lucide-react";
 
 interface ExpenseTrend {
   month: string;
   amount: number;
 }
 
-interface Trend {
-  type: "up" | "down";
-  value: number;
-}
-
 interface ExpenseTrendsProps {
   data: ExpenseTrend[];
-  trend?: Trend;
 }
 
 const chartConfig = {
@@ -38,7 +32,7 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-const ExpenseTrends: React.FC<ExpenseTrendsProps> = ({ data, trend }) => {
+const ExpenseTrends: React.FC<ExpenseTrendsProps> = ({ data }) => {
   return (
     <Card className="w-full">
       <CardHeader>
@@ -83,36 +77,11 @@ const ExpenseTrends: React.FC<ExpenseTrendsProps> = ({ data, trend }) => {
       </CardContent>
       <CardFooter className="flex-col items-start gap-2 text-sm">
         <div className="flex gap-2 font-medium leading-none">
-          {(() => {
-            if (trend?.type === "up") {
-              return (
-                <>
-                  Expenses Increased by{" "}
-                  <span className="text-md font-semibold text-green-500">
-                    {trend.value}%
-                  </span>{" "}
-                  this year
-                  <TrendingUp className="h-4 w-4 text-green-500" />
-                </>
-              );
-            } else if (trend?.type === "down") {
-              return (
-                <>
-                  Expenses Decreased by{" "}
-                  <span className="text-md font-semibold text-red-500">
-                    {trend.value}%
-                  </span>{" "}
-                  this year
-                  <TrendingDown className="h-4 w-4 text-red-500" />
-                </>
-              );
-            } else {
-              return <span>Expenses Unchanged this year</span>;
-            }
-          })()}
+          Expense Trends breakdown <ChartLine className="h-4 w-4" />
         </div>
         <div className="leading-none text-muted-foreground">
-          Showing total expenses for the last 12 months
+          Showing total expenses for the last 12 months from the end of the
+          selected date range
         </div>
       </CardFooter>
     </Card>

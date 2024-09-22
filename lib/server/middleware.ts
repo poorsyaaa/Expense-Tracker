@@ -99,5 +99,8 @@ function handleError(error: unknown): NextResponse {
   }
 
   // Fallback to internal server error
-  return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  return NextResponse.json(
+    { error: (error as Error)?.message ?? "Internal Server Error" },
+    { status: 500, statusText: (error as Error)?.message },
+  );
 }

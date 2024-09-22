@@ -1,5 +1,3 @@
-// /pages/api/dashboard.ts
-
 import { NextResponse } from "next/server";
 import prisma from "@/lib/server/db";
 import {
@@ -8,17 +6,19 @@ import {
   customMiddleware,
 } from "@/lib/server/middleware";
 import { dashboardParamsSchema } from "@/lib/schema/dashboard";
-import { getDateRanges } from "@/lib/server/utils";
+import { getDateRanges, getLast12Months } from "@/lib/server/utils";
 import {
-  startOfYear,
-  endOfYear,
-  subMonths,
   format,
+  subMonths,
+  addMonths,
   getMonth,
   getYear,
+  startOfMonth,
+  endOfMonth,
+  differenceInMonths,
 } from "date-fns";
 
-export const dynamic = "force-dynamic"; // Required when using req.nextUrl.searchParams
+export const dynamic = "force-dynamic";
 
 const getDashboardDataHandler: CustomHandler = async (
   req: CustomNextRequest,
@@ -26,345 +26,232 @@ const getDashboardDataHandler: CustomHandler = async (
   const { user } = req;
   const { searchParams } = req.nextUrl;
 
-  // Parse and validate query parameters
-  const { year, month } = dashboardParamsSchema.parse({
-    year: searchParams.get("year")
-      ? Number(searchParams.get("year"))
-      : undefined,
-    month: searchParams.get("month")
-      ? Number(searchParams.get("month"))
-      : undefined,
+  // Validate query parameters
+  const { dateRange, startDate, endDate } = dashboardParamsSchema.parse({
+    dateRange: searchParams.get("dateRange") ?? undefined,
+    startDate: searchParams.get("startDate") ?? undefined,
+    endDate: searchParams.get("endDate") ?? undefined,
   });
 
-  const currentDate = new Date();
-  const currentYear = currentDate.getFullYear();
-  const currentMonth = currentDate.getMonth() + 1;
+  const { filterStartDate, filterEndDate } = getDateRanges(
+    dateRange,
+    startDate,
+    endDate,
+  );
 
-  const {
-    startOfMonth,
-    endOfMonth,
-    previousYear,
-    startOfPreviousMonth,
-    endOfPreviousMonth,
-  } = getDateRanges(year ?? currentYear, month ?? currentMonth);
+  // Current Range Calculations
+  const currentRangeDuration =
+    differenceInMonths(filterEndDate, filterStartDate) + 1;
+  const last12Months = getLast12Months(startOfMonth(filterEndDate));
 
-  const adjustedDate = subMonths(startOfMonth, 11);
-  const normalizedAdjustedMonth = adjustedDate.getMonth() + 1;
+  // Previous Range Calculations
+  const previousEndDate = subMonths(filterStartDate, 1);
+  const previousStartDate = subMonths(filterStartDate, currentRangeDuration);
 
-  // Execute multiple Prisma queries in a transaction
+  // Prisma Transaction
   const [
-    totalExpensesAllTimeResult,
-    totalExpensesThisYearResult,
-    monthlyBudgetResult,
-    expensesThisMonthResult,
-    totalIncomeResult,
-    spendingByCategoryResult,
-    incomeVsExpensesIncomeResult,
-    incomeVsExpensesExpensesResult,
-    recentExpensesResult,
-    upcomingExpensesResult,
-    settingsDefaultsResult,
-    previousMonthExpensesResult,
+    totalIncomeAggregate,
+    spendingByCategory,
+    incomeLast12Months,
+    expensesLast12Months,
+    totalExpensesAggregate,
+    selectedBudgets,
+    previousBudgets,
+    settingsDefaults,
   ] = await prisma.$transaction([
-    // 1. Total Expenses (All-Time)
-    prisma.expense.aggregate({
-      _sum: { amount: true },
-      where: { userId: user!.id },
-    }),
-    // 2. Total Expenses (This Year)
-    prisma.expense.aggregate({
-      _sum: { amount: true },
-      where: {
-        userId: user!.id,
-        startDate: {
-          gte: startOfYear(year ? new Date(year, 0, 1) : currentDate),
-          lt: endOfYear(year ? new Date(year, 0, 1) : currentDate),
-        },
-      },
-    }),
-    // 3. Monthly Budget (Current Month)
-    prisma.monthlyBudget.findUnique({
-      where: {
-        userId_month_year: {
-          userId: user!.id,
-          month: month ?? currentMonth,
-          year: year ?? currentYear,
-        },
-      },
-      select: { amount: true },
-    }),
-    // 4. Expenses This Month
-    prisma.expense.aggregate({
-      _sum: { amount: true },
-      where: {
-        userId: user!.id,
-        startDate: {
-          gte: startOfMonth,
-          lt: endOfMonth,
-        },
-      },
-    }),
-    // 5. Total Income (This Year)
+    // Total Income (Last 12 Months)
     prisma.monthlyIncome.aggregate({
       _sum: { amount: true },
       where: {
         userId: user!.id,
-        year: year ?? currentYear,
+        OR: last12Months.map(({ year, month }) => ({ year, month })),
       },
     }),
-    // 6. Spending by Category
+
+    // Spending by Category (Current Range)
     prisma.expense.groupBy({
       by: ["categoryId"],
       _sum: { amount: true },
-      where: { userId: user!.id },
+      where: {
+        userId: user!.id,
+        startDate: { gte: filterStartDate, lte: filterEndDate },
+      },
       orderBy: { _sum: { amount: "desc" } },
     }),
-    // 7. Income vs Expenses (Last 12 Months) - Income
+
+    // Income Last 12 Months Details
     prisma.monthlyIncome.findMany({
       where: {
         userId: user!.id,
-        OR: [
-          {
-            year: previousYear,
-            month: {
-              gte: normalizedAdjustedMonth,
-            },
-          },
-          {
-            year: year ?? currentYear,
-            month: {
-              lte: month ?? currentMonth,
-            },
-          },
-        ],
+        OR: last12Months.map(({ year, month }) => ({ year, month })),
       },
       select: { month: true, amount: true, year: true },
       orderBy: [{ year: "asc" }, { month: "asc" }],
     }),
-    // 8. Income vs Expenses (Last 12 Months) - Expenses
+
+    // Expenses Last 12 Months Details
     prisma.expense.findMany({
       where: {
         userId: user!.id,
         startDate: {
-          gte: adjustedDate,
-          lt: endOfMonth,
+          gte: subMonths(startOfMonth(filterEndDate), 11),
+          lte: endOfMonth(filterEndDate),
         },
       },
-      select: {
-        startDate: true,
-        amount: true,
-      },
+      select: { startDate: true, amount: true },
     }),
-    // 9. Recent Expenses (Last 5)
-    prisma.expense.findMany({
-      where: { userId: user!.id },
-      orderBy: { startDate: "desc" },
-      take: 5,
-      select: {
-        id: true,
-        description: true,
-        amount: true,
-        category: {
-          select: { name: true },
-        },
-        paymentMethod: true,
-        startDate: true,
-      },
-    }),
-    // 10. Upcoming Expenses (Due Date >= Today)
-    prisma.expense.findMany({
-      where: {
-        userId: user!.id,
-        dueDate: {
-          gte: new Date(),
-        },
-        isPaid: false,
-      },
-      orderBy: { dueDate: "asc" },
-      select: {
-        id: true,
-        description: true,
-        amount: true,
-        dueDate: true,
-        category: {
-          select: { name: true, icon: true },
-        },
-      },
-    }),
-    // 11. Settings Defaults
-    prisma.settingsDefaults.findUnique({
-      where: { userId: user!.id },
-      select: { defaultBudget: true, defaultIncome: true },
-    }),
-    // 12. Previous Month Expenses
+
+    // Total Expenses (Current Range)
     prisma.expense.aggregate({
       _sum: { amount: true },
       where: {
         userId: user!.id,
-        startDate: {
-          gte: startOfPreviousMonth,
-          lt: endOfPreviousMonth,
-        },
+        startDate: { gte: filterStartDate, lte: filterEndDate },
       },
+    }),
+
+    // Budgets for Current Range
+    prisma.monthlyBudget.findMany({
+      where: {
+        userId: user!.id,
+        OR: Array.from({ length: currentRangeDuration }, (_, i) => {
+          const date = addMonths(filterStartDate, i);
+          return { year: getYear(date), month: getMonth(date) + 1 };
+        }),
+      },
+      select: { month: true, year: true, amount: true },
+    }),
+
+    // Budgets for Previous Range
+    prisma.monthlyBudget.findMany({
+      where: {
+        userId: user!.id,
+        OR: Array.from({ length: currentRangeDuration }, (_, i) => {
+          const date = addMonths(previousStartDate, i);
+          return { year: getYear(date), month: getMonth(date) + 1 };
+        }),
+      },
+      select: { month: true, year: true, amount: true },
+    }),
+
+    // Settings Defaults
+    prisma.settingsDefaults.findUnique({
+      where: { userId: user!.id },
+      select: { defaultBudget: true, defaultIncome: true },
     }),
   ]);
 
-  // **Cards Calculation**
-
-  const totalExpensesAllTime = totalExpensesAllTimeResult?._sum.amount ?? 0;
-  const totalExpensesThisYear = totalExpensesThisYearResult?._sum.amount ?? 0;
-  const monthlyBudget =
-    monthlyBudgetResult?.amount ?? settingsDefaultsResult?.defaultBudget ?? 0;
-  const totalExpensesThisMonth = expensesThisMonthResult._sum.amount ?? 0;
-  const remainingBudget = monthlyBudget - totalExpensesThisMonth;
-  const previousMonthExpenses = previousMonthExpensesResult._sum.amount ?? 0;
-
-  // **Overviews Calculation**
-
+  // Calculations
   const totalIncome =
-    totalIncomeResult._sum.amount ?? settingsDefaultsResult?.defaultIncome ?? 0;
-  const totalSavingsThisYear = totalIncome - totalExpensesThisYear;
+    totalIncomeAggregate._sum.amount ?? settingsDefaults?.defaultIncome ?? 0;
+  const totalExpenses = totalExpensesAggregate._sum.amount ?? 0;
+  const totalSavings = totalIncome - totalExpenses;
 
-  // **Charts Calculation**
+  const currentBudget = selectedBudgets.reduce((sum, b) => sum + b.amount, 0);
+  const previousBudget = previousBudgets.reduce((sum, b) => sum + b.amount, 0);
 
-  // Fetch existing categories for spending by category
+  // Fetch Existing Categories Outside Transaction
   const existingCategories = await prisma.category.findMany({
     where: {
       userId: user!.id,
-      id: {
-        in: spendingByCategoryResult.map((category) => category.categoryId),
-      },
+      id: { in: spendingByCategory.map((cat) => cat.categoryId) },
     },
     select: { id: true, name: true, color: true, icon: true },
   });
 
-  const spendingByCategory = spendingByCategoryResult.map((category) => {
-    const existingCategory = existingCategories.find(
-      (c) => c.id === category.categoryId,
-    );
-
+  // Format Spending by Category
+  const spendingFormatted = spendingByCategory.map((cat) => {
+    const category = existingCategories.find((c) => c.id === cat.categoryId);
     return {
-      categoryId: existingCategory?.id,
-      categoryName: existingCategory?.name,
-      amount: category._sum?.amount ?? 0,
-      fill: existingCategory?.color,
-      icon: existingCategory?.icon,
+      categoryId: category?.id ?? cat.categoryId,
+      categoryName: category?.name ?? "Unknown",
+      amount: cat._sum?.amount ?? 0,
+      fill: category?.color ?? "#000000",
+      icon: category?.icon ?? "/default-icon.png",
     };
   });
 
-  // Income vs Expenses for the last 12 months
-  const incomeVsExpenses = Array.from({ length: 12 }, (_, i) => {
-    const date = subMonths(startOfMonth, 11 - i);
-    const queryYear = date.getFullYear();
-    const monthIndex = date.getMonth() + 1;
+  // Map Income and Expenses for Last 12 Months
+  const incomeMap = new Map(
+    incomeLast12Months.map((inc) => [`${inc.year}-${inc.month}`, inc.amount]),
+  );
+  const expensesMap = new Map<string, number>();
+  expensesLast12Months.forEach((exp) => {
+    const key = `${getYear(exp.startDate)}-${getMonth(exp.startDate) + 1}`;
+    expensesMap.set(key, (expensesMap.get(key) ?? 0) + exp.amount);
+  });
 
+  // Income vs Expenses Last 12 Months (Including Missing Months)
+  const incomeVsExpenses = last12Months.map(({ year, month }) => {
+    const key = `${year}-${month}`;
+    const date = new Date(year, month - 1, 1);
     const monthName = format(date, "MMM");
-
-    const income =
-      incomeVsExpensesIncomeResult.find(
-        (m) => m.month === monthIndex && m.year === queryYear,
-      )?.amount ??
-      settingsDefaultsResult?.defaultIncome ??
-      0;
-
-    const expenses = incomeVsExpensesExpensesResult
-      .filter((expense) => {
-        return (
-          getMonth(expense.startDate) + 1 === monthIndex &&
-          getYear(expense.startDate) === queryYear
-        );
-      })
-      .reduce((sum, expense) => sum + expense.amount, 0);
-
-    return {
-      month: monthName,
-      income,
-      expenses,
-    };
+    const income = incomeMap.get(key) ?? settingsDefaults?.defaultIncome ?? 0;
+    const expenses = expensesMap.get(key) ?? 0;
+    return { month: monthName, income, expenses };
   });
 
-  // Calculate budget utilization percentage
-  const percentage = monthlyBudget
-    ? ((totalExpensesThisMonth / monthlyBudget) * 100).toFixed(2)
+  // Expense Trends (Including Missing Months)
+  const expenseTrends = last12Months.map(({ year, month }) => {
+    const key = `${year}-${month}`;
+    const date = new Date(year, month - 1, 1);
+    const monthName = format(date, "MMMM");
+    const amount = expensesMap.get(key) ?? 0;
+    return { month: monthName, amount };
+  });
+
+  // Budget Utilization Calculations
+  const selectedExpensesTotal = expensesLast12Months
+    .filter(
+      (exp) =>
+        filterStartDate <= exp.startDate && exp.startDate <= filterEndDate,
+    )
+    .reduce((sum, exp) => sum + exp.amount, 0);
+  const selectedBudgetUtilization = currentBudget
+    ? ((selectedExpensesTotal / currentBudget) * 100).toFixed(2)
     : "0.00";
 
-  // Expense trends for the last 12 months
-  const expenseTrends = Array.from({ length: 12 }, (_, i) => {
-    const date = subMonths(startOfMonth, 11 - i);
-    const monthName = format(date, "MMMM");
+  const previousExpensesTotal = expensesLast12Months
+    .filter(
+      (exp) =>
+        previousStartDate <= exp.startDate && exp.startDate <= previousEndDate,
+    )
+    .reduce((sum, exp) => sum + exp.amount, 0);
+  const previousBudgetUtilization = previousBudget
+    ? ((previousExpensesTotal / previousBudget) * 100).toFixed(2)
+    : "0.00";
 
-    const expenseData = incomeVsExpensesExpensesResult
-      .filter((expense) => {
-        return (
-          getMonth(expense.startDate) + 1 === date.getMonth() + 1 &&
-          getYear(expense.startDate) === date.getFullYear()
-        );
-      })
-      .reduce((sum, expense) => sum + expense.amount, 0);
-
-    return {
-      month: monthName,
-      amount: expenseData ?? 0,
-    };
-  });
-
-  // **Tables Formatting**
-
-  const recentExpenses = recentExpensesResult.map((expense) => ({
-    id: expense.id,
-    description: expense.description ?? "No Description",
-    amount: expense.amount,
-    category: expense.category.name,
-    paymentMethod: expense.paymentMethod,
-    date: format(expense.startDate, "yyyy-MM-dd"),
-  }));
-
-  const upcomingExpenses = upcomingExpensesResult.map((expense) => ({
-    id: expense.id,
-    name: expense.description ?? "No Description",
-    dueDate: expense.dueDate ? format(expense.dueDate, "yyyy-MM-dd") : "",
-    amount: expense.amount,
-    icon: expense.category.icon ?? "/default-icon.png",
-  }));
-
-  // **Response Construction**
-
+  // Response
   return NextResponse.json(
     {
-      card: {
-        totalExpenses: totalExpensesAllTime,
-        totalExpensesThisYear,
-        monthlyBudget,
-        totalExpensesThisMonth,
-        remainingBudget,
-        previousMonthExpenses,
-      },
       overview: {
         savingsOverview: {
           totalIncome,
-          totalExpenses: totalExpensesThisYear,
-          totalSavings: totalSavingsThisYear,
+          totalExpenses,
+          totalSavings,
         },
       },
       chart: {
-        spendingByCategory,
+        spendingByCategory: spendingFormatted,
         incomeVsExpenses,
         budgetUtilized: {
-          budget: monthlyBudget,
-          utilized: totalExpensesThisMonth,
-          percentage,
+          selected: {
+            totalBudget: currentBudget,
+            totalExpenses: selectedExpensesTotal,
+            percentage: selectedBudgetUtilization,
+          },
+          previous: {
+            totalBudget: previousBudget,
+            totalExpenses: previousExpensesTotal,
+            percentage: previousBudgetUtilization,
+          },
         },
         expenseTrends,
       },
-      table: {
-        recentExpenses,
-        upcomingExpenses,
-      },
-      updatedAt: format(new Date(), "yyyy-MM-dd'T'HH:mm:ss.SSSxxx"),
+      updatedAt: new Date().toISOString(),
     },
     { status: 200 },
   );
 };
 
-// Export the GET handler with custom middleware
 export const GET = customMiddleware(getDashboardDataHandler);

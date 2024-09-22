@@ -21,8 +21,8 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { TrendingDown, TrendingUp } from "lucide-react";
 import { calculateAverages } from "@/lib/utils";
+import { ChartBar } from "lucide-react";
 
 interface IncomeExpenses {
   month: string; // e.g., "January"
@@ -30,14 +30,8 @@ interface IncomeExpenses {
   expenses: number;
 }
 
-interface Trend {
-  type: "up" | "down";
-  value: number;
-}
-
 interface IncomeVsExpensesProps {
   data: IncomeExpenses[];
-  trend?: Trend;
 }
 
 const chartConfig = {
@@ -54,7 +48,7 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-const IncomeVsExpenses: React.FC<IncomeVsExpensesProps> = ({ data, trend }) => {
+const IncomeVsExpenses: React.FC<IncomeVsExpensesProps> = ({ data }) => {
   const average = calculateAverages(data);
 
   return (
@@ -131,37 +125,11 @@ const IncomeVsExpenses: React.FC<IncomeVsExpensesProps> = ({ data, trend }) => {
       </CardContent>
       <CardFooter className="flex-col items-start gap-2 text-sm">
         <div className="flex gap-2 font-medium leading-none">
-          {(() => {
-            if (trend) {
-              if (trend.type === "up") {
-                return (
-                  <>
-                    Income Increased by{" "}
-                    <span className="text-md font-semibold text-green-500">
-                      {trend.value}%
-                    </span>
-                    this year
-                    <TrendingUp className="h-4 w-4 text-green-500" />
-                  </>
-                );
-              } else if (trend.type === "down") {
-                return (
-                  <>
-                    Income Decreased by{" "}
-                    <span className="text-md font-semibold text-red-500">
-                      {trend.value}%
-                    </span>
-                    this year
-                    <TrendingDown className="h-4 w-4 text-red-500" />
-                  </>
-                );
-              }
-            }
-            return <span>Income Unchanged this year</span>;
-          })()}
+          Income vs Expense breakdown <ChartBar className="h-4 w-4" />
         </div>
         <div className="leading-none text-muted-foreground">
-          Showing total income and expenses for the last 12 months
+          Showing total income and expenses for the last 12 months from the end
+          of the selected date range
         </div>
       </CardFooter>
     </Card>

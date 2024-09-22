@@ -1,4 +1,12 @@
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+"use client";
+
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
 import { calculatePercentage, cn } from "@/lib/utils";
 
 interface SavingsOverview {
@@ -39,12 +47,20 @@ const SavingsOverviewCard: React.FC<SavingsOverviewProps> = ({
           </div>
           <div className="flex items-center justify-between">
             <span className="font-medium">Savings:</span>
-            <span className={cn("font-semibold", data.savings < 0 ? "text-red-500" : "text-green-500")}>
+            <span
+              className={cn(
+                "font-semibold",
+                data.savings < 0 ? "text-red-500" : "text-green-500",
+              )}
+            >
               {data.savings.toLocaleString()} {currency} ({savingsPercentage}%)
             </span>
           </div>
         </div>
       </CardContent>
+      <CardFooter className="text-sm text-muted-foreground">
+        Showing income, expenses, and savings for the selected date range.
+      </CardFooter>
     </Card>
   );
 };

@@ -16,18 +16,12 @@ import {
   RadialBar,
   RadialBarChart,
 } from "recharts";
-import { TrendingUp, TrendingDown } from "lucide-react";
-
-interface Trend {
-  type: "up" | "down";
-  value: number;
-}
+import { Notebook } from "lucide-react";
 
 interface BudgetUtilizationProps {
   percentage: string;
   budget?: number;
   utilized?: number;
-  trend?: Trend;
 }
 
 const chartConfig = {
@@ -44,7 +38,6 @@ const BudgetUtilization: React.FC<BudgetUtilizationProps> = ({
   percentage,
   // budget,
   // utilized,
-  trend,
 }) => {
   const angle = parseFloat(percentage ?? "0.00") * 3.6;
 
@@ -126,38 +119,10 @@ const BudgetUtilization: React.FC<BudgetUtilizationProps> = ({
       </CardContent>
       <CardFooter className="flex-col items-start gap-2 text-sm">
         <div className="flex gap-2 font-medium leading-none">
-          {(() => {
-            if (trend?.type === "up") {
-              return (
-                <>
-                  Budget Utilized Increased by{" "}
-                  <span className="text-md font-semibold text-green-500">
-                    {trend.value}%
-                  </span>{" "}
-                  this month
-                  <TrendingUp className="h-4 w-4 text-green-500" />
-                </>
-              );
-            } else if (trend?.type === "down") {
-              return (
-                <>
-                  <span>
-                    Budget Utilized Decreased by{" "}
-                    <span className="text-md font-semibold text-red-500">
-                      {trend.value}%
-                    </span>{" "}
-                    this month
-                  </span>
-                  <TrendingDown className="h-4 w-4 text-red-500" />
-                </>
-              );
-            } else {
-              return <span>Budget Utilization Unchanged this month</span>;
-            }
-          })()}
+          Budget Utilization <Notebook className="h-4 w-4" />
         </div>
         <div className="leading-none text-muted-foreground">
-          Comparing to the previous month
+          Comparing to the previous period.
         </div>
       </CardFooter>
     </Card>

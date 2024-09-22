@@ -1,18 +1,43 @@
-export interface DashboardResponse {
+export interface DashboardMonthResponse {
   card: DashboardCards;
-  overview: SavingsOverview;
-  chart: DashboardCharts;
   table: DashboardTables;
   updatedAt: string;
 }
 
 export interface DashboardCards {
-  totalExpenses: number;
-  totalExpensesThisYear: number;
-  monthlyBudget: number;
-  totalExpensesThisMonth: number;
+  totalExpensesAllTime: number;
+  currentMonthlyBudget: number;
+  expensesThisMonth: number;
   remainingBudget: number;
   previousMonthExpenses: number;
+}
+
+export interface DashboardTables {
+  recentExpenses: RecentExpense[];
+  upcomingExpenses: UpcomingExpense[];
+}
+
+export interface RecentExpense {
+  id: string;
+  description: string;
+  amount: number;
+  category: string;
+  paymentMethod: string;
+  date: string;
+}
+
+export interface UpcomingExpense {
+  id: string;
+  name: string;
+  dueDate: string;
+  amount: number;
+  icon: string;
+}
+
+export interface DashboardResponse {
+  overview: SavingsOverview;
+  chart: DashboardCharts;
+  updatedAt: string;
 }
 
 export interface SavingsOverview {
@@ -45,36 +70,19 @@ export interface IncomeVsExpenses {
 }
 
 export interface BudgetUtilization {
-  budget: number;
-  utilized: number;
+  selected: BudgetUtilized;
+  previous: BudgetUtilized;
+}
+
+export interface BudgetUtilized {
+  totalBudget: number;
+  totalExpenses: number;
   percentage: string;
 }
 
 export interface ExpenseTrendData {
   month: string;
   amount: number;
-}
-
-export interface DashboardTables {
-  recentExpenses: RecentExpense[];
-  upcomingExpenses: UpcomingExpense[];
-}
-
-export interface RecentExpense {
-  id: string;
-  description: string;
-  amount: number;
-  category: string;
-  paymentMethod: string;
-  date: string;
-}
-
-export interface UpcomingExpense {
-  id: string;
-  name: string;
-  dueDate: string;
-  amount: number;
-  icon: string;
 }
 
 export type Currency = "PHP" | "USD" | "EUR";
