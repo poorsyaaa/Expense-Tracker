@@ -47,7 +47,7 @@ export default function Dashboard() {
   };
 
   const loadingIndicator = (
-    <div className="flex h-full w-full items-center justify-center">
+    <div className="flex h-full w-full items-center justify-center py-8">
       <div className="flex flex-col items-center">
         <Loader2 className="mx-auto my-3 animate-spin" />
         <span className="text-center text-sm font-light">
@@ -80,7 +80,7 @@ export default function Dashboard() {
   const renderMonthlyData = () => {
     if (isMonthlyError) {
       return (
-        <div className="flex h-full w-full items-center justify-center">
+        <div className="flex h-full w-full items-center justify-center py-8">
           <span className="text-sm font-light text-red-500">
             Failed to load monthly data: {getErrorMessage(monthlyError)}
           </span>
@@ -95,20 +95,20 @@ export default function Dashboard() {
     return (
       <>
         {/* Dashboard Summary Cards */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
           <DashboardCard
             title="Total Expenses (All-Time)"
             amount={formattedMonthlyData.totalExpensesAllTime}
             currency="PHP"
             subtitle={`Updated on ${formatDate(new Date())}`}
-            icon={<DollarSign className="h-4 w-4 text-muted-foreground" />}
+            icon={<DollarSign className="h-6 w-6 text-muted-foreground" />}
           />
           <DashboardCard
             title="Monthly Budget"
             amount={formattedMonthlyData.currentMonthlyBudget}
             currency="PHP"
             subtitle="Set for this month"
-            icon={<PieChart className="h-4 w-4 text-muted-foreground" />}
+            icon={<PieChart className="h-6 w-6 text-muted-foreground" />}
           />
           <DashboardCard
             title="Remaining Budget"
@@ -118,7 +118,7 @@ export default function Dashboard() {
               formattedMonthlyData.remainingBudget,
               formattedMonthlyData.currentMonthlyBudget,
             )}% of budget remaining`}
-            icon={<Battery className="h-4 w-4 text-muted-foreground" />}
+            icon={<Battery className="h-6 w-6 text-muted-foreground" />}
           />
           <DashboardCard
             title="Expenses This Month"
@@ -128,11 +128,11 @@ export default function Dashboard() {
               formattedMonthlyData.expensesThisMonth,
               formattedMonthlyData.previousMonthExpenses,
             )}% from last month`}
-            icon={<Calendar className="h-4 w-4 text-muted-foreground" />}
+            icon={<Calendar className="h-6 w-6 text-muted-foreground" />}
           />
         </div>
         {/* Tables Section */}
-        <div className="grid gap-4 md:gap-8 lg:grid-cols-2 xl:grid-cols-3">
+        <div className="mt-6 grid gap-4 sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
           <RecentExpensesTable
             expenses={formattedMonthlyData.recentExpenses}
             currency="PHP"
@@ -149,7 +149,7 @@ export default function Dashboard() {
   const renderDashboardData = () => {
     if (isDashboardError) {
       return (
-        <div className="flex h-full w-full items-center justify-center">
+        <div className="flex h-full w-full items-center justify-center py-8">
           <span className="text-sm font-light text-red-500">
             Failed to load dashboard data: {getErrorMessage(dashboardError)}
           </span>
@@ -164,7 +164,7 @@ export default function Dashboard() {
     return (
       <>
         {/* Overview Section */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
+        <div className="mt-6 grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2">
           <SavingsOverviewCard
             data={{
               income: dashboardData.overview.savingsOverview.totalIncome,
@@ -175,7 +175,7 @@ export default function Dashboard() {
           />
         </div>
         {/* Charts Section */}
-        <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4">
+        <div className="mt-6 grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4">
           <SpendingByCategory
             data={dashboardData.chart.spendingByCategory.map((category) => ({
               category: category.categoryName,
@@ -197,35 +197,39 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+    <div className="container mx-auto max-w-screen-xl px-4 py-8 md:px-8 md:py-12">
       {/* Monthly Data Section */}
       {renderMonthlyData()}
-      <Separator className="my-4" />
+      <Separator className="my-6" />
       {/* Date Range Picker */}
-      <DatePickerWithPresets
-        onDateChange={handleDateChange}
-        initialPreset={dashboardParams.dateRange}
-        initialDate={
-          dashboardParams.startDate && dashboardParams.endDate
-            ? {
-                from: new Date(dashboardParams.startDate),
-                to: new Date(dashboardParams.endDate),
-              }
-            : undefined
-        }
-        className="flex flex-1 items-end justify-end"
-      />
-      {/* Display Selected Date Range */}
-      <div className="mb-4 text-right text-sm text-muted-foreground">
-        {(() => {
-          if (dashboardParams.dateRange) {
-            return `Showing data for: ${formatPreset(dashboardParams.dateRange)}`;
-          } else if (dashboardParams.startDate && dashboardParams.endDate) {
-            return `Showing data from ${formatDate(new Date(dashboardParams.startDate))} to ${formatDate(new Date(dashboardParams.endDate))}`;
-          } else {
-            return "Select a date range to view data.";
-          }
-        })()}
+      <div className="mb-4 flex flex-col-reverse items-start justify-between sm:flex-row sm:items-center">
+        <div className="w-full sm:w-auto">
+          <DatePickerWithPresets
+            onDateChange={handleDateChange}
+            initialPreset={dashboardParams.dateRange}
+            initialDate={
+              dashboardParams.startDate && dashboardParams.endDate
+                ? {
+                    from: new Date(dashboardParams.startDate),
+                    to: new Date(dashboardParams.endDate),
+                  }
+                : undefined
+            }
+            className="w-full sm:w-auto"
+          />
+        </div>
+        {/* Display Selected Date Range */}
+        <div className="mt-2 text-sm text-muted-foreground sm:mt-0">
+          {(() => {
+            if (dashboardParams.dateRange) {
+              return `Showing data for: ${formatPreset(dashboardParams.dateRange)}`;
+            } else if (dashboardParams.startDate && dashboardParams.endDate) {
+              return `Showing data from ${formatDate(new Date(dashboardParams.startDate))} to ${formatDate(new Date(dashboardParams.endDate))}`;
+            } else {
+              return "Select a date range to view data.";
+            }
+          })()}
+        </div>
       </div>
       {/* Dashboard Data Section */}
       {renderDashboardData()}
