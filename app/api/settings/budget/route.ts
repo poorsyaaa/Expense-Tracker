@@ -33,30 +33,59 @@ const createBudgetHandler: CustomHandler = async (req: CustomNextRequest) => {
 const getBudgetsHandler: CustomHandler = async (req: CustomNextRequest) => {
   const { user } = req;
 
-  const pageParams = req.nextUrl.searchParams.get("page");
-  const pageSizeParams = req.nextUrl.searchParams.get("pageSize");
-  const sortByParams = req.nextUrl.searchParams.get("sortBy");
-  const orderParams = req.nextUrl.searchParams.get("order");
+  const monthParam = req.nextUrl.searchParams.get("month");
+  const yearParam = req.nextUrl.searchParams.get("year");
+  const pageParam = req.nextUrl.searchParams.get("page");
+  const pageSizeParam = req.nextUrl.searchParams.get("pageSize");
+  const sortByParam = req.nextUrl.searchParams.get("sortBy");
+  const orderParam = req.nextUrl.searchParams.get("order");
 
-  const { page, pageSize, sortBy, order } = paginationSchema.parse({
-    page: pageParams ? Number(pageParams) : 1,
-    pageSize: pageSizeParams ? Number(pageSizeParams) : 10,
-    sortBy: sortByParams ?? "createdAt",
-    order: orderParams ?? "asc",
-  });
-
-  const budgets = await prisma.monthlyBudget.findMany({
-    where: { userId: user!.id },
-    skip: (page - 1) * pageSize,
-    take: pageSize,
-    orderBy: {
-      [sortBy]: order,
+  const { page, pageSize, sortBy, order, month, year } = paginationSchema.parse(
+    {
+      month: monthParam ? Number(monthParam) : undefined,
+      year: yearParam ? Number(yearParam) : undefined,
+      page: pageParam ? Number(pageParam) : 1,
+      pageSize: pageSizeParam ? Number(pageSizeParam) : 10,
+      sortBy: sortByParam ?? "createdAt",
+      order: orderParam ?? "asc",
     },
-  });
+  );
 
-  const totalItems = await prisma.monthlyBudget.count({
-    where: { userId: user!.id },
-  });
+  const budgets =
+    month && year
+      ? await prisma.monthlyBudget.findMany({
+          where: {
+            userId: user!.id,
+            month: month,
+            year: year,
+          },
+          skip: (page - 1) * pageSize,
+          take: pageSize,
+          orderBy: {
+            [sortBy]: order,
+          },
+        })
+      : await prisma.monthlyBudget.findMany({
+          where: { userId: user!.id },
+          skip: (page - 1) * pageSize,
+          take: pageSize,
+          orderBy: {
+            [sortBy]: order,
+          },
+        });
+
+  const totalItems =
+    month && year
+      ? await prisma.monthlyBudget.count({
+          where: {
+            userId: user!.id,
+            month: month,
+            year: year,
+          },
+        })
+      : await prisma.monthlyBudget.count({
+          where: { userId: user!.id },
+        });
 
   return NextResponse.json({
     budgets,
