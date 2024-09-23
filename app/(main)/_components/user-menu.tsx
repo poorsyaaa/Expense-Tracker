@@ -28,6 +28,13 @@ export const UserMenu = () => {
 
   const [isProfileSheetOpen, setIsProfileSheetOpen] = useState(false);
 
+  const handleProfileSheetClose = (invalidate: boolean = false) => {
+    if (invalidate)
+      queryClient.invalidateQueries({ queryKey: ["default-settings"] });
+
+    setIsProfileSheetOpen(false);
+  };
+
   const queryClient = useQueryClient();
 
   return (
@@ -94,7 +101,7 @@ export const UserMenu = () => {
       <ProfileSheet
         user={user}
         isOpen={isProfileSheetOpen}
-        onClose={() => setIsProfileSheetOpen(false)}
+        onClose={handleProfileSheetClose}
       />
     </>
   );

@@ -76,7 +76,7 @@ const GeneralSettingsForm: React.FC<GeneralSettingsFormProps> = ({
       },
       {
         onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: ["settings"] });
+          queryClient.invalidateQueries({ queryKey: ["default-settings"] });
         },
         onError: (error) => {
           console.error("Create or Update error:", error);

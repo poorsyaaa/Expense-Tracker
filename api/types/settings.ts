@@ -1,11 +1,14 @@
-import { SettingsSchema } from "@/lib/schema/settings";
-
-export interface SettingsResponse {
-  default_settings: DefaultSettings;
-  categories: Category[];
-  monthly_budgets: MonthlyBudget[];
-  monthly_incomes: MonthlyIncome[];
+export interface DefaultSettingsResponse {
+  settings: DefaultSettings;
 }
+
+export type PaymentMethod =
+  | "CREDIT_CARD"
+  | "DEBIT_CARD"
+  | "CASH"
+  | "BANK_TRANSFER"
+  | "DIGITAL_BANK"
+  | "OTHER";
 
 export interface DefaultSettings {
   id: string;
@@ -15,9 +18,16 @@ export interface DefaultSettings {
   locale: string;
   timeZone: string;
   dateFormat: string;
-  defaultPaymentMethod: SettingsSchema["defaultPaymentMethod"];
+  defaultPaymentMethod: PaymentMethod;
   userId: string;
   createdAt: string;
+}
+
+export interface CategoriesResponse {
+  categories: Category[];
+  totalItems: number;
+  totalPages: number;
+  currentPage: number;
 }
 
 export interface Category {
@@ -29,6 +39,13 @@ export interface Category {
   createdAt: string;
 }
 
+export interface MonthlyBudgetsResponse {
+  budgets: MonthlyBudget[];
+  totalItems: number;
+  totalPages: number;
+  currentPage: number;
+}
+
 export interface MonthlyBudget {
   id: string;
   amount: number;
@@ -36,6 +53,13 @@ export interface MonthlyBudget {
   year: number;
   userId: string;
   createdAt: string;
+}
+
+export interface MonthlyIncomesResponse {
+  incomes: MonthlyIncome[];
+  totalItems: number;
+  totalPages: number;
+  currentPage: number;
 }
 
 export interface MonthlyIncome {

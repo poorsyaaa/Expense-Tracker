@@ -1,0 +1,7 @@
+components/ui/**
+!components/ui/icon-picker.tsx
+!components/ui/color-picker.tsx
+!components/ui/data-table.tsx
+!components/ui/data-table-column-header.tsx
+!components/ui/data-table-pagination.tsx
+!components/ui/data-table-skeleton.tsx

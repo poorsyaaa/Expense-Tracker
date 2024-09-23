@@ -19,7 +19,7 @@ import { PasswordForm } from "./forms/reset-password-form";
 interface ProfileSheetProps {
   user: User;
   isOpen: boolean;
-  onClose: () => void;
+  onClose: (invalidate: boolean) => void;
 }
 
 export const ProfileSheet: React.FC<PropsWithChildren<ProfileSheetProps>> = ({
@@ -48,7 +48,7 @@ export const ProfileSheet: React.FC<PropsWithChildren<ProfileSheetProps>> = ({
       {
         onSuccess: () => {
           setProfileFormError(undefined);
-          onClose();
+          onClose(true);
         },
         onError: (error) => {
           setProfileFormError(error.message);
@@ -66,7 +66,7 @@ export const ProfileSheet: React.FC<PropsWithChildren<ProfileSheetProps>> = ({
       {
         onSuccess: () => {
           setResetFormError(undefined);
-          onClose();
+          onClose(true);
         },
         onError: (error) => {
           setResetFormError(error.message);

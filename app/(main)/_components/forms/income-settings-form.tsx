@@ -31,7 +31,7 @@ import { Separator } from "@/components/ui/separator";
 interface IncomeSettingsFormProps {
   selectedIncome?: MonthlyIncome | null;
   defaultIncome?: number;
-  onFormReset: (invalidate: boolean) => void;
+  onFormReset: (invalidate: boolean, queryKey?: string) => void;
 }
 
 const IncomeSettingsForm: React.FC<IncomeSettingsFormProps> = ({
@@ -64,7 +64,7 @@ const IncomeSettingsForm: React.FC<IncomeSettingsFormProps> = ({
         },
         {
           onSuccess: () => {
-            onFormReset(true);
+            onFormReset(true, "monthly-incomes");
           },
           onError: (error) => {
             console.error("Update error:", error);
@@ -79,7 +79,7 @@ const IncomeSettingsForm: React.FC<IncomeSettingsFormProps> = ({
         },
         {
           onSuccess: () => {
-            onFormReset(true);
+            onFormReset(true, "monthly-incomes");
           },
           onError: (error) => {
             console.error("Create error:", error);

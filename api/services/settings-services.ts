@@ -3,21 +3,72 @@ import {
   BudgetSchema,
   CategorySchema,
   IncomeSchema,
-  QueryParamsSchema,
+  PaginationSchema,
   SettingsSchema,
 } from "@/lib/schema/settings";
 import { DefaultOptions } from "../types";
-import { SettingsResponse } from "../types/settings";
+import {
+  CategoriesResponse,
+  DefaultSettingsResponse,
+  MonthlyBudgetsResponse,
+  MonthlyIncomesResponse,
+} from "../types/settings";
 
-export const getSettings = async (
-  options: DefaultOptions<QueryParamsSchema, never, never>,
+export const getDefaultSettings = async (options: DefaultOptions) => {
+  const { endpoint, signal } = options;
+
+  const response = await axiosInstance.get<DefaultSettingsResponse>(endpoint, {
+    signal,
+  });
+
+  return response.data;
+};
+
+export const getMonthlyBudgets = async (
+  options: DefaultOptions<PaginationSchema, never, never>,
 ) => {
   const { endpoint, queryParams, signal } = options;
 
-  const response = await axiosInstance.get<SettingsResponse>(endpoint, {
-    params: queryParams,
-    signal,
-  });
+  const response = await axiosInstance.get<MonthlyBudgetsResponse>(
+    endpoint ?? "/settings/budget",
+    {
+      params: queryParams,
+      signal,
+    },
+  );
+
+  return response.data;
+};
+
+export const getMonthlyIncomes = async (
+  options: DefaultOptions<PaginationSchema, never, never>,
+) => {
+  const { endpoint, queryParams, signal } = options;
+
+  const response = await axiosInstance.get<MonthlyIncomesResponse>(
+    endpoint ?? "/settings/income",
+    {
+      params: queryParams,
+      signal,
+    },
+  );
+
+  return response.data;
+};
+
+export const getCategories = async (
+  options: DefaultOptions<PaginationSchema, never, never>,
+) => {
+  const { endpoint, queryParams, signal } = options;
+
+  const response = await axiosInstance.get<CategoriesResponse>(
+    endpoint ?? "/settings/category",
+    {
+      params: queryParams,
+      signal,
+    },
+  );
+
   return response.data;
 };
 

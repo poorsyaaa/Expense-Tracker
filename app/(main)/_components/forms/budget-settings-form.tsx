@@ -31,7 +31,7 @@ import { Separator } from "@/components/ui/separator";
 interface BudgetSettingsFormProps {
   selectedBudget?: MonthlyBudget | null;
   defaultBudget?: number;
-  onFormReset: (invalidate: boolean) => void;
+  onFormReset: (invalidate: boolean, queryKey?: string) => void;
 }
 
 const BudgetSettingsForm: React.FC<BudgetSettingsFormProps> = ({
@@ -64,7 +64,7 @@ const BudgetSettingsForm: React.FC<BudgetSettingsFormProps> = ({
         },
         {
           onSuccess: () => {
-            onFormReset(true);
+            onFormReset(true, "monthly-budgets");
           },
           onError: (error) => {
             console.error("Update error:", error);
@@ -79,7 +79,7 @@ const BudgetSettingsForm: React.FC<BudgetSettingsFormProps> = ({
         },
         {
           onSuccess: () => {
-            onFormReset(true);
+            onFormReset(true, "monthly-budgets");
           },
           onError: (error) => {
             console.error("Create error:", error);

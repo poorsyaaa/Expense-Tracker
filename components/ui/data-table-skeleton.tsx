@@ -75,17 +75,20 @@ export function DataTableSkeleton({
         <div className="flex flex-1 items-center space-x-2">
           {searchableColumnCount > 0
             ? Array.from({ length: searchableColumnCount }).map((_, i) => (
-                <Skeleton key={i} className="h-7 w-40 lg:w-60" />
+                <Skeleton key={i} className="h-7 w-40 bg-secondary lg:w-60" />
               ))
             : null}
           {filterableColumnCount > 0
             ? Array.from({ length: filterableColumnCount }).map((_, i) => (
-                <Skeleton key={i} className="h-7 w-[4.5rem] border-dashed" />
+                <Skeleton
+                  key={i}
+                  className="h-7 w-[4.5rem] border-dashed bg-secondary"
+                />
               ))
             : null}
         </div>
         {showViewOptions ? (
-          <Skeleton className="ml-auto hidden h-7 w-[4.5rem] lg:flex" />
+          <Skeleton className="ml-auto hidden h-7 w-[4.5rem] bg-secondary lg:flex" />
         ) : null}
       </div>
 
@@ -102,7 +105,7 @@ export function DataTableSkeleton({
                       minWidth: shrinkZero ? cellWidths[j] : "auto",
                     }}
                   >
-                    <Skeleton className="h-6 w-full" />
+                    <Skeleton className="h-6 w-full bg-secondary" />
                   </TableHead>
                 ))}
               </TableRow>
@@ -119,7 +122,7 @@ export function DataTableSkeleton({
                       minWidth: shrinkZero ? cellWidths[j] : "auto",
                     }}
                   >
-                    <Skeleton className="h-6 w-full" />
+                    <Skeleton className="h-6 w-full bg-secondary" />
                   </TableCell>
                 ))}
               </TableRow>
@@ -131,17 +134,17 @@ export function DataTableSkeleton({
       <div className="flex w-full justify-end px-2 py-1">
         <div className="flex items-center gap-4 space-x-2 sm:gap-6 lg:gap-8">
           <div className="flex items-center space-x-2">
-            <Skeleton className="h-8 w-24" />
-            <Skeleton className="h-8 w-[4.5rem]" />
+            <Skeleton className="h-8 w-24 bg-secondary" />
+            <Skeleton className="h-8 w-[4.5rem] bg-secondary" />
           </div>
           <div className="flex items-center justify-center text-sm font-medium">
-            <Skeleton className="h-8 w-20" />
+            <Skeleton className="h-8 w-20 bg-secondary" />
           </div>
           <div className="flex items-center space-x-2">
-            <Skeleton className="hidden h-8 w-8 lg:block" />
-            <Skeleton className="h-8 w-8" />
-            <Skeleton className="h-8 w-8" />
-            <Skeleton className="hidden h-8 w-8 lg:block" />
+            <Skeleton className="hidden h-8 w-8 bg-secondary lg:block" />
+            <Skeleton className="h-8 w-8 bg-secondary" />
+            <Skeleton className="h-8 w-8 bg-secondary" />
+            <Skeleton className="hidden h-8 w-8 bg-secondary lg:block" />
           </div>
         </div>
       </div>

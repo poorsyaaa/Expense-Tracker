@@ -1,6 +1,5 @@
 "use client";
 
-import { useSettings } from "@/context/settingsContext";
 import { useState } from "react";
 import CategorySettingsForm from "../../_components/forms/category-settings-form";
 import { Button } from "@/components/ui/button";
@@ -27,10 +26,25 @@ import { useQueryClient } from "@tanstack/react-query";
 import { DataTable } from "@/components/ui/data-table";
 import { columns } from "./column";
 import { PaginationState, SortingState } from "@tanstack/react-table";
+import { useGetCategories } from "@/api/queries/settings-hook";
 
 export default function Page() {
   const queryClient = useQueryClient();
-  const { categories, isLoading } = useSettings();
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+  const [sorting, setSorting] = useState<SortingState | undefined>(undefined);
+
+  console.log(sorting);
+
+  const { data, isLoading } = useGetCategories({
+    page: pagination.pageIndex + 1,
+    pageSize: pagination.pageSize,
+    sortBy: sorting?.[0]?.id ?? "createdAt",
+    order: sorting?.[0]?.desc ? "desc" : "asc",
+  });
+
   const { mutate: deleteCategory } = useDeleteCategory();
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(
     null,
@@ -39,11 +53,6 @@ export default function Page() {
   const [deletingCategoryId, setDeletingCategoryId] = useState<string | null>(
     null,
   );
-  const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 10,
-  });
-  const [sorting, setSorting] = useState<SortingState>([]);
 
   const handleCategorySelect = (category: Category) => {
     setSelectedCategory(category);
@@ -56,7 +65,10 @@ export default function Page() {
   };
 
   const handleDialogClose = (invalidate: boolean = false) => {
-    if (invalidate) queryClient.invalidateQueries({ queryKey: ["settings"] });
+    if (invalidate)
+      queryClient.invalidateQueries({
+        queryKey: ["categories"],
+      });
     setOpenDialog(false);
   };
 
@@ -66,7 +78,7 @@ export default function Page() {
       { endpoint: `/settings/category/${categoryId}` },
       {
         onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: ["settings"] });
+          queryClient.invalidateQueries({ queryKey: ["default-settings"] });
           setDeletingCategoryId(null); // Reset deleting state
         },
         onError: () => {
@@ -98,7 +110,7 @@ export default function Page() {
                 handleDeleteCategory,
                 deletingCategoryId,
               )}
-              data={categories ?? []}
+              data={data?.categories ?? []}
               isLoading={isLoading}
               emptyDisplay={
                 <div className="flex flex-col items-center py-10">
@@ -108,7 +120,7 @@ export default function Page() {
                 </div>
               }
               state={{
-                totalCount: categories?.length ?? 0,
+                totalCount: data?.totalItems ?? 0,
                 pagination,
                 sortBy: sorting,
               }}

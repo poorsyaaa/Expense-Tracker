@@ -1,33 +1,62 @@
 import { useQuery } from "@tanstack/react-query";
 import {
+  getCategories,
   getCategory,
+  getDefaultSettings,
   getMonthlyBudget,
+  getMonthlyBudgets,
   getMonthlyIncome,
-  getSettings,
+  getMonthlyIncomes,
 } from "../services/settings-services";
-import { QueryParamsSchema } from "@/lib/schema/settings";
+import { PaginationSchema } from "@/lib/schema/settings";
 
-export const useGetSettings = (queryParams: QueryParamsSchema) => {
+export const useGetDefaultSettings = () => {
   return useQuery({
-    queryKey: ["settings", queryParams.month, queryParams.year],
+    queryKey: ["default-settings"],
     queryFn: ({ signal }) =>
-      getSettings({
-        endpoint: "/settings",
-        queryParams,
+      getDefaultSettings({
+        endpoint: "/settings/default",
         signal,
       }),
-    enabled: !!queryParams.month && !!queryParams.year,
   });
 };
 
-export const useGetAllSettings = () => {
+export const useGetMonthlyBudgets = (paginationParams: PaginationSchema) => {
   return useQuery({
-    queryKey: ["settings"],
+    queryKey: ["monthly-budgets", paginationParams],
     queryFn: ({ signal }) =>
-      getSettings({
-        endpoint: "/settings",
+      getMonthlyBudgets({
+        endpoint: "/settings/budget",
+        queryParams: paginationParams,
         signal,
       }),
+    enabled: !!paginationParams.page && !!paginationParams.pageSize,
+  });
+};
+
+export const useGetMonthlyIncomes = (paginationParams: PaginationSchema) => {
+  return useQuery({
+    queryKey: ["monthly-incomes", paginationParams],
+    queryFn: ({ signal }) =>
+      getMonthlyIncomes({
+        endpoint: "/settings/income",
+        queryParams: paginationParams,
+        signal,
+      }),
+    enabled: !!paginationParams.page && !!paginationParams.pageSize,
+  });
+};
+
+export const useGetCategories = (paginationParams: PaginationSchema) => {
+  return useQuery({
+    queryKey: ["categories", paginationParams],
+    queryFn: ({ signal }) =>
+      getCategories({
+        endpoint: "/settings/category",
+        queryParams: paginationParams,
+        signal,
+      }),
+    enabled: !!paginationParams.page && !!paginationParams.pageSize,
   });
 };
 
@@ -40,7 +69,7 @@ export const useGetCategory = (categoryId: string) => {
         pathParams: { categoryId },
         signal,
       }),
-    enabled: !!categoryId, // Only fetch if categoryId is valid
+    enabled: !!categoryId,
   });
 };
 

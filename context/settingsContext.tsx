@@ -1,18 +1,12 @@
 "use client";
 
-import { useGetAllSettings } from "@/api/queries/settings-hook";
-import {
-  Category,
-  DefaultSettings,
-  MonthlyBudget,
-  MonthlyIncome,
-  SettingsResponse,
-} from "@/api/types/settings";
+import { useGetDefaultSettings } from "@/api/queries/settings-hook";
+import { DefaultSettings, DefaultSettingsResponse } from "@/api/types/settings";
 import { SettingsSchema } from "@/lib/schema/settings";
 import { createContext, useContext, ReactNode, useMemo } from "react";
 
 interface SettingsContextType {
-  data?: SettingsResponse;
+  data?: DefaultSettingsResponse;
   default_settings?:
     | DefaultSettings
     | {
@@ -24,9 +18,6 @@ interface SettingsContextType {
         dateFormat: string;
         defaultPaymentMethod: SettingsSchema["defaultPaymentMethod"];
       };
-  categories?: Category[] | [];
-  monthly_budgets?: MonthlyBudget[] | [];
-  monthly_incomes?: MonthlyIncome[] | [];
   isLoading: boolean;
   error: Error | null;
 }
@@ -39,15 +30,12 @@ export default function SettingsProvider({
 }: Readonly<{
   children: ReactNode;
 }>) {
-  const { data, isLoading, error } = useGetAllSettings();
-
-  // create a function that will convert the data to the correct format using timzezon and date format from settings
-  // const convertDate = (date: string | Date) => {};
+  const { data, isLoading, error } = useGetDefaultSettings();
 
   const contextValue = useMemo(
     () => ({
       data,
-      default_settings: data?.default_settings ?? {
+      default_settings: data?.settings ?? {
         defaultBudget: 0,
         defaultIncome: 0,
         currency: "PHP",
@@ -56,9 +44,6 @@ export default function SettingsProvider({
         dateFormat: "MM/dd/yyyy",
         defaultPaymentMethod: "CASH",
       },
-      categories: data?.categories ?? [],
-      monthly_budgets: data?.monthly_budgets ?? [],
-      monthly_incomes: data?.monthly_incomes ?? [],
       isLoading,
       error,
     }),

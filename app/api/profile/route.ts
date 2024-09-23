@@ -7,6 +7,8 @@ import {
   CustomNextRequest,
 } from "@/lib/server/middleware";
 
+export const dynamic = "force-dynamic";
+
 const updateProfileHandler: CustomHandler = async (req: CustomNextRequest) => {
   const { user } = req;
 

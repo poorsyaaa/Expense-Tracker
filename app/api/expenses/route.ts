@@ -73,26 +73,56 @@ const getExpensesHandler: CustomHandler = async (req: CustomNextRequest) => {
     year: Number(yearParam),
   });
 
-  const whereClause = {
-    userId: user!.id,
-    ...(month &&
-      year && {
-        startDate: {
-          gte: new Date(year, month - 1, 1),
-          lt: new Date(year, month, 1),
+  const [expenses, monthlyBudget, monthlyIncome, settings] =
+    await prisma.$transaction([
+      prisma.expense.findMany({
+        where: {
+          userId: user!.id,
+          startDate: {
+            gte: new Date(year, month - 1, 1),
+            lt: new Date(year, month, 1),
+          },
+        },
+        include: {
+          tags: true,
+          category: true,
         },
       }),
-  };
+      prisma.monthlyBudget.findUnique({
+        where: {
+          userId_month_year: {
+            userId: user!.id,
+            month: month,
+            year: year,
+          },
+        },
+      }),
+      prisma.monthlyIncome.findUnique({
+        where: {
+          userId_month_year: {
+            userId: user!.id,
+            month: month,
+            year: year,
+          },
+        },
+        select: { amount: true },
+      }),
+      prisma.settingsDefaults.findUnique({
+        where: { userId: user!.id },
+        select: { defaultBudget: true, defaultIncome: true },
+      }),
+    ]);
 
-  const expenses = await prisma.expense.findMany({
-    where: whereClause,
-    include: {
-      tags: true,
-      expenseNote: true,
-    },
-  });
+  const remainingBudget = monthlyBudget?.amount ?? settings?.defaultBudget ?? 0;
+  const totalExpenses = expenses.reduce(
+    (sum, expense) => sum + expense.amount,
+    0,
+  );
 
-  return NextResponse.json({ expenses }, { status: 200 });
+  return NextResponse.json(
+    { expenses, remainingBudget, totalExpenses, monthlyIncome },
+    { status: 200 },
+  );
 };
 
 export const POST = customMiddleware(createExpenseHandler);

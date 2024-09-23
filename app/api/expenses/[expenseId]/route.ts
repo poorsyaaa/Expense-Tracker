@@ -31,6 +31,7 @@ const getExpenseHandler: CustomHandler = async (
     include: {
       tags: true,
       expenseNote: true,
+      category: true,
     },
   });
 

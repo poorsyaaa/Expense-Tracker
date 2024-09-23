@@ -19,6 +19,10 @@ import {
 } from "@/components/ui/dialog";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import {
+  useGetMonthlyBudgets,
+  useGetMonthlyIncomes,
+} from "@/api/queries/settings-hook";
 import { MonthlyIncome } from "@/api/types/settings";
 
 import { DataTable } from "@/components/ui/data-table";
@@ -26,11 +30,44 @@ import { Label } from "@radix-ui/react-label";
 import { budgetColumns, incomeColumns } from "./column";
 import IncomeSettingsForm from "../../_components/forms/income-settings-form";
 import BudgetSettingsForm from "../../_components/forms/budget-settings-form";
+import { PaginationState, SortingState } from "@tanstack/react-table";
 
 export default function Page() {
   const queryClient = useQueryClient();
-  const { default_settings, monthly_budgets, monthly_incomes, isLoading } =
-    useSettings();
+  const { default_settings, isLoading } = useSettings();
+
+  const [paginationIncomes, setPaginationIncomes] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+  const [sortingIncomes, setSortingIncomes] = useState<
+    SortingState | undefined
+  >(undefined);
+
+  const { data: monthly_incomes, isLoading: isLoadingIncomes } =
+    useGetMonthlyIncomes({
+      page: paginationIncomes.pageIndex + 1,
+      pageSize: paginationIncomes.pageSize,
+      sortBy: sortingIncomes?.[0]?.id ?? "createdAt",
+      order: sortingIncomes?.[0]?.desc ? "desc" : "asc",
+    });
+
+  const [paginationBudgets, setPaginationBudgets] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+  const [sortingBudgets, setSortingBudgets] = useState<
+    SortingState | undefined
+  >(undefined);
+
+  const { data: monthly_budgets, isLoading: isLoadingBudgets } =
+    useGetMonthlyBudgets({
+      page: paginationBudgets.pageIndex + 1,
+      pageSize: paginationBudgets.pageSize,
+      sortBy: sortingBudgets?.[0]?.id ?? "createdAt",
+      order: sortingBudgets?.[0]?.desc ? "desc" : "asc",
+    });
+
   const [selectedIncome, setSelectedIncome] = useState<MonthlyIncome | null>(
     null,
   );
@@ -60,8 +97,12 @@ export default function Page() {
     setOpenBudgetDialog(true);
   };
 
-  const handleDialogClose = (invalidate: boolean = false) => {
-    if (invalidate) queryClient.invalidateQueries({ queryKey: ["settings"] });
+  const handleDialogClose = (
+    invalidate: boolean = false,
+    queryKey?: string,
+  ) => {
+    if (invalidate && queryKey)
+      queryClient.invalidateQueries({ queryKey: [queryKey] });
 
     setSelectedBudget(null);
     setSelectedIncome(null);
@@ -86,8 +127,8 @@ export default function Page() {
         <CardContent>
           <DataTable
             columns={incomeColumns(handleIncomeSelect)}
-            data={monthly_incomes ?? []}
-            isLoading={isLoading}
+            data={monthly_incomes?.incomes ?? []}
+            isLoading={isLoading || isLoadingIncomes}
             emptyDisplay={
               <div className="flex flex-col items-center py-10">
                 <FilePlus className="mb-4 h-12 w-12" />
@@ -98,10 +139,12 @@ export default function Page() {
               </div>
             }
             state={{
-              totalCount: monthly_incomes?.length ?? 0,
-              pagination: { pageIndex: 0, pageSize: 10 }, // Adjust according to your pagination state
-              sortBy: [], // Initial sorting state
+              totalCount: monthly_incomes?.totalItems ?? 0,
+              pagination: paginationIncomes,
+              sortBy: sortingIncomes,
             }}
+            onPaginationChange={setPaginationIncomes}
+            onSortingChange={setSortingIncomes}
           />
         </CardContent>
       </Card>
@@ -120,8 +163,8 @@ export default function Page() {
         <CardContent>
           <DataTable
             columns={budgetColumns(handleBudgetSelect)}
-            data={monthly_budgets ?? []}
-            isLoading={isLoading}
+            data={monthly_budgets?.budgets ?? []}
+            isLoading={isLoading || isLoadingBudgets}
             emptyDisplay={
               <div className="flex flex-col items-center py-10">
                 <FilePlus className="mb-4 h-12 w-12" />
@@ -132,10 +175,12 @@ export default function Page() {
               </div>
             }
             state={{
-              totalCount: monthly_budgets?.length ?? 0,
-              pagination: { pageIndex: 0, pageSize: 10 }, // Adjust according to your pagination state
-              sortBy: [], // Initial sorting state
+              totalCount: monthly_budgets?.totalItems ?? 0,
+              pagination: paginationBudgets,
+              sortBy: sortingBudgets,
             }}
+            onPaginationChange={setPaginationBudgets}
+            onSortingChange={setSortingBudgets}
           />
         </CardContent>
       </Card>

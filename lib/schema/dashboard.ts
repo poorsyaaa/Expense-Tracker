@@ -33,4 +33,16 @@ export const dashboardParamsSchema = z.object({
   endDate: z.string().optional(),
 });
 
+export const dashboardMonthParamsSchema = z.object({
+  month: z.number().min(1).max(12).optional(),
+  year: z.number().int().min(2000).max(3000).optional(),
+  returnFields: z
+    .array(z.enum(["card", "table"]))
+    .optional()
+    .default(["card", "table"]),
+});
+
 export type DashboardParamsSchema = z.infer<typeof dashboardParamsSchema>;
+export type DashboardMonthParamsSchema = z.infer<
+  typeof dashboardMonthParamsSchema
+>;

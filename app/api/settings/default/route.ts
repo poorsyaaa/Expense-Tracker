@@ -50,4 +50,15 @@ const updateSettingsHandler: CustomHandler = async (req: CustomNextRequest) => {
   );
 };
 
+const getSettingsHandler: CustomHandler = async (req: CustomNextRequest) => {
+  const { user } = req;
+
+  const settings = await prisma.settingsDefaults.findUnique({
+    where: { userId: user!.id },
+  });
+
+  return NextResponse.json({ settings }, { status: 200 });
+};
+
 export const POST = customMiddleware(updateSettingsHandler);
+export const GET = customMiddleware(getSettingsHandler);

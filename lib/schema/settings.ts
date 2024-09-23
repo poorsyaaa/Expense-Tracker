@@ -49,8 +49,16 @@ export const queryParamsSchema = z.object({
   year: z.number().int().min(2023).optional(),
 });
 
+export const paginationSchema = z.object({
+  page: z.number().min(1).default(1),
+  pageSize: z.number().min(1).max(100).default(10),
+  sortBy: z.string().default("createdAt"),
+  order: z.enum(["asc", "desc"]).default("asc"),
+});
+
 export type BudgetSchema = z.infer<typeof budgetSchema>;
 export type IncomeSchema = z.infer<typeof incomeSchema>;
 export type SettingsSchema = z.infer<typeof settingsSchema>;
 export type CategorySchema = z.infer<typeof categorySchema>;
 export type QueryParamsSchema = z.infer<typeof queryParamsSchema>;
+export type PaginationSchema = z.infer<typeof paginationSchema>;
