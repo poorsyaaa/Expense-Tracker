@@ -41,7 +41,7 @@ const getCategoriesHandler: CustomHandler = async (req: CustomNextRequest) => {
   const { page, pageSize, sortBy, order } = paginationSchema.parse({
     page: pageParams ? Number(pageParams) : 1,
     pageSize: pageSizeParams ? Number(pageSizeParams) : 10,
-    sortBy: sortByParams ?? "createdAt",
+    sortBy: sortByParams ?? "year",
     order: orderParams ?? "asc",
   });
 

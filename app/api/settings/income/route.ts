@@ -46,7 +46,7 @@ const getIncomesHandler: CustomHandler = async (req: CustomNextRequest) => {
       year: yearParam ? Number(yearParam) : undefined,
       page: pageParam ? Number(pageParam) : 1,
       pageSize: pageSizeParam ? Number(pageSizeParam) : 10,
-      sortBy: sortByParam ?? "createdAt",
+      sortBy: sortByParam ?? "month",
       order: orderParam ?? "asc",
     },
   );

@@ -53,8 +53,8 @@ export const paginationSchema = z
   .object({
     page: z.number().min(1).default(1),
     pageSize: z.number().min(1).max(100).default(10),
-    sortBy: z.string().default("createdAt"),
-    order: z.enum(["asc", "desc"]).default("asc"),
+    sortBy: z.string(),
+    order: z.enum(["asc", "desc"]).default("desc"),
   })
   .merge(queryParamsSchema);
 

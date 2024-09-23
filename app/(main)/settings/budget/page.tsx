@@ -48,7 +48,7 @@ export default function Page() {
     useGetMonthlyIncomes({
       page: paginationIncomes.pageIndex + 1,
       pageSize: paginationIncomes.pageSize,
-      sortBy: sortingIncomes?.[0]?.id ?? "createdAt",
+      sortBy: sortingIncomes?.[0]?.id ?? "month",
       order: sortingIncomes?.[0]?.desc ? "desc" : "asc",
     });
 
@@ -64,7 +64,7 @@ export default function Page() {
     useGetMonthlyBudgets({
       page: paginationBudgets.pageIndex + 1,
       pageSize: paginationBudgets.pageSize,
-      sortBy: sortingBudgets?.[0]?.id ?? "createdAt",
+      sortBy: sortingBudgets?.[0]?.id ?? "month",
       order: sortingBudgets?.[0]?.desc ? "desc" : "asc",
     });
 
