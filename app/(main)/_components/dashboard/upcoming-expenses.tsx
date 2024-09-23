@@ -1,6 +1,8 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ICONS_MAP } from "@/components/ui/icon-picker";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { cn, getRelativeDueDate } from "@/lib/utils";
 
 interface Expense {
   id: string;
@@ -19,48 +21,65 @@ const UpcomingExpenses: React.FC<UpcomingExpensesProps> = ({
   expenses,
   currency,
 }) => {
+  const currentDate = new Date();
   return (
     <Card>
       <CardHeader>
         <CardTitle>Upcoming Expenses</CardTitle>
       </CardHeader>
       <CardContent className="grid gap-8">
-        {expenses.length > 0 ? (
-          expenses.map((expense) => {
-            const IconComponent = ICONS_MAP[expense.icon];
+        <ScrollArea className="max-h-80">
+          {expenses.length > 0 ? (
+            expenses.map((expense) => {
+              const IconComponent = ICONS_MAP[expense.icon];
+              const relativeDueDate = getRelativeDueDate(expense.dueDate);
+              const dueDate = new Date(expense.dueDate);
 
-            return (
-              <div key={expense.id} className="flex items-center gap-4">
-                {IconComponent ? (
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-secondary text-secondary-foreground">
-                    <IconComponent />
+              const daysUntilDue =
+                (dueDate.getTime() - currentDate.getTime()) /
+                (1000 * 3600 * 24);
+              let textColor = "text-muted-foreground";
+              if (daysUntilDue < 0) {
+                textColor = "text-red-500";
+              } else if (daysUntilDue < 7) {
+                textColor = "text-yellow-500";
+              }
+
+              return (
+                <div key={expense.id} className="mb-4 flex items-center">
+                  {IconComponent ? (
+                    <div className="mr-3 flex h-9 w-9 items-center justify-center rounded-full bg-secondary text-secondary-foreground">
+                      <IconComponent />
+                    </div>
+                  ) : (
+                    <Avatar className="hidden h-9 w-9 sm:flex">
+                      <AvatarFallback>
+                        {expense.name.slice(0, 2).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                  )}
+                  <div className="grid gap-1">
+                    <p className="max-w-[300px] break-words text-sm font-medium leading-none">
+                      {expense.name}
+                    </p>
+                    <p
+                      className={cn("text-sm text-muted-foreground", textColor)}
+                    >
+                      Due: {relativeDueDate}
+                    </p>
                   </div>
-                ) : (
-                  <Avatar className="hidden h-9 w-9 sm:flex">
-                    <AvatarFallback>
-                      {expense.name.slice(0, 2).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                )}
-                <div className="grid gap-1">
-                  <p className="text-sm font-medium leading-none">
-                    {expense.name}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    Due: {new Date(expense.dueDate).toLocaleDateString()}
-                  </p>
+                  <div className="ml-auto font-medium">
+                    {expense.amount.toFixed(2)} {currency}
+                  </div>
                 </div>
-                <div className="ml-auto font-medium">
-                  {expense.amount.toFixed(2)} {currency}
-                </div>
-              </div>
-            );
-          })
-        ) : (
-          <p className="text-center text-muted-foreground">
-            No upcoming expenses.
-          </p>
-        )}
+              );
+            })
+          ) : (
+            <p className="text-center text-muted-foreground">
+              No upcoming expenses.
+            </p>
+          )}
+        </ScrollArea>
       </CardContent>
     </Card>
   );

@@ -22,7 +22,7 @@ import { Label } from "@radix-ui/react-label";
 import { FilePlus, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DataTablePagination } from "@/components/ui/data-table-pagination";
-import { DataTableSkeleton } from "@/components/ui/data-table-skeleton";
+import { getCommonPinningStyles } from "@/lib/data-table";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -72,6 +72,9 @@ export const DataTable = <TData, TValue>({
     state: {
       pagination: state.pagination,
       sorting: state.sortBy,
+      columnPinning: {
+        right: ["actions"],
+      },
     },
     manualSorting: true,
     manualPagination: true,
@@ -89,94 +92,91 @@ export const DataTable = <TData, TValue>({
   );
 
   return (
-    <div className={cn("w-full space-y-2.5 overflow-auto", className)}>
-      {isLoading ? (
-        <DataTableSkeleton
-          columnCount={columns.length}
-          rowCount={10}
-          searchableColumnCount={0}
-          filterableColumnCount={0}
-          showViewOptions={false}
-          cellWidths={["auto"]}
-          shrinkZero={true}
-        />
-      ) : (
-        <>
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                {table.getHeaderGroups().map((headerGroup) => (
-                  <TableRow key={headerGroup.id}>
-                    {headerGroup.headers.map((header) => {
-                      return (
-                        <TableHead key={header.id}>
-                          {header.isPlaceholder
-                            ? null
-                            : flexRender(
-                                header.column.columnDef.header,
-                                header.getContext(),
-                              )}
-                        </TableHead>
-                      );
-                    })}
-                  </TableRow>
-                ))}
-              </TableHeader>
-              <TableBody>
-                {(() => {
-                  if (isLoading) {
-                    return (
-                      <TableRow>
-                        <TableCell
-                          colSpan={columns.length}
-                          className="h-24 text-center"
-                        >
-                          <div className="flex items-center justify-center space-x-2">
-                            <Loader2 className="h-6 w-6 animate-spin" />
-                            <span>Loading...</span>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  }
-
-                  if (table.getRowModel().rows?.length) {
-                    return table.getRowModel().rows.map((row) => (
-                      <TableRow
-                        key={row.id}
-                        data-state={row.getIsSelected() && "selected"}
-                      >
-                        {row.getVisibleCells().map((cell) => (
-                          <TableCell key={cell.id}>
-                            {flexRender(
-                              cell.column.columnDef.cell,
-                              cell.getContext(),
-                            )}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    ));
-                  }
-
+    <div className={cn("space-y-2.5 overflow-auto p-1", className)}>
+      <div className="w-full overflow-auto rounded-lg">
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => {
                   return (
-                    <TableRow>
-                      <TableCell
-                        colSpan={columns.length}
-                        className="h-24 text-center"
-                      >
-                        {emptyDisplay ?? defaultEmptyDisplay}
-                      </TableCell>
-                    </TableRow>
+                    <TableHead
+                      key={header.id}
+                      colSpan={header.colSpan}
+                      style={{
+                        ...getCommonPinningStyles({ column: header.column }),
+                      }}
+                    >
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
+                    </TableHead>
                   );
-                })()}
-              </TableBody>
-            </Table>
-          </div>
-          <div className="flex flex-col gap-2.5">
-            <DataTablePagination table={table} pageSizeOptions={[10, 20, 50]} />
-          </div>
-        </>
-      )}
+                })}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {(() => {
+              if (isLoading) {
+                return (
+                  <TableRow>
+                    <TableCell
+                      colSpan={columns.length}
+                      className="h-24 text-center"
+                    >
+                      <div className="flex items-center justify-center space-x-2">
+                        <Loader2 className="h-6 w-6 animate-spin" />
+                        <span>Loading...</span>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              }
+
+              if (table.getRowModel().rows?.length) {
+                return table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && "selected"}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell
+                        key={cell.id}
+                        style={{
+                          ...getCommonPinningStyles({ column: cell.column }),
+                        }}
+                      >
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext(),
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ));
+              }
+
+              return (
+                <TableRow>
+                  <TableCell
+                    colSpan={table.getAllColumns().length}
+                    className="h-24 text-center"
+                  >
+                    {emptyDisplay ?? defaultEmptyDisplay}
+                  </TableCell>
+                </TableRow>
+              );
+            })()}
+          </TableBody>
+        </Table>
+      </div>
+      <div className="flex flex-col gap-2.5">
+        <DataTablePagination table={table} pageSizeOptions={[10, 20, 50]} />
+      </div>
     </div>
   );
 };

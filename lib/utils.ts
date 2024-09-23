@@ -1,5 +1,6 @@
 import { ChartConfig } from "@/components/ui/chart";
 import { type ClassValue, clsx } from "clsx";
+import { parseISO, formatDistanceToNow } from "date-fns";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
@@ -103,4 +104,9 @@ export const formatPreset = (preset: string) => {
   };
 
   return presets[preset] || preset;
+};
+
+export const getRelativeDueDate = (dueDate: string): string => {
+  const date = parseISO(dueDate);
+  return formatDistanceToNow(date, { addSuffix: true });
 };

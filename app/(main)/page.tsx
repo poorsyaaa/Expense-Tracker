@@ -175,7 +175,7 @@ export default function Dashboard() {
           />
         </div>
         {/* Charts Section */}
-        <div className="mt-6 grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4">
+        <div className="mt-6 grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
           <SpendingByCategory
             data={dashboardData.chart.spendingByCategory.map((category) => ({
               category: category.categoryName,

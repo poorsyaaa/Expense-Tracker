@@ -11,13 +11,13 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
-
+  CustomModal,
+  CustomModalBody,
+  CustomModalContent,
+  CustomModalDescription,
+  CustomModalHeader,
+  CustomModalTitle,
+} from "@/components/ui/custom-modal";
 import { Category } from "@/api/types/settings";
 import { FilePlus, Plus } from "lucide-react";
 import { Label } from "@/components/ui/label";
@@ -90,7 +90,7 @@ export default function Page() {
 
   return (
     <>
-      <Card>
+      <Card className="w-full overflow-auto">
         <div className="flex flex-col p-6 pb-4 md:flex-row md:items-center md:justify-between">
           <CardHeader className="p-0">
             <CardTitle>Category Settings</CardTitle>
@@ -103,55 +103,53 @@ export default function Page() {
           </div>
         </div>
         <CardContent className="px-6 pb-6">
-          <div className="overflow-x-auto">
-            <DataTable
-              columns={columns(
-                handleCategorySelect,
-                handleDeleteCategory,
-                deletingCategoryId,
-              )}
-              data={data?.categories ?? []}
-              isLoading={isLoading}
-              emptyDisplay={
-                <div className="flex flex-col items-center py-10">
-                  <FilePlus className="mb-4 h-12 w-12" />
-                  <Label>No categories found.</Label>
-                  <Label>Click on the plus button to add a new category.</Label>
-                </div>
-              }
-              state={{
-                totalCount: data?.totalItems ?? 0,
-                pagination,
-                sortBy: sorting,
-              }}
-              onPaginationChange={setPagination}
-              onSortingChange={setSorting}
-            />
-          </div>
+          <DataTable
+            columns={columns(
+              handleCategorySelect,
+              handleDeleteCategory,
+              deletingCategoryId,
+            )}
+            data={data?.categories ?? []}
+            isLoading={isLoading}
+            emptyDisplay={
+              <div className="flex flex-col items-center py-10">
+                <FilePlus className="mb-4 h-12 w-12" />
+                <Label>No categories found.</Label>
+                <Label>Click on the plus button to add a new category.</Label>
+              </div>
+            }
+            state={{
+              totalCount: data?.totalItems ?? 0,
+              pagination,
+              sortBy: sorting,
+            }}
+            onPaginationChange={setPagination}
+            onSortingChange={setSorting}
+          />
         </CardContent>
       </Card>
 
       {/* Dialog for Category Form */}
-      <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
+      <CustomModal open={openDialog} onOpenChange={setOpenDialog}>
+        <CustomModalContent>
+          <CustomModalHeader>
+            <CustomModalTitle>
               {selectedCategory ? "Edit Category" : "Create New Category"}
-            </DialogTitle>
-            <DialogDescription>
+            </CustomModalTitle>
+            <CustomModalDescription>
               {selectedCategory
                 ? "Update your category details below."
                 : "Add a new category to your list."}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
+            </CustomModalDescription>
+          </CustomModalHeader>
+          <CustomModalBody className="space-y-4 pb-4 text-sm sm:pb-0 sm:text-left">
             <CategorySettingsForm
               selectedCategory={selectedCategory}
               onFormReset={handleDialogClose}
             />
-          </div>
-        </DialogContent>
-      </Dialog>
+          </CustomModalBody>
+        </CustomModalContent>
+      </CustomModal>
     </>
   );
 }

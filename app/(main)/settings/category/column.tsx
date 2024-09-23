@@ -33,6 +33,17 @@ export const columns: (
       </div>
     ),
   },
+  { id: "color", accessorFn: (row) => row.color },
+  { id: "color", accessorFn: (row) => row.color },
+  { id: "color", accessorFn: (row) => row.color },
+  { id: "color", accessorFn: (row) => row.color },
+  { id: "color", accessorFn: (row) => row.color },
+  { id: "color", accessorFn: (row) => row.color },
+  { id: "color", accessorFn: (row) => row.color },
+  { id: "color", accessorFn: (row) => row.color },
+  { id: "color", accessorFn: (row) => row.color },
+  { id: "color", accessorFn: (row) => row.color },
+  { id: "color", accessorFn: (row) => row.color },
   {
     accessorKey: "color",
     accessorFn: (row) => row.color,

@@ -51,7 +51,7 @@ const SpendingByCategory: React.FC<SpendingByCategoryProps> = ({ data }) => {
   );
 
   return (
-    <Card className="w-full">
+    <Card>
       <CardHeader>
         <CardTitle>Spending by Category</CardTitle>
       </CardHeader>

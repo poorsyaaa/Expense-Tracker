@@ -10,13 +10,6 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FilePlus, Plus } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import {
@@ -24,7 +17,14 @@ import {
   useGetMonthlyIncomes,
 } from "@/api/queries/settings-hook";
 import { MonthlyIncome } from "@/api/types/settings";
-
+import {
+  CustomModal,
+  CustomModalBody,
+  CustomModalContent,
+  CustomModalDescription,
+  CustomModalHeader,
+  CustomModalTitle,
+} from "@/components/ui/custom-modal";
 import { DataTable } from "@/components/ui/data-table";
 import { Label } from "@radix-ui/react-label";
 import { budgetColumns, incomeColumns } from "./column";
@@ -112,7 +112,7 @@ export default function Page() {
 
   return (
     <>
-      <Card>
+      <Card className="w-full overflow-auto">
         <div className="flex flex-col p-6 pb-4 md:flex-row md:items-center md:justify-between">
           <CardHeader className="p-0">
             <CardTitle>Monthly Income Settings</CardTitle>
@@ -148,7 +148,7 @@ export default function Page() {
           />
         </CardContent>
       </Card>
-      <Card>
+      <Card className="w-full overflow-auto">
         <div className="flex flex-col p-6 pb-4 md:flex-row md:items-center md:justify-between">
           <CardHeader className="p-0">
             <CardTitle>Monthly Budget Settings</CardTitle>
@@ -186,54 +186,54 @@ export default function Page() {
       </Card>
 
       {/* Dialog for Income Form */}
-      <Dialog open={openIncomeDialog} onOpenChange={handleDialogClose}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
+      <CustomModal open={openIncomeDialog} onOpenChange={handleDialogClose}>
+        <CustomModalContent>
+          <CustomModalHeader>
+            <CustomModalTitle>
               {selectedIncome
                 ? "Update Monthly Income"
                 : "Add New Monthly Income"}
-            </DialogTitle>
-            <DialogDescription>
+            </CustomModalTitle>
+            <CustomModalDescription>
               {selectedIncome
                 ? "Update your monthly income"
                 : "Add a new monthly income"}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
+            </CustomModalDescription>
+          </CustomModalHeader>
+          <CustomModalBody className="space-y-4 pb-4 text-sm sm:pb-0 sm:text-left">
             <IncomeSettingsForm
               selectedIncome={selectedIncome}
               onFormReset={handleDialogClose}
               defaultIncome={default_settings?.defaultIncome}
             />
-          </div>
-        </DialogContent>
-      </Dialog>
+          </CustomModalBody>
+        </CustomModalContent>
+      </CustomModal>
 
       {/* Dialog for Budget Form */}
-      <Dialog open={openBudgetDialog} onOpenChange={handleDialogClose}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
+      <CustomModal open={openBudgetDialog} onOpenChange={handleDialogClose}>
+        <CustomModalContent>
+          <CustomModalHeader>
+            <CustomModalTitle>
               {selectedBudget
                 ? "Update Monthly Budget"
                 : "Add New Monthly Budget"}
-            </DialogTitle>
-            <DialogDescription>
+            </CustomModalTitle>
+            <CustomModalDescription>
               {selectedBudget
                 ? "Update your monthly budget"
                 : "Add a new monthly budget"}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
+            </CustomModalDescription>
+          </CustomModalHeader>
+          <CustomModalBody className="space-y-4 pb-4 text-sm sm:pb-0 sm:text-left">
             <BudgetSettingsForm
               selectedBudget={selectedBudget}
               onFormReset={handleDialogClose}
               defaultBudget={default_settings?.defaultBudget}
             />
-          </div>
-        </DialogContent>
-      </Dialog>
+          </CustomModalBody>
+        </CustomModalContent>
+      </CustomModal>
     </>
   );
 }
