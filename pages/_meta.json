@@ -1,0 +1,10 @@
+{
+  "-- Getting Started --": {
+    "type": "separator",
+    "title": "Getting Started"
+  },
+  "docs": {
+    "type": "page",
+    "title": "Documentation"
+  }
+}

@@ -1,0 +1,42 @@
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from "@/components/ui/accordion";
+
+# Frequently Asked Questions
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="item-1">
+    <AccordionTrigger>How do I reset my password?</AccordionTrigger>
+    <AccordionContent>
+      Go to the login page and click on **"Forgot your password?"**. Follow the instructions in the email you receive to reset your password.
+    </AccordionContent>
+  </AccordionItem>
+
+{" "}
+<AccordionItem value="item-2">
+  <AccordionTrigger>How can I change my default currency?</AccordionTrigger>
+  <AccordionContent>
+    Navigate to the **Settings** page. Under the **General** tab, you can update
+    your default currency to the preferred option.
+  </AccordionContent>
+</AccordionItem>
+
+{" "}
+<AccordionItem value="item-3">
+  <AccordionTrigger>Can I export my expenses data?</AccordionTrigger>
+  <AccordionContent>
+    Yes, you can export your expenses data in CSV format from the **Reports**
+    section.
+  </AccordionContent>
+</AccordionItem>
+
+  <AccordionItem value="item-4">
+    <AccordionTrigger>How do I delete my account?</AccordionTrigger>
+    <AccordionContent>
+      To delete your account, go to **Settings > Account** and click on **"Delete Account"**. Please note that this action is irreversible, and all your data will be permanently removed.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>

@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 
 import { Header } from "./_components/header";
 
-import "../globals.css";
+import "../../styles/globals.css";
 
 import SessionProvider from "@/context/sessionContext";
 import { validateRequest } from "@/lib/auth";

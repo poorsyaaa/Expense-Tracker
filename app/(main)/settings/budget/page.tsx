@@ -200,7 +200,7 @@ export default function Page() {
                 : "Add a new monthly income"}
             </CustomModalDescription>
           </CustomModalHeader>
-          <CustomModalBody className="space-y-4 pb-4 text-sm sm:pb-0 sm:text-left">
+          <CustomModalBody className="space-y-4 pb-4 text-sm sm:text-left">
             <IncomeSettingsForm
               selectedIncome={selectedIncome}
               onFormReset={handleDialogClose}
@@ -225,7 +225,7 @@ export default function Page() {
                 : "Add a new monthly budget"}
             </CustomModalDescription>
           </CustomModalHeader>
-          <CustomModalBody className="space-y-4 pb-4 text-sm sm:pb-0 sm:text-left">
+          <CustomModalBody className="space-y-4 pb-4 text-sm sm:text-left">
             <BudgetSettingsForm
               selectedBudget={selectedBudget}
               onFormReset={handleDialogClose}

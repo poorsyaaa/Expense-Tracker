@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import "../globals.css";
+import "../../styles/globals.css";
 
 import { validateRequest } from "@/lib/auth";
 

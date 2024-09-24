@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 
-import "./globals.css";
+import "../styles/globals.css";
 
 import { ThemeProvider } from "@/components/theme-provider";
 import TanstackQueryProvider from "@/context/tanstackContext";

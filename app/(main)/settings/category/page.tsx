@@ -142,7 +142,7 @@ export default function Page() {
                 : "Add a new category to your list."}
             </CustomModalDescription>
           </CustomModalHeader>
-          <CustomModalBody className="space-y-4 pb-4 text-sm sm:pb-0 sm:text-left">
+          <CustomModalBody className="space-y-4 pb-4 text-sm sm:text-left">
             <CategorySettingsForm
               selectedCategory={selectedCategory}
               onFormReset={handleDialogClose}
