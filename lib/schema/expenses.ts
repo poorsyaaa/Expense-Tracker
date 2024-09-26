@@ -4,10 +4,7 @@ export const expenseSchema = z.object({
   description: z.string().optional(),
   amount: z.number().positive(),
   categoryId: z.string(),
-  // recurring: z.boolean(),
-  // frequency: z.enum(["DAILY", "WEEKLY", "MONTHLY", "YEARLY"]).optional(),
   startDate: z.string(),
-  // endDate: z.string().optional(),
   dueDate: z.string().optional(),
   isPaid: z.boolean().optional(),
   type: z.enum(["ONE_TIME", "RECURRING", "TRANSFER"]),
@@ -17,20 +14,18 @@ export const expenseSchema = z.object({
     "CASH",
     "BANK_TRANSFER",
     "DIGITAL_BANK",
+    "SAVINGS",
     "OTHER",
   ]),
   tags: z.array(z.string()).optional(),
-  expenseNote: z.array(z.string()).optional(),
+  expenseNote: z.string().optional(),
 });
 
 export const updateExpenseSchema = z.object({
   description: z.string().optional(),
   amount: z.number().positive().optional(),
   categoryId: z.string().optional(),
-  // recurring: z.boolean().optional(),
-  // frequency: z.enum(["DAILY", "WEEKLY", "MONTHLY", "YEARLY"]).optional(),
   startDate: z.string().optional(),
-  // endDate: z.string().optional(),
   dueDate: z.string().optional(),
   isPaid: z.boolean().optional(),
   type: z.enum(["ONE_TIME", "RECURRING", "TRANSFER"]).optional(),
@@ -41,11 +36,12 @@ export const updateExpenseSchema = z.object({
       "CASH",
       "BANK_TRANSFER",
       "DIGITAL_BANK",
+      "SAVINGS",
       "OTHER",
     ])
     .optional(),
   tags: z.array(z.string()).optional(),
-  expenseNote: z.array(z.string()).optional(),
+  expenseNote: z.string().optional(),
 });
 
 export const queryParamsSchema = z.object({

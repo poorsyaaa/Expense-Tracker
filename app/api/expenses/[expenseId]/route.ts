@@ -65,8 +65,8 @@ const updateExpenseHandler: CustomHandler = async (
     startDate,
     dueDate,
     isPaid = false,
-    tags, // New field: tags to be updated
-    expenseNote, // New field: expense notes to be updated
+    tags,
+    expenseNote,
   } = updateExpenseSchema.parse(body);
 
   const updatedExpense = await prisma.expense.update({
@@ -89,12 +89,18 @@ const updateExpenseHandler: CustomHandler = async (
           create: { name: tag, userId: user!.id },
         })),
       },
-      expenseNote: {
-        deleteMany: {},
-        create: expenseNote?.map((note: string) => ({
-          note,
-        })),
-      },
+      expenseNote: expenseNote
+        ? {
+            upsert: {
+              create: {
+                note: expenseNote,
+              },
+              update: {
+                note: expenseNote,
+              },
+            },
+          }
+        : undefined,
     },
   });
 

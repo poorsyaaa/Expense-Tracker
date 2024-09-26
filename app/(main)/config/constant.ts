@@ -39,6 +39,7 @@ export const paymentMethods = [
   { label: "Cash", value: "CASH" },
   { label: "Bank Transfer", value: "BANK_TRANSFER" },
   { label: "Digital Bank", value: "DIGITAL_BANK" },
+  { label: "Savings", value: "SAVINGS" },
   { label: "Other", value: "OTHER" },
 ];
 

@@ -1,8 +1,11 @@
 "use client";
 
 import { useGetDefaultSettings } from "@/api/queries/settings-hook";
-import { DefaultSettings, DefaultSettingsResponse } from "@/api/types/settings";
-import { SettingsSchema } from "@/lib/schema/settings";
+import {
+  DefaultSettings,
+  DefaultSettingsResponse,
+  PaymentMethod,
+} from "@/api/types/settings";
 import { createContext, useContext, ReactNode, useMemo } from "react";
 
 interface SettingsContextType {
@@ -16,7 +19,7 @@ interface SettingsContextType {
         locale: string;
         timeZone: string;
         dateFormat: string;
-        defaultPaymentMethod: SettingsSchema["defaultPaymentMethod"];
+        defaultPaymentMethod: PaymentMethod;
       };
   isLoading: boolean;
   error: Error | null;

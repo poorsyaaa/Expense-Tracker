@@ -48,11 +48,13 @@ const createExpenseHandler: CustomHandler = async (req: CustomNextRequest) => {
           create: { name: tag, userId: user!.id },
         })),
       },
-      expenseNote: {
-        create: expenseNote?.map((note: string) => ({
-          note,
-        })),
-      },
+      expenseNote: expenseNote
+        ? {
+            create: {
+              note: expenseNote,
+            },
+          }
+        : undefined,
     },
   });
 

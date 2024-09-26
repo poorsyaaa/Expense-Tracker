@@ -475,6 +475,7 @@ async function createExpenses(
             "CASH",
             "BANK_TRANSFER",
             "DIGITAL_BANK",
+            "SAVINGS",
             "OTHER",
           ]),
           categoryId: randomCategory.id,
@@ -485,32 +486,19 @@ async function createExpenses(
           tags: {
             connect: randomTags.map((tag) => ({ id: tag.id })),
           },
+          expenseNote: faker.datatype.boolean()
+            ? {
+                create: {
+                  note: faker.lorem.sentence(),
+                },
+              }
+            : undefined,
         },
       });
 
       console.log(
         `[INFO] Expense created - Description: "${expense.description}", Amount: ${expense.amount}`,
       );
-
-      const noteCount = faker.number.int({ min: 0, max: 3 });
-      if (noteCount > 0) {
-        const expenseNotesData: Prisma.ExpenseNoteCreateManyInput[] = [];
-
-        for (let j = 0; j < noteCount; j++) {
-          expenseNotesData.push({
-            expenseId: expense.id,
-            note: faker.lorem.sentence(),
-          });
-        }
-
-        await tx.expenseNote.createMany({
-          data: expenseNotesData,
-        });
-
-        console.log(
-          `[INFO] Created ${noteCount} ExpenseNotes for Expense ID: ${expense.id}`,
-        );
-      }
     } catch (error) {
       console.error(
         `[ERROR] Failed to create Expense for User ID: ${userId} - Error: ${error}`,

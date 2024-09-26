@@ -8,6 +8,7 @@ export type PaymentMethod =
   | "CASH"
   | "BANK_TRANSFER"
   | "DIGITAL_BANK"
+  | "SAVINGS"
   | "OTHER";
 
 export interface DefaultSettings {

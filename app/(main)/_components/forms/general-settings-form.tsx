@@ -31,6 +31,7 @@ import {
   dateFormats,
   paymentMethods,
 } from "../../config/constant";
+import { PaymentMethod } from "@/api/types/settings";
 
 interface GeneralSettingsFormProps {
   defaultBudget?: number;
@@ -39,7 +40,7 @@ interface GeneralSettingsFormProps {
   locale?: string;
   timeZone?: string;
   dateFormat?: string;
-  defaultPaymentMethod?: SettingsSchema["defaultPaymentMethod"];
+  defaultPaymentMethod?: PaymentMethod;
 }
 
 const GeneralSettingsForm: React.FC<GeneralSettingsFormProps> = ({

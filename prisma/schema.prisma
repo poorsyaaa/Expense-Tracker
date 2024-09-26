@@ -13,19 +13,13 @@ enum ExpenseType {
   TRANSFER
 }
 
-// enum Frequency {
-//   DAILY
-//   WEEKLY
-//   MONTHLY
-//   YEARLY
-// }
-
 enum PaymentMethod {
   CREDIT_CARD
   DEBIT_CARD
   CASH
   BANK_TRANSFER
   DIGITAL_BANK
+  SAVINGS
   OTHER
 }
 
@@ -69,13 +63,9 @@ model SettingsDefaults {
   defaultBudget        Float
   defaultIncome        Float
   currency             String         @default("PHP")
-  // reminderFrequency    Frequency?
   locale               String?        @default("en-US")
   timeZone             String?        @default("UTC")
   dateFormat           String?        @default("MM/DD/YYYY")
-  // autoCategorization   Boolean        @default(false)
-  // defaultIncomeSource  String?
-  // notificationsEnabled Boolean        @default(true)
   defaultPaymentMethod PaymentMethod? @default(CASH)
 
   userId String @unique
@@ -142,14 +132,11 @@ model Expense {
   category      Category      @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   userId        String
   user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  // recurring     Boolean
-  // frequency     Frequency?
   startDate     DateTime
-  // endDate       DateTime?
   dueDate       DateTime?
   isPaid        Boolean
   tags          Tag[]
-  expenseNote   ExpenseNote[]
+  expenseNote   ExpenseNote?
 
   createdAt DateTime @default(now())
 
@@ -174,7 +161,7 @@ model Tag {
 
 model ExpenseNote {
   id        String  @id @default(uuid())
-  expenseId String
+  expenseId String  @unique
   expense   Expense @relation(fields: [expenseId], references: [id], onDelete: Cascade)
   note      String
 
