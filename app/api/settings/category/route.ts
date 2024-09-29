@@ -13,7 +13,7 @@ const createCategoryHandler: CustomHandler = async (req: CustomNextRequest) => {
   const { user } = req;
 
   const body = await req.json();
-  const { name, icon, color } = categorySchema.parse(body);
+  const { name, icon, color, categoryGroupId } = categorySchema.parse(body);
 
   const category = await prisma.category.create({
     data: {
@@ -21,6 +21,7 @@ const createCategoryHandler: CustomHandler = async (req: CustomNextRequest) => {
       name,
       icon,
       color,
+      categoryGroupId,
     },
   });
 

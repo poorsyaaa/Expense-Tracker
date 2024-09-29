@@ -37,6 +37,7 @@ export interface Category {
   icon: string;
   color: string;
   userId: string;
+  categoryGroupId: string;
   createdAt: string;
 }
 
@@ -70,4 +71,20 @@ export interface MonthlyIncome {
   year: number;
   userId: string;
   createdAt: string;
+}
+
+export interface CategoryGroupResponse {
+  categoryGroups: CategoryGroup[];
+}
+
+export interface CategoryGroup {
+  id: string;
+  name: string;
+  userId: string;
+  categories: Category[];
+  createdAt: string;
+}
+
+export interface CategoryResponse extends Category {
+  expenseCount: number;
 }

@@ -1,6 +1,5 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ICONS_MAP } from "@/components/ui/icon-picker";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn, getRelativeDueDate } from "@/lib/utils";
 
@@ -31,7 +30,6 @@ const UpcomingExpenses: React.FC<UpcomingExpensesProps> = ({
         <ScrollArea className="max-h-80">
           {expenses.length > 0 ? (
             expenses.map((expense) => {
-              const IconComponent = ICONS_MAP[expense.icon];
               const relativeDueDate = getRelativeDueDate(expense.dueDate);
               const dueDate = new Date(expense.dueDate);
 
@@ -47,10 +45,10 @@ const UpcomingExpenses: React.FC<UpcomingExpensesProps> = ({
 
               return (
                 <div key={expense.id} className="mb-4 flex items-center">
-                  {IconComponent ? (
-                    <div className="mr-3 flex h-9 w-9 items-center justify-center rounded-full bg-secondary text-secondary-foreground">
-                      <IconComponent />
-                    </div>
+                  {expense.icon ? (
+                    <span className="mr-3 flex h-9 w-9 items-center justify-center rounded-full bg-secondary text-secondary-foreground">
+                      {expense.icon}
+                    </span>
                   ) : (
                     <Avatar className="hidden h-9 w-9 sm:flex">
                       <AvatarFallback>

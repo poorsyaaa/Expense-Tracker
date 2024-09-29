@@ -12,10 +12,8 @@ import { Button } from "@/components/ui/button";
 import { FilePlus, Plus } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import {
-  useGetMonthlyBudgets,
-  useGetMonthlyIncomes,
-} from "@/api/queries/settings-hook";
+import { useGetMonthlyBudgets } from "@/api/queries/settings/budget-hook";
+import { useGetMonthlyIncomes } from "@/api/queries/settings/income-hook";
 import { MonthlyIncome } from "@/api/types/settings";
 import {
   CustomModal,

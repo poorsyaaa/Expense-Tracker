@@ -34,6 +34,7 @@ model User {
   googleId         String?           @unique
   avatarUrl        String?
   session          Session[]
+  categoryGroups   CategoryGroup[]
   category         Category[]
   monthlyBudget    MonthlyBudget[]
   income           MonthlyIncome[]
@@ -76,18 +77,33 @@ model SettingsDefaults {
   @@map("settings_defaults")
 }
 
-model Category {
-  id      String    @id @default(uuid())
-  name    String
-  icon    String?
-  color   String?
-  userId  String
-  user    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  expense Expense[]
+model CategoryGroup {
+  id         String     @id @default(uuid())
+  name       String
+  userId     String
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  categories Category[]
 
   createdAt DateTime @default(now())
 
   @@unique([userId, name])
+  @@map("category_groups")
+}
+
+model Category {
+  id              String        @id @default(uuid())
+  name            String
+  icon            String?
+  color           String?
+  userId          String
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  categoryGroupId String
+  categoryGroup   CategoryGroup @relation(fields: [categoryGroupId], references: [id], onDelete: Cascade)
+  expense         Expense[]
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, categoryGroupId, name])
   @@index([userId])
   @@map("categories")
 }

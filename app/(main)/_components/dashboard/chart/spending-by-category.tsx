@@ -16,7 +16,6 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { generateChartConfig } from "@/lib/utils";
-import { ICONS_MAP } from "@/components/ui/icon-picker";
 import { ChartPie } from "lucide-react";
 
 interface SpendingByCategory {
@@ -37,7 +36,7 @@ const SpendingByCategory: React.FC<SpendingByCategoryProps> = ({ data }) => {
       property: item.category,
       label: item.category,
       fill: item.fill,
-      icon: item.icon ? ICONS_MAP[item.icon] : undefined,
+      icon: () => <span>{item.icon ?? "💰"}</span>,
     })),
     {
       category: {

@@ -16,7 +16,7 @@ import { Loader2 } from "lucide-react";
 import {
   useCreateMonthlyIncome,
   useUpdateMonthlyIncome,
-} from "@/api/mutations/settings-hook";
+} from "@/api/mutations/settings/income-hook";
 import {
   SelectContent,
   SelectTrigger,

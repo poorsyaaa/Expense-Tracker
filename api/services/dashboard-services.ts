@@ -8,10 +8,13 @@ export const getDashboardData = async (
 ) => {
   const { endpoint, queryParams, signal } = options;
 
-  const response = await axiosInstance.get<DashboardResponse>(endpoint, {
-    params: queryParams,
-    signal,
-  });
+  const response = await axiosInstance.get<DashboardResponse>(
+    endpoint ?? "/dashboard",
+    {
+      params: queryParams,
+      signal,
+    },
+  );
   return response.data;
 };
 

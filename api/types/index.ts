@@ -3,7 +3,7 @@ export type DefaultOptions<
   D = Record<string, never>,
   PP = Record<string, never>,
 > = {
-  endpoint: string;
+  endpoint?: string;
   queryParams?: QP;
   data?: D;
   pathParams?: PP;

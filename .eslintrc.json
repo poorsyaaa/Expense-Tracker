@@ -8,7 +8,9 @@
     "prettier", // Add Prettier as an ESLint plugin
     "simple-import-sort"
   ],
-  "rules": {},
+  "rules": {
+    "react/react-in-jsx-scope": "off"
+  },
   "overrides": [
     {
       "files": ["*.ts", "*.tsx"],

@@ -1,155 +1,199 @@
 "use client";
 
-import { useState } from "react";
-import CategorySettingsForm from "../../_components/forms/category-settings-form";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  CardDescription,
-} from "@/components/ui/card";
-import {
-  CustomModal,
-  CustomModalBody,
-  CustomModalContent,
-  CustomModalDescription,
-  CustomModalHeader,
-  CustomModalTitle,
-} from "@/components/ui/custom-modal";
-import { Category } from "@/api/types/settings";
-import { FilePlus, Plus } from "lucide-react";
-import { Label } from "@/components/ui/label";
-import { useDeleteCategory } from "@/api/mutations/settings-hook";
+import { useEffect, useRef, useState } from "react";
+
+import { useUpdateCategory } from "@/api/mutations/settings/category-hook";
+import { useGetCategoryGroups } from "@/api/queries/settings/category-group-hook";
+import { Category, CategoryGroup } from "@/api/types/settings";
+import { DropResult } from "@hello-pangea/dnd";
+import DndContainer from "../../_components/dnd/dnd-container";
+import CategoryGroupContainer from "../../_components/dnd/category-group-container";
+import CategoryItem from "../../_components/dnd/category-item";
+import { Loader2 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { DataTable } from "@/components/ui/data-table";
-import { columns } from "./column";
-import { PaginationState, SortingState } from "@tanstack/react-table";
-import { useGetCategories } from "@/api/queries/settings-hook";
 
 export default function Page() {
   const queryClient = useQueryClient();
-  const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 10,
-  });
-  const [sorting, setSorting] = useState<SortingState | undefined>(undefined);
+  const { data, isLoading } = useGetCategoryGroups();
+  const { mutate: updateCategory, isPending: isUpdating } = useUpdateCategory();
 
-  console.log(sorting);
-
-  const { data, isLoading } = useGetCategories({
-    page: pagination.pageIndex + 1,
-    pageSize: pagination.pageSize,
-    sortBy: sorting?.[0]?.id ?? "createdAt",
-    order: sorting?.[0]?.desc ? "desc" : "asc",
-  });
-
-  const { mutate: deleteCategory } = useDeleteCategory();
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+  const [categoryGroups, setCategoryGroups] = useState<CategoryGroup[]>([]);
+  const [loadingCategoryId, setLoadingCategoryId] = useState<string | null>(
     null,
   );
-  const [openDialog, setOpenDialog] = useState(false);
-  const [deletingCategoryId, setDeletingCategoryId] = useState<string | null>(
-    null,
-  );
+  const [editingCategoryGroupId, setEditingCategoryGroupId] = useState<
+    string | null
+  >(null);
 
-  const handleCategorySelect = (category: Category) => {
-    setSelectedCategory(category);
-    setOpenDialog(true);
+  useEffect(() => {
+    if (data?.categoryGroups) {
+      setCategoryGroups(data.categoryGroups);
+    }
+  }, [data]);
+  const previousStateRef = useRef<CategoryGroup[]>([]);
+
+  const handleEditCategoryGroupClick = (id: string) => {
+    setEditingCategoryGroupId(id);
   };
 
-  const handleAddNewCategory = () => {
-    setSelectedCategory(null);
-    setOpenDialog(true);
+  const handleCategoryGroupFormReset = (
+    invalidate: boolean,
+    updatedCategoryGroup?: Omit<CategoryGroup, "categories">,
+  ) => {
+    if (invalidate && updatedCategoryGroup) {
+      setCategoryGroups((prevGroups) =>
+        prevGroups.map((group) =>
+          group.id === updatedCategoryGroup.id
+            ? { ...group, ...updatedCategoryGroup }
+            : group,
+        ),
+      );
+
+      previousStateRef.current = categoryGroups.map((group) => ({
+        ...group,
+        categories: [...group.categories],
+      }));
+    }
+
+    setEditingCategoryGroupId(null);
   };
 
-  const handleDialogClose = (invalidate: boolean = false) => {
-    if (invalidate)
-      queryClient.invalidateQueries({
-        queryKey: ["categories"],
+  const handleUpdateCategoryFormReset = (
+    invalidate: boolean,
+    updatedCategory?: Category,
+    deletedCategoryId?: string,
+  ) => {
+    if (!invalidate) return;
+
+    setCategoryGroups((prevGroups) => {
+      let categoryMoved = false;
+      let categoryDeleted = false;
+
+      const newGroups = prevGroups.map((group) => {
+        let categories = group.categories;
+
+        if (
+          updatedCategory &&
+          categories.some((cat) => cat.id === updatedCategory.id)
+        ) {
+          categories = categories.filter(
+            (cat) => cat.id !== updatedCategory.id,
+          );
+          categoryMoved = true;
+        }
+
+        if (updatedCategory && group.id === updatedCategory.categoryGroupId) {
+          categories = [...categories, updatedCategory];
+        }
+
+        if (
+          deletedCategoryId &&
+          categories.some((cat) => cat.id === deletedCategoryId)
+        ) {
+          categories = categories.filter((cat) => cat.id !== deletedCategoryId);
+          categoryDeleted = true;
+        }
+
+        return categories === group.categories
+          ? group
+          : { ...group, categories };
       });
-    setOpenDialog(false);
+
+      return categoryMoved || categoryDeleted ? newGroups : prevGroups;
+    });
+
+    if (deletedCategoryId) {
+      queryClient.invalidateQueries({
+        queryKey: ["category", deletedCategoryId],
+      });
+    }
   };
 
-  const handleDeleteCategory = (categoryId: string) => {
-    setDeletingCategoryId(categoryId);
-    deleteCategory(
-      { endpoint: `/settings/category/${categoryId}` },
+  const onDragEnd = (result: DropResult) => {
+    const { source, destination } = result;
+    if (!destination) return;
+
+    previousStateRef.current = categoryGroups.map((group) => ({
+      ...group,
+      categories: [...group.categories],
+    }));
+
+    const sourceGroupIndex = categoryGroups.findIndex(
+      (group) => group.id === source.droppableId,
+    );
+    const destinationGroupIndex = categoryGroups.findIndex(
+      (group) => group.id === destination.droppableId,
+    );
+
+    if (sourceGroupIndex === -1 || destinationGroupIndex === -1) return;
+
+    const sourceGroup = categoryGroups[sourceGroupIndex];
+    const destinationGroup = categoryGroups[destinationGroupIndex];
+    const [draggedItem] = sourceGroup.categories.splice(source.index, 1);
+
+    destinationGroup.categories.splice(destination.index, 0, draggedItem);
+
+    setLoadingCategoryId(draggedItem.id);
+
+    setCategoryGroups((prevGroups) => {
+      const newGroups = [...prevGroups];
+      newGroups[sourceGroupIndex] = { ...sourceGroup };
+      newGroups[destinationGroupIndex] = { ...destinationGroup };
+      return newGroups;
+    });
+
+    updateCategory(
+      {
+        data: {
+          categoryGroupId: destinationGroup.id,
+          name: draggedItem.name,
+          icon: draggedItem.icon,
+          color: draggedItem.color,
+        },
+        pathParams: {
+          categoryId: draggedItem.id,
+        },
+      },
       {
         onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: ["default-settings"] });
-          setDeletingCategoryId(null); // Reset deleting state
+          setLoadingCategoryId(null);
         },
         onError: () => {
-          setDeletingCategoryId(null); // Reset deleting state in case of error
+          setCategoryGroups(previousStateRef.current);
+          setLoadingCategoryId(null);
         },
       },
     );
   };
 
-  return (
-    <>
-      <Card className="w-full overflow-auto">
-        <div className="flex flex-col p-6 pb-4 md:flex-row md:items-center md:justify-between">
-          <CardHeader className="p-0">
-            <CardTitle>Category Settings</CardTitle>
-            <CardDescription>Add or update your categories</CardDescription>
-          </CardHeader>
-          <div className="mt-4 md:mt-0">
-            <Button onClick={handleAddNewCategory} className="w-full md:w-auto">
-              <Plus className="mr-2 h-4 w-4" /> Add Category
-            </Button>
-          </div>
-        </div>
-        <CardContent className="px-6 pb-6">
-          <DataTable
-            columns={columns(
-              handleCategorySelect,
-              handleDeleteCategory,
-              deletingCategoryId,
-            )}
-            data={data?.categories ?? []}
-            isLoading={isLoading}
-            emptyDisplay={
-              <div className="flex flex-col items-center py-10">
-                <FilePlus className="mb-4 h-12 w-12" />
-                <Label>No categories found.</Label>
-                <Label>Click on the plus button to add a new category.</Label>
-              </div>
-            }
-            state={{
-              totalCount: data?.totalItems ?? 0,
-              pagination,
-              sortBy: sorting,
-            }}
-            onPaginationChange={setPagination}
-            onSortingChange={setSorting}
-          />
-        </CardContent>
-      </Card>
+  if (isLoading) return <Loader2 className="mx-auto my-3 animate-spin" />;
 
-      {/* Dialog for Category Form */}
-      <CustomModal open={openDialog} onOpenChange={setOpenDialog}>
-        <CustomModalContent>
-          <CustomModalHeader>
-            <CustomModalTitle>
-              {selectedCategory ? "Edit Category" : "Create New Category"}
-            </CustomModalTitle>
-            <CustomModalDescription>
-              {selectedCategory
-                ? "Update your category details below."
-                : "Add a new category to your list."}
-            </CustomModalDescription>
-          </CustomModalHeader>
-          <CustomModalBody className="space-y-4 pb-4 text-sm sm:text-left">
-            <CategorySettingsForm
-              selectedCategory={selectedCategory}
-              onFormReset={handleDialogClose}
+  return (
+    <DndContainer onDragEnd={onDragEnd}>
+      {categoryGroups.map((categoryGroup) => (
+        <CategoryGroupContainer
+          droppableId={categoryGroup.id}
+          key={categoryGroup.id}
+          categoryGroup={categoryGroup}
+          type="CATEGORY_GROUP"
+          direction="vertical"
+          isEditing={editingCategoryGroupId === categoryGroup.id}
+          onEditClick={() => handleEditCategoryGroupClick(categoryGroup.id)}
+          onFormReset={handleCategoryGroupFormReset}
+        >
+          {categoryGroup.categories.map((category, index) => (
+            <CategoryItem
+              key={category.id}
+              draggableId={category.id}
+              index={index}
+              category={category}
+              categoryGroups={categoryGroups}
+              isLoading={isUpdating && loadingCategoryId === category.id}
+              onFormReset={handleUpdateCategoryFormReset}
             />
-          </CustomModalBody>
-        </CustomModalContent>
-      </CustomModal>
-    </>
+          ))}
+        </CategoryGroupContainer>
+      ))}
+    </DndContainer>
   );
 }

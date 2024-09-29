@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/server/db";
-import { categorySchema } from "@/lib/schema/settings";
+import { categorySchema, deleteCategorySchema } from "@/lib/schema/settings";
 import {
   CustomNextRequest,
   HandlerContext,
@@ -27,11 +27,18 @@ const getCategoryHandler: CustomHandler = async (
     },
   });
 
+  const expenseCount = await prisma.expense.count({
+    where: {
+      categoryId: params.categoryId,
+      userId: user!.id,
+    },
+  });
+
   if (!category) {
     return NextResponse.json({ error: "Category not found" }, { status: 404 });
   }
 
-  return NextResponse.json({ category }, { status: 200 });
+  return NextResponse.json({ category, expenseCount }, { status: 200 });
 };
 
 const updateCategoryHandler: CustomHandler = async (
@@ -47,7 +54,7 @@ const updateCategoryHandler: CustomHandler = async (
   const { user } = req;
 
   const body = await req.json();
-  const { name, icon, color } = categorySchema.parse(body);
+  const { name, icon, color, categoryGroupId } = categorySchema.parse(body);
 
   const category = await prisma.category.update({
     where: {
@@ -56,6 +63,7 @@ const updateCategoryHandler: CustomHandler = async (
     },
     data: {
       name,
+      categoryGroupId,
       icon,
       color,
     },
@@ -78,6 +86,21 @@ const deleteCategoryHandler: CustomHandler = async (
   }
 
   const { user } = req;
+
+  const body = await req.json();
+  const { categoryId } = deleteCategorySchema.parse(body);
+
+  if (categoryId) {
+    await prisma.expense.updateMany({
+      where: {
+        categoryId: params.categoryId,
+        userId: user!.id,
+      },
+      data: {
+        categoryId: categoryId,
+      },
+    });
+  }
 
   await prisma.category.delete({
     where: {

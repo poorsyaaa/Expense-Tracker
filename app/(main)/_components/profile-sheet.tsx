@@ -13,7 +13,7 @@ import { Separator } from "@/components/ui/separator";
 import {
   useResetPassword,
   useUpdateProfile,
-} from "@/api/mutations/profile-services";
+} from "@/api/mutations/profile-hook";
 import { PasswordForm } from "./forms/reset-password-form";
 
 interface ProfileSheetProps {

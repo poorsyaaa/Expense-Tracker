@@ -1,6 +1,6 @@
 "use client";
 
-import { useGetDefaultSettings } from "@/api/queries/settings-hook";
+import { useGetDefaultSettings } from "@/api/queries/settings/default-hook";
 import {
   DefaultSettings,
   DefaultSettingsResponse,

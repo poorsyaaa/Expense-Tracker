@@ -248,25 +248,29 @@ fi
 
 # Ask if the user wants to seed the database
 if prompt_yes_no "Do you want to seed the Prisma database now?"; then
-  # Prompt for number of categories, tags, expenses
-  read -rp "Enter number of categories (default 5): " input_categories
-  categories=${input_categories:-5}
+  # Prompt for number of category groups, categories, tags, and expenses
+  read -rp "Enter number of category groups to create (default 3): " input_category_groups
+  category_groups=${input_category_groups:-3}
 
-  read -rp "Enter number of tags (default 5): " input_tags
+  read -rp "Enter number of categories to create (default 5): " input_categories
+  categories=${input_categories:-5}
+  info "Note: Categories will be randomly assigned to the created category groups."
+
+  read -rp "Enter number of tags to create (default 5): " input_tags
   tags=${input_tags:-5}
 
-  read -rp "Enter number of expenses (default 10): " input_expenses
+  read -rp "Enter number of expenses to create (default 10): " input_expenses
   expenses=${input_expenses:-10}
 
   # Ask if the user wants to reset the database
-  if prompt_yes_no "Do you want to reset the database before seeding?"; then
+  if prompt_yes_no "Do you want to reset the database before seeding? This will delete all existing data!"; then
     reset=true
   else
     reset=false
   fi
 
   # Construct seed command with arguments
-  seed_command="npx prisma db seed -- --categories=${categories} --tags=${tags} --expenses=${expenses}"
+  seed_command="npx prisma db seed -- --categoryGroups=${category_groups} --categories=${categories} --tags=${tags} --expenses=${expenses}"
   if [ "$reset" = true ]; then
     seed_command+=" --reset"
   fi
@@ -281,5 +285,6 @@ if prompt_yes_no "Do you want to seed the Prisma database now?"; then
 else
   info "Skipping Prisma DB seeding."
 fi
+
 
 success "Setup completed successfully!"

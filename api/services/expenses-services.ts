@@ -12,7 +12,7 @@ export const getExpenses = async (
 ) => {
   const { endpoint, queryParams, signal } = options;
 
-  const response = await axiosInstance.get(endpoint, {
+  const response = await axiosInstance.get(endpoint ?? "/expenses", {
     params: queryParams,
     signal,
   });
@@ -25,7 +25,7 @@ export const createExpense = async (
 ) => {
   const { endpoint, data, signal } = options;
 
-  const response = await axiosInstance.post(endpoint, data, {
+  const response = await axiosInstance.post(endpoint ?? "/expenses", data, {
     signal,
   });
   return response.data;

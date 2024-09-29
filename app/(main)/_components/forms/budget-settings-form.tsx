@@ -16,7 +16,7 @@ import { Loader2 } from "lucide-react";
 import {
   useCreateMonthlyBudget,
   useUpdateMonthlyBudget,
-} from "@/api/mutations/settings-hook";
+} from "@/api/mutations/settings/budget-hook";
 import {
   SelectContent,
   SelectTrigger,

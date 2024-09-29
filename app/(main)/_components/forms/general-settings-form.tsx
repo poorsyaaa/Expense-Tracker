@@ -13,7 +13,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Loader2 } from "lucide-react";
-import { useCreateOrUpdateSettings } from "@/api/mutations/settings-hook";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   Select,
@@ -21,8 +20,8 @@ import {
   SelectValue,
   SelectContent,
   SelectItem,
-} from "@/components/ui/select"; // Import ShadCN Select
-
+} from "@/components/ui/select";
+import { useCreateOrUpdateSettings } from "@/api/mutations/settings/default-hook";
 import { Separator } from "@/components/ui/separator";
 import {
   currencies,
