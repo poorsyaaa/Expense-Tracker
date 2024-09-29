@@ -5,6 +5,7 @@ import {
   UpdateExpenseSchema,
 } from "@/lib/schema/expenses";
 import { DefaultOptions } from "../types";
+import { ExpenseResponse } from "../types/expense";
 
 // Get expenses using the dynamic endpoint from options
 export const getExpenses = async (
@@ -12,10 +13,13 @@ export const getExpenses = async (
 ) => {
   const { endpoint, queryParams, signal } = options;
 
-  const response = await axiosInstance.get(endpoint ?? "/expenses", {
-    params: queryParams,
-    signal,
-  });
+  const response = await axiosInstance.get<ExpenseResponse>(
+    endpoint ?? "/expenses",
+    {
+      params: queryParams,
+      signal,
+    },
+  );
   return response.data;
 };
 

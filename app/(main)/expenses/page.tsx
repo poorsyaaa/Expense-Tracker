@@ -2,7 +2,6 @@
 import React, { useMemo, useState } from "react";
 import DashboardCard from "../_components/dashboard/card/dashboard-card";
 import { useGetMonthlyDashboardData } from "@/api/queries/dashboard-hook";
-import { DollarSign } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import { ChevronLeft, ChevronRight, PhilippinePeso } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -109,10 +108,13 @@ const ExpensesPage = () => {
             </TableHeader>
             <TableBody className="text-left">
               {expenses &&
-                expenses.expenses.map((expense: any) => (
+                expenses.expenses.map((expense) => (
                   <TableRow key={expense.id}>
                     <TableCell>
-                      <div className="font-medium">{expense.description}</div>
+                      <div className="font-medium">
+                        <span>{expense.category.icon}</span>
+                        {expense.description}
+                      </div>
                       <div className="hidden text-sm text-muted-foreground md:inline">
                         {expense.category.name}
                       </div>
