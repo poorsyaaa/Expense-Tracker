@@ -117,15 +117,33 @@ async function createCategoryGroups(
   userId: string,
   count: number = 3,
 ): Promise<void> {
-  for (let i = 0; i < count; i++) {
-    await tx.categoryGroup.create({
-      data: {
-        userId,
-        name: faker.commerce.department(),
-      },
+  const createdGroupNames = new Set<string>();
+  const categoryGroupsData: Prisma.CategoryGroupCreateManyInput[] = [];
+
+  while (categoryGroupsData.length < count) {
+    let groupName = faker.commerce.department();
+
+    // Ensure the group name is unique
+    while (createdGroupNames.has(groupName)) {
+      groupName = faker.commerce.department();
+    }
+
+    categoryGroupsData.push({
+      userId,
+      name: groupName,
     });
+
+    createdGroupNames.add(groupName);
   }
-  console.log(`[INFO] ${count} Category Groups created for User ID: ${userId}`);
+
+  await tx.categoryGroup.createMany({
+    data: categoryGroupsData,
+    skipDuplicates: true,
+  });
+
+  console.log(
+    `[INFO] Successfully created ${categoryGroupsData.length} unique category groups for User ID: ${userId}.`,
+  );
 }
 
 // Function to create multiple categories for a given user and category group

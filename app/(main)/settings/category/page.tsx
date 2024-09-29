@@ -58,7 +58,7 @@ export default function Page() {
     setEditingCategoryGroupId(null);
   };
 
-  const handleUpdateCategoryFormReset = (
+  const handleFormReset = (
     invalidate: boolean,
     updatedCategory?: Category,
     deletedCategoryId?: string,
@@ -88,9 +88,12 @@ export default function Page() {
 
         if (
           deletedCategoryId &&
-          categories.some((cat) => cat.id === deletedCategoryId)
+          updatedCategory &&
+          categories.some((cat) => cat.id === updatedCategory.id)
         ) {
-          categories = categories.filter((cat) => cat.id !== deletedCategoryId);
+          categories = categories.filter(
+            (cat) => cat.id !== updatedCategory.id,
+          );
           categoryDeleted = true;
         }
 
@@ -189,7 +192,7 @@ export default function Page() {
               category={category}
               categoryGroups={categoryGroups}
               isLoading={isUpdating && loadingCategoryId === category.id}
-              onFormReset={handleUpdateCategoryFormReset}
+              onFormReset={handleFormReset}
             />
           ))}
         </CategoryGroupContainer>
