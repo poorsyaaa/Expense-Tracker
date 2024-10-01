@@ -62,7 +62,7 @@ const CategoryGroupContainer: React.FC<CategoryGroupContainerProps> = ({
                   btnClassName="justify-end"
                 />
               ) : (
-                <div className="flex items-center">
+                <div className="flex justify-between">
                   <CardTitle>{categoryGroup.name}</CardTitle>
                   <Button
                     variant="ghost"
