@@ -38,12 +38,14 @@ import {
 
 interface CategorySettingsFormProps {
   selectedCategory?: Category | null;
+  selectedCategoryGroup?: Omit<CategoryGroup, "categories"> | null;
   categoryGroups?: Omit<CategoryGroup, "categories">[];
   onFormReset: (invalidate: boolean, updatedCategory?: Category) => void;
 }
 
 const CategorySettingsForm: React.FC<CategorySettingsFormProps> = ({
   selectedCategory,
+  selectedCategoryGroup,
   categoryGroups,
   onFormReset,
 }) => {
@@ -64,7 +66,8 @@ const CategorySettingsForm: React.FC<CategorySettingsFormProps> = ({
       name: selectedCategory?.name ?? "",
       icon: selectedCategory?.icon ?? "💰",
       color: selectedCategory?.color ?? "#09203f",
-      categoryGroupId: selectedCategory?.categoryGroupId ?? "",
+      categoryGroupId:
+        selectedCategory?.categoryGroupId ?? selectedCategoryGroup?.id ?? "",
     },
   });
 
@@ -210,10 +213,10 @@ const CategorySettingsForm: React.FC<CategorySettingsFormProps> = ({
           )}
         />
         <Separator className="my-4" />
-        <div className="mt-4">
+        <div className="flex justify-end">
           <Button
             type="submit"
-            className="w-full"
+            className="w-full sm:w-auto"
             disabled={isCreating || isUpdating}
           >
             {isCreating || isUpdating ? (

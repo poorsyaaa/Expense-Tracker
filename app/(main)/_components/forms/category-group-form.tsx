@@ -13,6 +13,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
 import {
   categoryGroupSchema,
   CategoryGroupSchema,
@@ -109,7 +110,8 @@ const CategoryGroupForm: React.FC<CategoryGroupFormProps> = ({
             </FormItem>
           )}
         />
-        <div className={cn("flex items-center space-x-2", btnClassName)}>
+        <Separator className="my-4" />
+        <div className={cn("flex justify-end", btnClassName)}>
           {selectedCategoryGroup && (
             <Button
               onClick={() => onFormReset(false)}
