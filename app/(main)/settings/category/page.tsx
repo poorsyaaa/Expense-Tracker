@@ -219,8 +219,9 @@ export default function Page() {
           <DndContainer onDragEnd={onDragEnd}>
             {categoryGroups.map((categoryGroup) => (
               <CategoryGroupContainer
-                droppableId={categoryGroup.id}
                 key={categoryGroup.id}
+                droppableId={categoryGroup.id}
+                groupKey={categoryGroup.id}
                 categoryGroup={categoryGroup}
                 categoryGroups={categoryGroups}
                 type="CATEGORY_GROUP"

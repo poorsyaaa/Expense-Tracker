@@ -26,7 +26,7 @@ interface CategoryGroupContainerProps {
   droppableId: string;
   direction: Direction;
   type: TypeId;
-  key: string;
+  groupKey: string;
   categoryGroup: Omit<CategoryGroup, "categories">;
   categoryGroups: CategoryGroup[];
   isEditing?: boolean;
@@ -48,7 +48,7 @@ const CategoryGroupContainer: React.FC<CategoryGroupContainerProps> = ({
   droppableId,
   direction,
   type,
-  key,
+  groupKey,
   isEditing,
   categoryGroup,
   categoryGroups,
@@ -75,7 +75,7 @@ const CategoryGroupContainer: React.FC<CategoryGroupContainerProps> = ({
     <>
       <Droppable
         droppableId={droppableId}
-        key={key}
+        key={groupKey}
         direction={direction ?? "vertical"}
         type={type ?? "DEFAULT"}
       >

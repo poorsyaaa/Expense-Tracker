@@ -22,7 +22,7 @@ import { DeleteCategorySchema } from "@/lib/schema/settings";
 interface CategoryItemProps {
   draggableId: string;
   index: number;
-  key: string;
+  categoryKey: string;
   category: Category;
   categoryGroups: Omit<CategoryGroup, "categories">[] | CategoryGroup[];
   isLoading?: boolean;
@@ -36,7 +36,7 @@ interface CategoryItemProps {
 const CategoryItem: React.FC<CategoryItemProps> = ({
   draggableId,
   index,
-  key,
+  categoryKey,
   category,
   categoryGroups,
   isLoading = false,
@@ -88,7 +88,7 @@ const CategoryItem: React.FC<CategoryItemProps> = ({
 
   return (
     <>
-      <Draggable draggableId={draggableId} index={index} key={key}>
+      <Draggable draggableId={draggableId} index={index} key={categoryKey}>
         {(provided, snapshot) => (
           <div
             ref={provided.innerRef}
@@ -105,7 +105,7 @@ const CategoryItem: React.FC<CategoryItemProps> = ({
             <div className="flex flex-grow items-center">
               <span
                 className="mr-2 h-[60%] w-1 rounded-full"
-                style={{ backgroundColor: category.color }}
+                style={{ background: category.color }}
               />
               <Label className="mr-3">{category.icon}</Label>
               <Label>{category.name}</Label>
