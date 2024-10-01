@@ -9,8 +9,10 @@ import { DropResult } from "@hello-pangea/dnd";
 import DndContainer from "../../_components/dnd/dnd-container";
 import CategoryGroupContainer from "../../_components/dnd/category-group-container";
 import CategoryItem from "../../_components/dnd/category-item";
-import { Loader2 } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { CardHeader, CardTitle, CardContent, Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 export default function Page() {
   const queryClient = useQueryClient();
@@ -116,6 +118,8 @@ export default function Page() {
     const { source, destination } = result;
     if (!destination) return;
 
+    if (source.droppableId === destination.droppableId) return;
+
     previousStateRef.current = categoryGroups.map((group) => ({
       ...group,
       categories: [...group.categories],
@@ -172,31 +176,41 @@ export default function Page() {
   if (isLoading) return <Loader2 className="mx-auto my-3 animate-spin" />;
 
   return (
-    <DndContainer onDragEnd={onDragEnd}>
-      {categoryGroups.map((categoryGroup) => (
-        <CategoryGroupContainer
-          droppableId={categoryGroup.id}
-          key={categoryGroup.id}
-          categoryGroup={categoryGroup}
-          type="CATEGORY_GROUP"
-          direction="vertical"
-          isEditing={editingCategoryGroupId === categoryGroup.id}
-          onEditClick={() => handleEditCategoryGroupClick(categoryGroup.id)}
-          onFormReset={handleCategoryGroupFormReset}
-        >
-          {categoryGroup.categories.map((category, index) => (
-            <CategoryItem
-              key={category.id}
-              draggableId={category.id}
-              index={index}
-              category={category}
-              categoryGroups={categoryGroups}
-              isLoading={isUpdating && loadingCategoryId === category.id}
-              onFormReset={handleFormReset}
-            />
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle>Categories</CardTitle>
+        <Button variant="ghost" className="w-full sm:w-auto">
+          <Plus className="mr-2 h-4 w-4" /> Add Category Group
+        </Button>
+      </CardHeader>
+      <CardContent className="px-6 pb-6">
+        <DndContainer onDragEnd={onDragEnd}>
+          {categoryGroups.map((categoryGroup) => (
+            <CategoryGroupContainer
+              droppableId={categoryGroup.id}
+              key={categoryGroup.id}
+              categoryGroup={categoryGroup}
+              type="CATEGORY_GROUP"
+              direction="vertical"
+              isEditing={editingCategoryGroupId === categoryGroup.id}
+              onEditClick={() => handleEditCategoryGroupClick(categoryGroup.id)}
+              onFormReset={handleCategoryGroupFormReset}
+            >
+              {categoryGroup.categories.map((category, index) => (
+                <CategoryItem
+                  key={category.id}
+                  draggableId={category.id}
+                  index={index}
+                  category={category}
+                  categoryGroups={categoryGroups}
+                  isLoading={isUpdating && loadingCategoryId === category.id}
+                  onFormReset={handleFormReset}
+                />
+              ))}
+            </CategoryGroupContainer>
           ))}
-        </CategoryGroupContainer>
-      ))}
-    </DndContainer>
+        </DndContainer>
+      </CardContent>
+    </Card>
   );
 }

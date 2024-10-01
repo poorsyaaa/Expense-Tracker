@@ -95,10 +95,10 @@ const CategoryItem: React.FC<CategoryItemProps> = ({
             {...provided.draggableProps}
             {...provided.dragHandleProps}
             className={cn(
-              "mb-2 flex items-stretch justify-between rounded border p-2 transition-colors duration-200 hover:bg-secondary",
+              "mb-2 flex items-stretch justify-between rounded border bg-[#ffffff] p-2 transition-colors duration-200 dark:bg-[#1c1917]",
               {
                 "bg-secondary": isLoading,
-                "bg-slate-50": snapshot.isDragging,
+                "border-primary": snapshot.isDragging,
               },
             )}
           >

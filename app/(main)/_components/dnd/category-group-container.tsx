@@ -9,7 +9,7 @@ import {
 } from "@hello-pangea/dnd";
 import CategoryGroupForm from "../forms/category-group-form";
 import { Button } from "@/components/ui/button";
-import { Edit3 } from "lucide-react";
+import { Edit3, Plus } from "lucide-react";
 import { Label } from "@/components/ui/label";
 
 interface CategoryGroupContainerProps {
@@ -48,7 +48,7 @@ const CategoryGroupContainer: React.FC<CategoryGroupContainerProps> = ({
     >
       {(provided: DroppableProvided) => (
         <Card
-          className="mb-4"
+          className="mb-4 rounded-none bg-muted"
           ref={provided.innerRef}
           {...provided.droppableProps}
         >
@@ -67,8 +67,8 @@ const CategoryGroupContainer: React.FC<CategoryGroupContainerProps> = ({
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="mr-2"
-                    onClick={onEditClick} // Call parent handler to enter edit mode
+                    className="mr-3"
+                    onClick={onEditClick}
                   >
                     <Edit3 className="mr-2 h-4 w-4" />
                     <Label>Edit</Label>
@@ -81,6 +81,12 @@ const CategoryGroupContainer: React.FC<CategoryGroupContainerProps> = ({
           <CardContent>
             {children}
             {provided.placeholder}
+            <Button
+              variant="ghost"
+              className="mt-2 w-full hover:bg-[#ffffff] hover:dark:bg-[#1c1917] sm:w-auto"
+            >
+              <Plus className="mr-2 h-4 w-4" /> Add Category
+            </Button>
           </CardContent>
         </Card>
       )}
