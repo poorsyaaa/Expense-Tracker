@@ -12,6 +12,10 @@ export const navLinks = [
     href: "/reports",
   },
   {
+    name: "Docs",
+    href: "/docs",
+  },
+  {
     name: "Settings",
     href: "/settings",
   },
