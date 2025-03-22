@@ -1,12 +1,12 @@
 # Expense Tracker
 
-![Expense Tracker Banner](https://placeholder-for-your-banner-image.jpg)
+![Expense Tracker Banner](https://github.com/poorsyaaa/Expense-Tracker/blob/main/screenshot/dashboard.png)
 
 A comprehensive, modern expense tracking application built with Next.js and TypeScript. This app helps you manage personal finances, track expenses, and generate detailed reports.
 
 **Version:** 1.2.0
 
-[Video Demo](#) <!-- Add your video link here later -->
+[Video Demo](https://1drv.ms/v/c/98150728dfebfa2e/EfCUSEA8pUpJguZNJ1J3qD0BhNlcHLPsC0wImVSHLV-zCA?e=1tEN0N) <!-- Add your video link here later -->
 
 ## 🌟 Features
 
@@ -20,9 +20,12 @@ A comprehensive, modern expense tracking application built with Next.js and Type
 
 ## 📸 Screenshots
 
-![Dashboard](https://placeholder-for-dashboard-screenshot.jpg)
-![Expenses Page](https://placeholder-for-expenses-screenshot.jpg)
-![Reports Page](https://placeholder-for-reports-screenshot.jpg)
+![Dashboard](https://github.com/poorsyaaa/Expense-Tracker/blob/main/screenshot/dashboard.png)
+![Expenses Page](https://github.com/poorsyaaa/Expense-Tracker/blob/main/screenshot/expense.png)
+![Reports Page](https://github.com/poorsyaaa/Expense-Tracker/blob/main/screenshot/reports.png)
+![Settings](https://github.com/poorsyaaa/Expense-Tracker/blob/main/screenshot/settings.png)
+![Documentation](https://github.com/poorsyaaa/Expense-Tracker/blob/main/screenshot/docs.png)
+![Profile](https://github.com/poorsyaaa/Expense-Tracker/blob/main/screenshot/profile.png)
 
 ## 🚀 Getting Started
 
@@ -37,7 +40,7 @@ A comprehensive, modern expense tracking application built with Next.js and Type
 1. **Clone the repository**
 
 ```bash
-git clone https://github.com/your-username/expense-tracker.git
+git clone https://github.com/poorsyaaa/Expense-Tracker.git
 cd expense-tracker
 ```
 
@@ -108,25 +111,6 @@ npm run docker:down
 
 Comprehensive documentation is available within the application. Navigate to the "Docs" section in the app or visit [/docs](http://localhost:3000/docs) when running locally.
 
-## 📊 Changelog
-
-### Version 1.2.0 (Latest)
-
-- Added comprehensive reports page with PDF/CSV export
-- Enhanced date range picker for more flexible filtering options
-
-### Version 1.1.1-beta
-
-- Rebuilt expenses page with improved filtering capabilities
-- Added monthly navigation with visual expense tracking
-
-### Version 1.1.0-beta
-
-- Introduced category groups with drag-and-drop functionality
-- Added emoji picker for category icons
-
-[View full changelog](http://localhost:3000/docs/change-log)
-
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
@@ -136,16 +120,6 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 3. Commit your changes (`git commit -m 'Add some amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
-
-## 📝 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 📧 Contact
-
-Your Name - [@your_twitter](https://twitter.com/your_twitter) - email@example.com
-
-Project Link: [https://github.com/your-username/expense-tracker](https://github.com/your-username/expense-tracker)
 
 ---
 
