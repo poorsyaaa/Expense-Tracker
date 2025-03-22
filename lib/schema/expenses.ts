@@ -2,11 +2,11 @@ import { z } from "zod";
 
 export const expenseSchema = z.object({
   description: z.string().optional(),
-  amount: z.number().positive(),
-  categoryId: z.string(),
+  amount: z.number().positive("Amount must be greater than 0"),
+  categoryId: z.string().min(1, "Category is required"),
   startDate: z.string(),
   dueDate: z.string().optional(),
-  isPaid: z.boolean().optional(),
+  isPaid: z.boolean().default(true),
   type: z.enum(["ONE_TIME", "RECURRING", "TRANSFER"]),
   paymentMethod: z.enum([
     "CREDIT_CARD",
@@ -21,28 +21,7 @@ export const expenseSchema = z.object({
   expenseNote: z.string().optional(),
 });
 
-export const updateExpenseSchema = z.object({
-  description: z.string().optional(),
-  amount: z.number().positive().optional(),
-  categoryId: z.string().optional(),
-  startDate: z.string().optional(),
-  dueDate: z.string().optional(),
-  isPaid: z.boolean().optional(),
-  type: z.enum(["ONE_TIME", "RECURRING", "TRANSFER"]).optional(),
-  paymentMethod: z
-    .enum([
-      "CREDIT_CARD",
-      "DEBIT_CARD",
-      "CASH",
-      "BANK_TRANSFER",
-      "DIGITAL_BANK",
-      "SAVINGS",
-      "OTHER",
-    ])
-    .optional(),
-  tags: z.array(z.string()).optional(),
-  expenseNote: z.string().optional(),
-});
+export const updateExpenseSchema = expenseSchema.partial();
 
 export const queryParamsSchema = z.object({
   month: z.number().int().min(1).max(12),

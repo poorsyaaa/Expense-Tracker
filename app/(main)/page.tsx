@@ -20,7 +20,7 @@ import {
   formatDate,
   formatPreset,
 } from "@/lib/utils";
-import { DatePickerWithPresets } from "./_components/date-picker";
+import { DatePickerWithPresets } from "./_components/date-picker-range";
 import { DashboardParamsSchema } from "@/lib/schema/dashboard";
 import { Separator } from "@/components/ui/separator";
 
